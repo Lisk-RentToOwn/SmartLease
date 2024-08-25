@@ -175,12 +175,12 @@ export function useSetUserRole(
 }
 
 export function useGetUserRole(user: Address) {
-  // console.log(genericContractRequestIdentityProvider.abi)
+  console.log(user)
   return useContractRead({
     ...genericContractRequestIdentityProvider,
     functionName: "getUserRole",
     args: [user],
-    // watch: true,
+    watch: true,
     enabled: !!user,
   });
 }

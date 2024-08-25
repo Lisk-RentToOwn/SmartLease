@@ -41,11 +41,13 @@ export function WalletWatcher() {
       if (cookieRole) {
         // commented out, cause i want the user to remain on any page they are, but the dashboard button takes them where they want to
         // router.push(`/${cookieRole}`);
+        console.log("No data")
         setHasHandled(true);
         return;
       }
 
       const data = userRole;
+      console.log(userRole, "hello")
       if (getRoleSuccess && userRole !== undefined && userRole !== 0) {
         setUserRole(roleEnumToString(data as RoleEnum));
         // router.push(`/${result.role}`);
