@@ -22,7 +22,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { setUserRole } from "@/lib/cookies";
+import { clearUserRole, setUserRole } from "@/lib/cookies";
 import { LucideWallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
@@ -156,7 +156,7 @@ export const AddressInfoDropdown = ({
                         //@ts-ignore
                         onClick={() => {
                             disconnect(); 
-                            setUserRole(undefined)
+                            clearUserRole()
                             router.push(Routes.HOME)
                         }}
                         >
