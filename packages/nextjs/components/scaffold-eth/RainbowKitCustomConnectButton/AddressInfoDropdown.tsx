@@ -66,7 +66,7 @@ export const AddressInfoDropdown = ({
         <DropdownMenu>
             <DropdownMenuTrigger>
                 <Button tabIndex={0} className="">
-                    <div className="bg-primary flex items-center">
+                    <div className="bg-secondary flex items-center">
                         <BlockieAvatar address={checkSumAddress} size={30} ensImage={ensAvatar} />
                     </div>
                     <span className="ml-2 mr-1">
@@ -141,9 +141,6 @@ export const AddressInfoDropdown = ({
                             <button
                                 className="btn-sm !rounded-xl flex gap-3 py-3"
                                 type="button"
-                                onClick={() => {
-                                setSelectingNetwork(true);
-                                }}
                             >
                                 <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Switch Network</span>
                             </button>

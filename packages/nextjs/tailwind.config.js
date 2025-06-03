@@ -80,7 +80,14 @@ module.exports = {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  		},
+		screens: {
+			small: "420px",
+			ipad: "700px",
+			mini: "900px",
+			desktop: "1024px",
+			large: "1280px",
+		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

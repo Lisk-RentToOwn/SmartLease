@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { ReactNode, useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
@@ -13,6 +13,9 @@ import {
 } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { cn } from "~~/lib/utils";
+import DashboardTabLayout from "./shared/dashboard-tab-layout";
+import { LANDLORDNAV, TENANTNAV } from "~~/constants/dashboard-nav";
+import { TenantRoutes, Landlordoutes } from "~~/constants/user-type-routes";
 
 type HeaderMenuLink = {
   label: string;
@@ -60,6 +63,7 @@ export const HeaderMenuLinks = () => {
   );
 };
 
+
 /**
  * Site header
  */
@@ -70,41 +74,70 @@ export const Header = () => {
     burgerMenuRef,
     useCallback(() => setIsDrawerOpen(false), []),
   );
+  const path = usePathname()
 
-  return (
-    <header className="sticky lg:static top-0 navbar min-h-0  py-5 flex justify-between z-20 px-0 sm:px-2 border-b border-gray-300">
-      <div className=" flex items-center space-x-3">
-        <div className="lg:hidden dropdown" ref={burgerMenuRef}>
-          <label
-            tabIndex={0}
-            className={`ml-1 bg-secondary ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
-            onClick={() => {
-              setIsDrawerOpen(prevIsOpenState => !prevIsOpenState);
-            }}
-          >
-            <Bars3Icon className="h-1/2" />
-          </label>
-          {isDrawerOpen && (
-            <ul
+
+  const GeneralHeader = () => {
+    return (
+      <>
+         <div className=" flex items-center space-x-3 py-5">
+          <div className="lg:hidden dropdown" ref={burgerMenuRef}>
+            <label
               tabIndex={0}
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+              className={`ml-1 bg-secondary ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
               onClick={() => {
-                setIsDrawerOpen(false);
+                setIsDrawerOpen(prevIsOpenState => !prevIsOpenState);
               }}
             >
-              <HeaderMenuLinks />
-            </ul>
-          )}
+              <Bars3Icon className="h-1/2" />
+            </label>
+            {isDrawerOpen && (
+              <ul
+                tabIndex={0}
+                className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+                onClick={() => {
+                  setIsDrawerOpen(false);
+                }}
+              >
+                <HeaderMenuLinks />
+              </ul>
+            )}
+          </div>
+  
+          <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
+            <HeaderMenuLinks />
+          </ul>
         </div>
+      </>
+    )
+  }
 
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
-        </ul>
-      </div>
+  const getHeaderType = (): ReactNode => {
+    //@ts-ignore
+    if (TenantRoutes.includes(path)) 
+        return (
+          <DashboardTabLayout
+              tabList={TENANTNAV}
+          />);
+          //@ts-ignore
+    if (Landlordoutes.includes(path))
+      return (
+        <DashboardTabLayout
+            tabList={LANDLORDNAV}
+        />);
+    return <GeneralHeader/>
+  };
+  
 
-      <div className="mr-4 flex items-center">
-        <RainbowKitCustomConnectButton />
-        {/* <FaucetButton /> */}
+  return (
+    <header className="sticky lg:static top-0 navbar min-h-0  z-20 px-0 sm:px-2 border-b border-gray-300">
+      <div className="flex items-end justify-between app-container">
+          {getHeaderType()}
+
+          <div className="mr-4 flex items-center py-5">
+            <RainbowKitCustomConnectButton />
+            {/* <FaucetButton /> */}
+          </div>
       </div>
     </header>
   );
