@@ -1,9 +1,378 @@
-const LandlordCreate = () => {
-    return (
-        <>
-        </>
-    )
-}
+"use client";
+ 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CloudUpload, X } from "lucide-react";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+ 
+import { Button } from "~~/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~~/components/ui/form";
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+  FileUploadTrigger,
+} from "~~/components/ui/file-upload";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+  } from "~~/components/ui/dialog"
+import { toast } from "sonner";
+import { Input } from "~~/components/ui/input";
+import { CurrencySelect, Currency } from "~~/components/ui/currency-select";
+import { useState } from "react";
+import { cn } from "~~/lib/utils";
+import { Switch } from "~~/components/ui/switch";
+ 
+const formSchema = z.object({
+  files: z
+        .array(z.custom<File>())
+        .min(1, "Please select at least one file")
+        .max(1, "Yoou can upload only a single file")
+        .refine((files) => files.every((file) => file.size <= 5 * 1024 * 1024), {
+            message: "File size must be less than 5MB",
+            path: ["files"],
+        }
+    ),
+    propertY_name: z.string({required_error: "Poperty name is required"}),
+    propertY_address: z.string({required_error: "Poperty addres is required"}),
+    city: z.string({required_error: "City is required"}),
+    state: z.string({required_error: "State is required"}),
+    zip_code: z.string().optional(),
+    price: z.number().min(1, { message: "Price is required" }),
+    duration: z.number().min(1, { message: "Price is required" }),
+    currency: z.string().min(1, { message: "Currency is required" }),
+    flexible_payment: z.boolean()
+});
+ 
+type FormValues = z.infer<typeof formSchema>;
+ 
+const LandlordCreate= () => {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      files: [],
+      flexible_payment: false
+    },
+  });
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false)
 
+  const onSubmit = React.useCallback((data: FormValues) => {
+    toast("Submitted values:", {
+      description: (
+        <pre className="mt-2 w-80 rounded-md bg-accent/30 p-4 text-accent-foreground">
+          <code>
+            {JSON.stringify(
+              data.files.map((file) =>
+                file.name.length > 25
+                  ? `${file.name.slice(0, 25)}...`
+                  : file.name,
+              ),
+              null,
+              2,
+            )}
+          </code>
+        </pre>
+      ),
+    });
+  }, []);
+ 
+  return (
+    <main className=" bg-gray-100 pb-16">
+        <div className="content-container bg-white mt-16 py-10 rounded-lg">
+
+            <p className="text-slate-700 font-semibold text-xl mb-5">Create Property</p>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex flex-col gap-y-5">
+                    <FormField
+                        control={form.control}
+                        name="files"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel className="font-medium">Property Image</FormLabel>
+                            <FormControl>
+                                <FileUpload
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                accept="image/*"
+                                maxFiles={2}
+                                maxSize={5 * 1024 * 1024}
+                                onFileReject={(_, message) => {
+                                    form.setError("files", {
+                                    message,
+                                    });
+                                }}
+                                multiple
+                                >
+                                <FileUploadDropzone className="flex-row flex-wrap border-dotted text-center bg-gray-100 py-16">
+                                    <CloudUpload className="size-4" />
+                                    Drag and drop or
+                                    <FileUploadTrigger asChild>
+                                    <Button variant="link" size="sm" className="p-0">
+                                        choose files
+                                    </Button>
+                                    </FileUploadTrigger>
+                                    to upload
+                                </FileUploadDropzone>
+                                <FileUploadList>
+                                    {field.value.map((file, index) => (
+                                    <FileUploadItem key={index} value={file}>
+                                        <FileUploadItemPreview />
+                                        <FileUploadItemMetadata />
+                                        <FileUploadItemDelete asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="size-7"
+                                        >
+                                            <X />
+                                            <span className="sr-only">Delete</span>
+                                        </Button>
+                                        </FileUploadItemDelete>
+                                    </FileUploadItem>
+                                    ))}
+                                </FileUploadList>
+                                </FileUpload>
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <div className="flex items-start gap-x-6">
+                        <div className="w-1/2">
+                            <FormField
+                                control={form.control}
+                                name="propertY_name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Property Name</FormLabel>
+                                    <FormControl className="">
+                                        <Input className="py-6" placeholder="Owl CIty" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className="w-1/2">
+                            <FormField
+                                control={form.control}
+                                name="propertY_address"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Property Address</FormLabel>
+                                    <FormControl className="">
+                                        <Input className="py-6" placeholder="No 21 wall street" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex items-start gap-x-6">
+                        <div className="w-1/3">
+                            <FormField
+                                control={form.control}
+                                name="city"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>City</FormLabel>
+                                    <FormControl className="">
+                                        <Input className="py-6" placeholder="Harlem" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className="w-1/3">
+                            <FormField
+                                control={form.control}
+                                name="state"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>State</FormLabel>
+                                    <FormControl className="">
+                                        <Input className="py-6" placeholder="Kansas" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <div className="w-1/3">
+                            <FormField
+                                control={form.control}
+                                name="zip_code"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Zip code</FormLabel>
+                                    <FormControl className="">
+                                        <Input className="py-6" placeholder="1234" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex items-start gap-x-6">
+                        <div className="w-1/2 space-y-2">
+                            <FormLabel
+                                className={cn(
+                                (form.formState.errors.currency ||
+                                    form.formState.errors.price) &&
+                                    "text-destructive"
+                                )}
+                            >
+                                Property Value
+                            </FormLabel>
+
+                            <div className="flex items-center gap-2">
+                                <FormField
+                                    control={form.control}
+                                    name="currency"
+                                    render={({ field }) => (
+                                        <FormControl>
+                                            <CurrencySelect
+                                                onValueChange={field.onChange}
+                                                onCurrencySelect={(currency)=> {setSelectedCurrency(currency)}}
+                                                placeholder="Currency"
+                                                disabled={false}
+                                                currencies="all"
+                                                variant="small"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                    )}
+                                />
+
+                                <FormField
+                                control={form.control}
+                                name="price"
+                                render={({ field }) => (
+                                    <div className="relative w-full">
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            type="number"
+                                            disabled={!selectedCurrency}
+                                            onChange={(e) =>
+                                                field.onChange(Number(e.target.value))
+                                            }
+                                            className="pr-10 py-6"
+                                        />
+                                    </FormControl>
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">
+                                        {selectedCurrency?.symbol}
+                                    </span>
+                                    </div>
+                                )}
+                                />
+                            </div>
+
+
+                            {(form.formState.errors.currency ||
+                                form.formState.errors.price) && (
+                                <div className="text-[0.8rem] font-medium text-destructive">
+                                {form.formState.errors.currency?.message && (
+                                    <p>{form.formState.errors.currency.message}</p>
+                                )}
+                                {form.formState.errors.price?.message && (
+                                    <p>{form.formState.errors.price.message}</p>
+                                )}
+                                </div>
+                            )}
+                        </div>  
+
+                        <div className="w-1/2">
+                            <FormField
+                                control={form.control}
+                                name="duration"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Duration</FormLabel>
+                                    <FormControl className="">
+                                        <Input className="py-6" placeholder="Owl CIty" {...field} />
+                                    </FormControl>
+                                    <FormDescription>All values are in months</FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="">
+                        <FormField
+                            control={form.control}
+                            name="flexible_payment"
+                            render={({ field }) => (
+                                <FormItem className="">
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                            className="data-[state=checked]:bg-primary"
+                                            id="enable-feature-disabled"
+                                        />
+                                    </FormControl>
+
+                                    <FormLabel htmlFor="enable-feature-disabled" className="pl-3">Accept flexible payment</FormLabel>
+                                    <FormDescription className="block">This allows the user to pay rent in lump sum as well</FormDescription>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <Button onClick={() => {setPreviewOpen(true)}} type="button" className="mt-4 py-6">
+                        Preview
+                    </Button>
+
+
+                    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+                        <DialogTrigger className="hidden">Open</DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                            <DialogTitle>Property Preview</DialogTitle>
+                            <DialogDescription>
+                                This action cannot be undone. This will permanently delete your account
+                                and remove your data from our servers.
+                            </DialogDescription>
+
+                            </DialogHeader>
+                        </DialogContent>
+                    </Dialog>
+                </form>
+            </Form>
+        </div>
+    </main>
+  );
+}
 
 export default LandlordCreate

@@ -10,15 +10,8 @@ import Link from "next/link"
 const LayoutPage = ({ children }: { children: React.ReactNode }) => {
     return (
         <>
-            <main className="app-container mt-10">
-                <div className="flex justify-end items-end">
-                    {/* <Link href={Routes.LANDLORD_CREATE} className="">
-                        <Button className="p-6">
-                            <PlusIcon className=""/>
-                            <p className="font-medium">Create New Property</p>
-                        </Button>
-                    </Link> */}
-                </div>
+            <main className="bg-gray-100">
+                {children}
             </main>
         </>
     )

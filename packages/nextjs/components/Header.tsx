@@ -130,7 +130,7 @@ export const Header = () => {
   
 
   return (
-    <header className="sticky lg:static top-0 navbar min-h-0  z-20 px-0 sm:px-2 border-b border-gray-300">
+    <header className="sticky top-0  z-20 px-0 sm:px-2 border-b border-gray-300 bg-white">
       <div className="flex items-end justify-between app-container">
           {getHeaderType()}
 
