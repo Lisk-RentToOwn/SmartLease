@@ -1,6 +1,7 @@
-const TenantLayout = () => {
+const TenantLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <>
+            {children}
         </>
     )
 }
