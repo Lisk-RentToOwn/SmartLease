@@ -27,8 +27,6 @@ h4 {
   @apply shadow-none;
 }
 
-
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -87,8 +85,6 @@ h4 {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border;
@@ -99,11 +95,69 @@ h4 {
 }
 
 @layer components {
-    .app-container {
-      @apply mx-auto w-full max-w-screen-2xl px-5 ipad:px-12 mini:px-16;
-    }
+  .app-container {
+    @apply mx-auto w-full max-w-screen-2xl px-5 ipad:px-12 mini:px-16;
+  }
 
-    .content-container {
-      @apply mx-auto w-full max-w-screen-3xl px-5 ipad:px-12 mini:px-16;
-    }
+  .content-container {
+    @apply mx-auto w-full max-w-screen-3xl px-5 ipad:px-12 mini:px-16;
+  }
+}
+
+.text-gray {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.text-dark {
+  color: #111827;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.color {
+  color: rgb(132, 50, 220);
+}
+
+.mini-card {
+  text-align: center;
+  padding: 0.4rem 0;
+  border-radius: 5%;
+}
+
+.mini-card-p {
+  color: #111827;
+  font-size: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.mini-card-icon {
+  margin: auto;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  border: 0;
+  padding: 0.5rem;
+}
+
+.notfi-icon {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  border: 0;
+  padding: 0.5rem;
+}
+
+.nofti-ul {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.nofti-p {
+  font-weight: 600;
+}
+
+.nofti-span {
+  font-weight: 400;
 }
