@@ -40,6 +40,9 @@ import { CurrencySelect, Currency } from "~~/components/ui/currency-select";
 import { useState } from "react";
 import { cn } from "~~/lib/utils";
 import { Switch } from "~~/components/ui/switch";
+import { Badge } from "~~/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "~~/components/ui/alert";
+import { InfoIcon } from "lucide-react";
  
 const formSchema = z.object({
   files: z
@@ -359,13 +362,62 @@ const LandlordCreate= () => {
                         <DialogTrigger className="hidden">Open</DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                            <DialogTitle>Property Preview</DialogTitle>
-                            <DialogDescription>
+
+                            <DialogTitle className="">Property Preview</DialogTitle>
+                            {/* <DialogDescription>
                                 This action cannot be undone. This will permanently delete your account
                                 and remove your data from our servers.
-                            </DialogDescription>
+                            </DialogDescription> */}
 
+                            <img
+                                src={"https://shadcnblocks.com/images/block/placeholder-dark-1.svg"}
+                                alt={""}
+                                className="h-56 w-full object-cover object-center pt-2"
+                            />
                             </DialogHeader>
+                            
+                            <div className="flex flex-col gap-2 text-gray-600 text-sm">
+                                <div className="flex justify-between items-center">
+                                    <p className="">Luxury Apartment 42</p>
+                                    <Badge className="p-1 bg-gray-100 rounded-full w-max text-slate-600">Token #100</Badge>
+                                </div>
+
+                                <p className="text-sm">Adreess</p>
+
+                                <div className="flex items-center justify-between mt-2">
+                                    <p className="">Monthly Rent:</p>
+                                    <p className="">Naira</p>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <p className="">Property Value:</p>
+                                    <p className="">Naira</p>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <p className="">Equity ratio:</p>
+                                    <p className="">Naira</p>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <p className="">Estimated ownership transfer period:</p>
+                                    <p className="">Naira</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-3">
+                                <Alert className="border-blue-600/50 text-blue-600 bg-blue-400/20 dark:border-blue-600 [&>svg]:text-blue-600">
+                                    <InfoIcon className="h-4 w-4" />
+                                    <AlertTitle className="pb-2">Important Information</AlertTitle>
+                                    <AlertDescription>
+                                        You will get 100 Tokens, representing full ownership of this property. Equity is calculated based on your set duration, as well monthly payment
+                                    </AlertDescription>
+                                </Alert>
+                            </div>
+
+                            <div className="">
+                                <Button className="py-6 rounded-md font-medium w-full">Create Property</Button>
+                            </div>
                         </DialogContent>
                     </Dialog>
                 </form>
