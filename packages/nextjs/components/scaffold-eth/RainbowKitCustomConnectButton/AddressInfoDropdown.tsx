@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { NetworkOptions } from "./NetworkOptions";
-import CopyToClipboard from "react-copy-to-clipboard";
 import { getAddress } from "viem";
 import { Address, useDisconnect } from "wagmi";
 import {
@@ -40,6 +39,8 @@ type AddressInfoDropdownProps = {
   ensAvatar?: string;
 };
 
+
+
 export const AddressInfoDropdown = ({
   address,
   ensAvatar,
@@ -60,6 +61,14 @@ export const AddressInfoDropdown = ({
   useOutsideClick(dropdownRef, closeDropdown);
   const [open, setOpen] = useState(false)
 
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(checkSumAddress);
+    setAddressCopied(true);
+    setTimeout(() => {
+      setAddressCopied(false);
+    }, 800);
+  };
+
   return (
     <>
 
@@ -79,33 +88,27 @@ export const AddressInfoDropdown = ({
             <DropdownMenuContent>
                 <DropdownMenuItem>
                     <div className={selectingNetwork ? "hidden" : ""}>
-                        {addressCopied ? (
-                        <div className="btn-sm !rounded-xl flex gap-3 py-3">
-                            <CheckCircleIcon
+                    {addressCopied ? (
+                <div className="btn-sm !rounded-xl flex gap-3 py-3">
+                  <CheckCircleIcon
+                    className="text-xl font-normal h-6 w-4 cursor-pointer ml-2 sm:ml-0"
+                    aria-hidden="true"
+                  />
+                  <span className=" whitespace-nowrap">Copy address</span>
+                </div>
+                    ) : (
+                        // Use a button with onClick handler
+                        <button
+                        className="btn-sm !rounded-xl flex gap-3 py-3 w-full text-left"
+                        onClick={handleCopyAddress}
+                        >
+                        <DocumentDuplicateIcon
                             className="text-xl font-normal h-6 w-4 cursor-pointer ml-2 sm:ml-0"
                             aria-hidden="true"
-                            />
-                            <span className=" whitespace-nowrap">Copy address</span>
-                        </div>
-                        ) : (
-                        <CopyToClipboard
-                            text={checkSumAddress}
-                            onCopy={() => {
-                            setAddressCopied(true);
-                            setTimeout(() => {
-                                setAddressCopied(false);
-                            }, 800);
-                            }}
-                        >
-                            <div className="btn-sm !rounded-xl flex gap-3 py-3">
-                            <DocumentDuplicateIcon
-                                className="text-xl font-normal h-6 w-4 cursor-pointer ml-2 sm:ml-0"
-                                aria-hidden="true"
-                            />
-                            <span className=" whitespace-nowrap">Copy address</span>
-                            </div>
-                        </CopyToClipboard>
-                        )}
+                        />
+                        <span className=" whitespace-nowrap">Copy address</span>
+                        </button>
+                    )}
                     </div>
                 </DropdownMenuItem>
 
