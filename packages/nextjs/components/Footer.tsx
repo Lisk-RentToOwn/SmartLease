@@ -9,4 +9,5 @@ export default function Footer() {
       </div>
     </footer>
   );
+  //this the footer of the page
 }
