@@ -114,13 +114,13 @@ export const Header = () => {
 
   const getHeaderType = (): ReactNode => {
     //@ts-ignore
-    if (TenantRoutes.includes(path)) 
+    if (path.startsWith("/tenant"))
         return (
           <DashboardTabLayout
               tabList={TENANTNAV}
           />);
           //@ts-ignore
-    if (Landlordoutes.includes(path))
+    if  (path.startsWith("/landlord"))
       return (
         <DashboardTabLayout
             tabList={LANDLORDNAV}

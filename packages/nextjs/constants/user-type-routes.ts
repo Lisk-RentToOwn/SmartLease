@@ -8,7 +8,7 @@ export const TenantRoutes = [
     Routes.TENANT_PAYMENT,
     Routes.TENANT,
     Routes.TENANT_REWARDS,
-    Routes.TENANT_EQUITY
+    Routes.TENANT_EQUITY,
 ]
 
 export const Landlordoutes = [
