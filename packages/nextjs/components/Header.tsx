@@ -1,21 +1,15 @@
 "use client";
 
-import React, { ReactNode, useCallback, useRef, useState } from "react";
+import { Bars3Icon, BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Logo } from "./Logo";
-import { Bars3Icon, BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
-import {
-  DappConsoleButton,
-  FaucetButton,
-  RainbowKitCustomConnectButton,
-  SuperchainFaucetButton,
-} from "~~/components/scaffold-eth";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
-import { cn } from "~~/lib/utils";
+import React, { ReactNode, useCallback, useRef, useState } from "react";
+import { RainbowKitCustomConnectButton } from "./scaffold-eth";
+import { LANDLORDNAV, TENANTNAV } from "@/constants/dashboard-nav";
+import { useOutsideClick } from "@/hooks/scaffold-eth";
+import { cn } from "@/lib/utils";
 import DashboardTabLayout from "./shared/dashboard-tab-layout";
-import { LANDLORDNAV, TENANTNAV } from "~~/constants/dashboard-nav";
-import { TenantRoutes, Landlordoutes } from "~~/constants/user-type-routes";
+import Navbar from "./Navbar";
 
 type HeaderMenuLink = {
   label: string;
@@ -50,7 +44,9 @@ export const HeaderMenuLinks = () => {
               passHref
               className={cn(
                 "relative flex text-slate-800 items-center justify-between px-4 py-2 text-sm transition-colors duration-200",
-                isActive ? "rounded-full text-white bg-primary/80" : "text-slate-400",
+                isActive
+                  ? "rounded-full text-white bg-primary/80"
+                  : "text-slate-400"
               )}
             >
               {icon}
@@ -63,7 +59,6 @@ export const HeaderMenuLinks = () => {
   );
 };
 
-
 /**
  * Site header
  */
@@ -72,21 +67,22 @@ export const Header = () => {
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
     burgerMenuRef,
-    useCallback(() => setIsDrawerOpen(false), []),
+    useCallback(() => setIsDrawerOpen(false), [])
   );
-  const path = usePathname()
-
+  const path = usePathname();
 
   const GeneralHeader = () => {
     return (
       <>
-         <div className=" flex items-center space-x-3 py-5">
+        {/* <div className=" flex items-center space-x-3 py-5">
           <div className="lg:hidden dropdown" ref={burgerMenuRef}>
             <label
               tabIndex={0}
-              className={`ml-1 bg-secondary ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
+              className={`ml-1 bg-secondary ${
+                isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"
+              }`}
               onClick={() => {
-                setIsDrawerOpen(prevIsOpenState => !prevIsOpenState);
+                setIsDrawerOpen((prevIsOpenState) => !prevIsOpenState);
               }}
             >
               <Bars3Icon className="h-1/2" />
@@ -103,14 +99,15 @@ export const Header = () => {
               </ul>
             )}
           </div>
-  
+
           <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
             <HeaderMenuLinks />
           </ul>
-        </div>
+        </div> */}
+         <div className="text-xl font-bold text-blue-600 py-5">SmartLease</div>
       </>
-    )
-  }
+    );
+  };
 
   const getHeaderType = (): ReactNode => {
     //@ts-ignore
@@ -127,17 +124,33 @@ export const Header = () => {
         />);
     return <GeneralHeader/>
   };
-  
 
   return (
     <header className="sticky top-0  z-20 px-0 sm:px-2 border-b border-gray-300 bg-white">
       <div className="flex items-end justify-between app-container">
-          {getHeaderType()}
+        {getHeaderType()}
 
-          <div className="mr-4 flex items-center py-5">
-            <RainbowKitCustomConnectButton />
-            {/* <FaucetButton /> */}
-          </div>
+        { (!path.startsWith("/landlord") || !path.startsWith("/landlord")) &&
+          <nav className="space-x-6 py-5">
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Home
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Browse
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                How It Works
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Contact
+              </a>
+          </nav>
+        }
+
+        <div className="mr-4 flex items-center py-5">
+          <RainbowKitCustomConnectButton />
+          {/* <FaucetButton /> */}
+        </div>
       </div>
     </header>
   );

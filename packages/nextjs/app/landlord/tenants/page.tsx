@@ -1,4 +1,4 @@
-import TenantTable from "~~/components/landlord/tenants-table"
+import TenantTable from "@/components/landlord/tenants-table"
 
 import {
     Select,
@@ -8,7 +8,7 @@ import {
     SelectLabel,
     SelectTrigger,
     SelectValue,
-  } from "~~/components/ui/select";
+  } from "@/components/ui/select";
 
 const LandlordTenantPage = () => {
     return (

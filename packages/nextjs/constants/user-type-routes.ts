@@ -1,4 +1,4 @@
-import { Routes } from "~~/app/routes";
+import { Routes } from "@/app/routes";
 
 
 // All Routes in this file are private

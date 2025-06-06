@@ -1,10 +1,10 @@
 import { Pencil, SquareArrowOutUpRight } from "lucide-react"
 import Link from "next/link"
-import { cn } from "~~/lib/utils"
+import { cn } from "@/lib/utils"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card"
-import { Routes } from "~~/app/routes"
+import { Routes } from "@/app/routes"
 
 type LandlordPropertyCardProps = {
     name: string,

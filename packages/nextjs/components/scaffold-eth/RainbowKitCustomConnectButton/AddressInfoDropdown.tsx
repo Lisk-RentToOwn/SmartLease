@@ -12,9 +12,9 @@ import {
   DocumentDuplicateIcon,
   QrCodeIcon,
 } from "@heroicons/react/24/outline";
-import { BlockieAvatar, isENS } from "~~/components/scaffold-eth";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
-import { getTargetNetworks } from "~~/utils/scaffold-eth";
+import { BlockieAvatar, isENS } from "@/components/scaffold-eth";
+import { useOutsideClick } from "@/hooks/scaffold-eth";
+import { getTargetNetworks } from "@/utils/scaffold-eth";
 
 import {
   DropdownMenu,
@@ -26,9 +26,9 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "~~/components/ui/dropdown-menu"
-import { Button } from "~~/components/ui/button";
-import { Dialog, DialogContent } from "~~/components/ui/dialog";
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
 
 const allowedNetworks = getTargetNetworks();

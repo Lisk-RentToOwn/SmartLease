@@ -1,10 +1,10 @@
-import { Button } from "~~/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~~/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy } from "lucide-react";
 import { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "~~/lib/utils";
+import { cn } from "@/lib/utils";
 
 export type TabType = {
     name: string,
