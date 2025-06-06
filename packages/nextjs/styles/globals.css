@@ -116,7 +116,7 @@ h4 {
 }
 
 .color {
-  color: rgb(132, 50, 220);
+  color: rgb(244, 109, 6);
 }
 
 .mini-card {
@@ -160,4 +160,20 @@ h4 {
 
 .nofti-span {
   font-weight: 400;
+}
+
+.text-gray-bold {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.info-color-div {
+  display: grid;
+  grid-template-columns: 2fr;
+  /* align-items: center; */
+}
+
+.w-calend {
+  width: 20rem;
 }

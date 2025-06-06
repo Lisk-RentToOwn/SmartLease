@@ -3,8 +3,12 @@
 import { Progress } from "./ui/progress";
 import * as React from "react";
 
-export function ProgressDemo() {
-  const [progress, setProgress] = React.useState(0);
+interface ProgressProps {
+  value?: number;
+}
+
+export function ProgressDemo({ value = 13 }: ProgressProps) {
+  const [progress, setProgress] = React.useState(value);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setProgress(12.5), 500);

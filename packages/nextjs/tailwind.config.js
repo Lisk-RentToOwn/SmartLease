@@ -18,6 +18,9 @@ module.exports = {
         xsmall: "0.75rem",
         small: "0.9rem",
       },
+      maxWidth: {
+        "screen-3xl": "1920px",
+      },
       colors: {
         darkColor: "#111827",
         grayColor: "#6b7280",
