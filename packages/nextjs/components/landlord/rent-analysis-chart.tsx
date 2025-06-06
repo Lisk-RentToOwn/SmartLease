@@ -16,7 +16,7 @@ const chartData = [
   ]
 
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-  import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "~~/components/ui/chart"
+  import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
 const chartConfig = {
     collected: {

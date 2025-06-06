@@ -1,10 +1,10 @@
 import Link from "next/link"
-import LandlordDashboardCard from "~~/components/landlord/propertyy-card"
-import { Button } from "~~/components/ui/button"
+import LandlordDashboardCard from "@/components/landlord/propertyy-card"
+import { Button } from "@/components/ui/button"
 import { Routes } from "../routes"
 import { PlusIcon } from "lucide-react"
-import DashboardpropertyTable from "~~/components/landlord/dashboard-properties-table"
-import { RentAnalysisChart } from "~~/components/landlord/rent-analysis-chart"
+import DashboardpropertyTable from "@/components/landlord/dashboard-properties-table"
+import { RentAnalysisChart } from "@/components/landlord/rent-analysis-chart"
 
 const LandlordPage = () => {
     return (

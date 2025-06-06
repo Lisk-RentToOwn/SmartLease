@@ -1,21 +1,15 @@
 "use client";
 
-import { Logo } from "./Logo";
-import DashboardTabLayout from "./shared/dashboard-tab-layout";
 import { Bars3Icon, BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { ReactNode, useCallback, useRef, useState } from "react";
-import {
-  DappConsoleButton,
-  FaucetButton,
-  RainbowKitCustomConnectButton,
-  SuperchainFaucetButton,
-} from "~~/components/scaffold-eth";
-import { LANDLORDNAV, TENANTNAV } from "~~/constants/dashboard-nav";
-import { TenantRoutes, Landlordoutes } from "~~/constants/user-type-routes";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
-import { cn } from "~~/lib/utils";
+import { RainbowKitCustomConnectButton } from "./scaffold-eth";
+import { LANDLORDNAV, TENANTNAV } from "@/constants/dashboard-nav";
+import { useOutsideClick } from "@/hooks/scaffold-eth";
+import { cn } from "@/lib/utils";
+import DashboardTabLayout from "./shared/dashboard-tab-layout";
+import Navbar from "./Navbar";
 
 type HeaderMenuLink = {
   label: string;
@@ -80,7 +74,7 @@ export const Header = () => {
   const GeneralHeader = () => {
     return (
       <>
-        <div className=" flex items-center space-x-3 py-5">
+        {/* <div className=" flex items-center space-x-3 py-5">
           <div className="lg:hidden dropdown" ref={burgerMenuRef}>
             <label
               tabIndex={0}
@@ -109,25 +103,49 @@ export const Header = () => {
           <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
             <HeaderMenuLinks />
           </ul>
-        </div>
+        </div> */}
+         <div className="text-xl font-bold text-blue-600 py-5">SmartLease</div>
       </>
     );
   };
 
   const getHeaderType = (): ReactNode => {
     //@ts-ignore
-    if (TenantRoutes.includes(path))
-      return <DashboardTabLayout tabList={TENANTNAV} />;
-    //@ts-ignore
-    if (Landlordoutes.includes(path))
-      return <DashboardTabLayout tabList={LANDLORDNAV} />;
-    return <GeneralHeader />;
+    if (path.startsWith("/tenant"))
+        return (
+          <DashboardTabLayout
+              tabList={TENANTNAV}
+          />);
+          //@ts-ignore
+    if  (path.startsWith("/landlord"))
+      return (
+        <DashboardTabLayout
+            tabList={LANDLORDNAV}
+        />);
+    return <GeneralHeader/>
   };
 
   return (
     <header className="sticky top-0  z-20 px-0 sm:px-2 border-b border-gray-300 bg-white">
       <div className="flex items-end justify-between app-container">
         {getHeaderType()}
+
+        { (!path.startsWith("/landlord") || !path.startsWith("/landlord")) &&
+          <nav className="space-x-6 py-5">
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Home
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Browse
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                How It Works
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Contact
+              </a>
+          </nav>
+        }
 
         <div className="mr-4 flex items-center py-5">
           <RainbowKitCustomConnectButton />

@@ -1,9 +1,9 @@
 "use client"
 
 import { PlusIcon } from "lucide-react"
-import DashboardTabLayout from "~~/components/shared/dashboard-tab-layout"
-import { Button } from "~~/components/ui/button"
-import { LANDLORDNAV } from "~~/constants/dashboard-nav"
+import DashboardTabLayout from "@/components/shared/dashboard-tab-layout"
+import { Button } from "@/components/ui/button"
+import { LANDLORDNAV } from "@/constants/dashboard-nav"
 import { Routes } from "../routes"
 import Link from "next/link"
 
