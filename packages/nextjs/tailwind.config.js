@@ -75,6 +75,7 @@ module.exports = {
   			}
   		},
 		fontFamily: {
+			circular: ["Circular Std", "sans-serif"],
 			sans: ['var(--font-inter)', 'sans-serif'],
 		},
   		animation: {

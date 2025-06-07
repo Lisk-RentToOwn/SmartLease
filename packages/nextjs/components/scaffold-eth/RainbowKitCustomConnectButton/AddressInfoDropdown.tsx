@@ -11,7 +11,7 @@ import {
   DocumentDuplicateIcon,
   QrCodeIcon,
 } from "@heroicons/react/24/outline";
-import { BlockieAvatar, isENS } from "@/components/scaffold-eth";
+import { Balance, BlockieAvatar, isENS } from "@/components/scaffold-eth";
 import { useOutsideClick } from "@/hooks/scaffold-eth";
 import { getTargetNetworks } from "@/utils/scaffold-eth";
 
@@ -29,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
+import { LucideWallet } from "lucide-react";
 
 const allowedNetworks = getTargetNetworks();
 
@@ -37,6 +38,9 @@ type AddressInfoDropdownProps = {
   blockExplorerAddressLink: string | undefined;
   displayName: string;
   ensAvatar?: string;
+  networkColor:string,
+  chainName: string,
+  chainImgUrl: string
 };
 
 
@@ -46,6 +50,9 @@ export const AddressInfoDropdown = ({
   ensAvatar,
   displayName,
   blockExplorerAddressLink,
+  chainImgUrl,
+  chainName,
+  networkColor
 }: AddressInfoDropdownProps) => {
   const { disconnect } = useDisconnect();
   const checkSumAddress = getAddress(address);
@@ -74,11 +81,9 @@ export const AddressInfoDropdown = ({
 
         <DropdownMenu>
             <DropdownMenuTrigger>
-                <Button tabIndex={0} className="">
-                    <div className="bg-secondary flex items-center">
-                        <BlockieAvatar address={checkSumAddress} size={30} ensImage={ensAvatar} />
-                    </div>
-                    <span className="ml-2 mr-1">
+                <Button tabIndex={0} className="py-6 rounded-lg">
+                    <LucideWallet size={23} className="text-white"/>
+                    <span className="ml-2 mr-1 text-base">
                         {isENS(displayName) ? displayName : checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4)}
                     </span>
                     <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
@@ -86,6 +91,15 @@ export const AddressInfoDropdown = ({
             </DropdownMenuTrigger>
 
             <DropdownMenuContent>
+                <DropdownMenuItem disabled className="disabled:text-blue-600 text-blue-600">
+                    <div className="flex flex-col items-center w-full border-b border-gray-300 pb-2 mr-1 text-sm">
+                        <Balance address={address as Address} className="min-h-0 h-auto text-base" />
+                        <span className="text-xs" style={{ color: networkColor }}>
+                            {chainName}
+                        </span>
+                    </div>
+                </DropdownMenuItem>
+
                 <DropdownMenuItem>
                     <div className={selectingNetwork ? "hidden" : ""}>
                     {addressCopied ? (
@@ -137,35 +151,16 @@ export const AddressInfoDropdown = ({
                     </div>
                 </DropdownMenuItem>
 
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                        {allowedNetworks.length > 1 ? (
-                            <div className={selectingNetwork ? "hidden" : ""}>
-                            <button
-                                className="btn-sm !rounded-xl flex gap-3 py-3"
-                                type="button"
-                            >
-                                <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Switch Network</span>
-                            </button>
-                            </div>
-                        ) : null}
-                    </DropdownMenuSubTrigger>
-
-                    <DropdownMenuSubContent>
-                        <NetworkOptions />
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
-
                 <DropdownMenuItem>
-                <div className={selectingNetwork ? "hidden" : ""}>
-                    <button
-                    className="menu-item text-error btn-sm !rounded-xl flex gap-3 py-3"
-                    type="button"
-                    onClick={() => disconnect()}
-                    >
-                    <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
-                    </button>
-                </div>
+                    <div className={selectingNetwork ? "hidden" : ""}>
+                        <button
+                        className="menu-item text-error btn-sm !rounded-xl flex gap-3 py-3"
+                        type="button"
+                        onClick={() => disconnect()}
+                        >
+                        <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
+                        </button>
+                    </div>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

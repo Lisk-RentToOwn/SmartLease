@@ -12,7 +12,7 @@ import {
     getSortedRowModel,
     useReactTable,
   } from "@tanstack/react-table";
-  import { ArrowUpDown, MoreHorizontal, Rows2, Rows3, Rows4 } from "lucide-react";
+  import { ArrowUpDown, LucideExternalLink, MoreHorizontal, Rows2, Rows3, Rows4 } from "lucide-react";
   import * as React from "react";
 import { useState } from "react";
   import { Button } from "@/components/ui/button";
@@ -36,150 +36,112 @@ import { useState } from "react";
   } from "@/components/ui/table";
   import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Routes } from "@/app/routes";
 
-const data: Property[] = [
+const data: PaymentHistory[] = [
     {
-        equity: 23,
-        property: {
-            addres: "No 12 california street USA",
-            imgUrl:"/thumbnail.jpg",
-            name: "Oak Residence"
-        },
-        tenant: "0X1617BE12908494",
-        token: 234,
-        tokenId: 1234,
-        tokenUri: 'https://google.com'
+        amount: 4500,
+        currency: "$",
+        date: "May 1, 2023",
+        status: "completed",
+        txn_hash: "0x67ad5692bc6d892020eed5a0",
+        equity_earned: 2.5          
     },
     {
-        equity: 30,
-        property: {
-            addres: "No 12 california street USA",
-            imgUrl:"/thumbnail.jpg",
-            name: "Wall street"
-        },
-        tenant: "0X1617BE12908494",
-        token: 23,
-        tokenId: 124,
-        tokenUri: 'https://google.com'
+        amount: 4500,
+        currency: "$",
+        date: "May 1, 2023",
+        status: "completed",
+        txn_hash: "0x67ad5692bc6d892020eed5a0",
+        equity_earned: 2.5          
     },
     {
-        equity: 60,
-        property: {
-            addres: "No 12 california street USA",
-            imgUrl:"/thumbnail.jpg",
-            name: "Maple townhall"
-        },
-        tenant: "0X1617BE12908494",
-        token: 23,
-        tokenId: 124,
-        tokenUri: 'https://google.com'
+        amount: 4500,
+        currency: "$",
+        date: "May 1, 2023",
+        status: "pending",
+        txn_hash: "0x67ad5692bc6d892020eed5a0",
+        equity_earned: 2.5          
+    },
+    {
+        amount: 4500,
+        currency: "$",
+        date: "May 1, 2023",
+        status: "completed",
+        txn_hash: "0x67ad5692bc6d892020eed5a0",
+        equity_earned: 2.5          
     },
 ]
 
-export type Property = {
-    property:  {
-        name: string,
-        addres: string,
-        imgUrl: string
-    },
-    tenant: string,
-    token: number,
-    equity: number,
-    tokenId: number,
-    tokenUri: string
+export type PaymentHistory = {
+    date: string,
+    amount: number,
+    currency: string,
+    status: "completed" | "pending",
+    txn_hash: string,
+    equity_earned: number
 }
 
-export const columns: ColumnDef<Property>[] = [
+export const columns: ColumnDef<PaymentHistory>[] = [
     {
-      accessorKey: "property",
+      accessorKey: "date",
       header: ({ column }) => {
         return (
-            <p className=" uppercase">PROPERTY</p>
+            <p className=" uppercase">Date</p>
         );
       },
-      cell: ({ row }) => {
-        const property = row.original
-        const img = property.property.imgUrl
-        return (<div className="flex items-center space-x-1">
-            <div className="">
-                <img src={img} alt="property_img" className="w-12"/>
-            </div>
-            <div className="flex flex-col gap-y-1">
-                <p className="text-green-500 font-medium text-lg">{property.property.name}</p>
-                <p className="text-gray-700">{(property.property.addres).slice(0, 20)}...</p>
-            </div>
-        </div>)
-      },
+      cell: ({ row }) => <div className="text-lg">{row.getValue("date")}</div>
     },
     {
-      accessorKey: "tenant",
+      accessorKey: "amount",
       header: () => {
         return (
-            <p className=" uppercase">Tenant</p>
+            <p className=" uppercase">Amount</p>
         );
       },
-      cell: ({ row }) => <div className="lowercase">{row.getValue("tenant")}</div>,
-    },
-    {
-      accessorKey: "token",
-      header: () => <div className="uppercase">Token</div>,
       cell: ({ row }) => {
-        return <div className="font-medium">{row.getValue('token')}</div>;
+        const data = row.original
+        return <div className="lowercase text-lg">{data.currency}{data.amount}</div>
       },
     },
     {
-        accessorKey: "equity",
-        header: () => <div className="uppercase">Equity</div>,
+      accessorKey: "status",
+      header: () => <div className="uppercase">Status</div>,
+      cell: ({ row }) => {
+            const status: string = row.getValue('status')
+            return <div className={cn("font-medium rounded-full text-center w-max px-3 py-1 text-base capitalize text-red-500 bg-red-500/20", {"text-green-500 bg-green-500/20": status === "completed"}, {"text-blue-500 bg-blue-500/20": status === "pending"})}>{status}</div>;
+      },
+    },
+    {
+        accessorKey: "equity_earned",
+        header: () => <div className="uppercase">Equity Earned</div>,
         cell: ({ row }) => {
             return (
-                <div className="w-full flex items-center justify-center gap-3">
-                    <Progress value={row.getValue('equity')} className="w-[60%] [&>div]:bg-green-500" />
-                    <span className="text-sm">{row.getValue('equity')}%</span>
-                </div>
+                <div className="w-full flex text-lg text-center gap-3">{row.getValue('equity_earned')}%</div>
             )
         },
     },
     {
-        accessorKey: "tokenId",
-        header: () => <div className="uppercase text-center">Token ID</div>,
+        accessorKey: "txn_hash",
+        header: () => <div className="uppercase text-center">Tnx Hash</div>,
         cell: ({ row }) => {
-            return <p className="text-sm text-center">#{row.getValue('tokenId')}</p>
+            const tx: string = row.getValue('txn_hash')
+            return <p className="text-center text-gray-400">{tx.slice(0, 6)}...{tx.slice(-7)}</p>
         },
     },
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const property = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(`${property.tokenUri}`)}
-              >
-                Copy Token ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>View on Explorer</DropdownMenuItem>
-              <DropdownMenuItem>
-                  <Link href={`${Routes.LANDLORD_PROPERTIES}/1`}>View Property details</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <Link href={""}>
+                <LucideExternalLink size={20} className="text-primary"/>
+            </Link>
         );
       },
     },
 ];
 
-const DashboardpropertyTable = () => {
+const PropertyPaymentHistoryTable = () => {
     const [density, setDensity] = useState<string>("flexible");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -213,7 +175,7 @@ const DashboardpropertyTable = () => {
           className={cn({
             "[&_td]:py-px [&_th]:py-px": density === "compact",
             "[&_td]:py-1 [&_th]:py-1": density === "standard",
-            "[&_td]:py-3 [&_th]:py-2 [&_th]:first:pl-5 [&_td]:first:pl-5 bg-white rounded-lg [&_th]:bg-gray-200": density === "flexible",
+            "[&_td]:py-5 [&_th]:py-4 [&_th]:first:pl-5 [&_td]:first:pl-5 bg-white rounded-lg [&_th]:bg-gray-200": density === "flexible",
           })}
         >
           <TableHeader>
@@ -268,4 +230,4 @@ const DashboardpropertyTable = () => {
   );
 }
 
-export default DashboardpropertyTable
+export default PropertyPaymentHistoryTable
