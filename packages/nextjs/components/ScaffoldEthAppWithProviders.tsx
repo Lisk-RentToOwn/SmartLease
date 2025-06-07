@@ -5,17 +5,18 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import { WagmiConfig } from "wagmi";
-import { Header } from "~~/components/Header";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { ProgressBar } from "~~/components/scaffold-eth/ProgressBar";
-import { wagmiConfig } from "~~/services/web3/wagmiConfig";
-import { appChains } from "~~/services/web3/wagmiConnectors";
+import { Header } from "@/components/Header";
+import { BlockieAvatar } from "@/components/scaffold-eth";
+import { ProgressBar } from "@/components/scaffold-eth/ProgressBar";
+import { wagmiConfig } from "@/services/web3/wagmiConfig";
+import { appChains } from "@/services/web3/wagmiConnectors";
+import { WalletWatcher } from "./WalletWatcher";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen">        
         <Header />
         <main className="relative flex flex-col flex-1">{children}</main>
       </div>
@@ -41,7 +42,7 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
         avatar={BlockieAvatar}
         theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
       >
-        <ScaffoldEthApp>{children}</ScaffoldEthApp>
+        <ScaffoldEthApp>{children}</ScaffoldEthApp>;
       </RainbowKitProvider>
     </WagmiConfig>
   );

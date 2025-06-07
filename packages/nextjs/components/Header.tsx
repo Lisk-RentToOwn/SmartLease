@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import { LANDLORDNAV, TENANTNAV } from "@/constants/dashboard-nav";
+import { useOutsideClick } from "@/hooks/scaffold-eth";
+import { cn } from "@/lib/utils";
+import { BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Logo } from "./Logo";
-import { Bars3Icon, BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
-import {
-  DappConsoleButton,
-  FaucetButton,
-  RainbowKitCustomConnectButton,
-  SuperchainFaucetButton,
-} from "~~/components/scaffold-eth";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
-import { cn } from "~~/lib/utils";
+import React, { ReactNode, useCallback, useRef, useState } from "react";
+import { RainbowKitCustomConnectButton } from "./scaffold-eth";
+import DashboardTabLayout from "./shared/dashboard-tab-layout";
+import { WalletWatcher } from "./WalletWatcher";
 
 type HeaderMenuLink = {
   label: string;
@@ -47,7 +44,9 @@ export const HeaderMenuLinks = () => {
               passHref
               className={cn(
                 "relative flex text-slate-800 items-center justify-between px-4 py-2 text-sm transition-colors duration-200",
-                isActive ? "rounded-full text-white bg-primary/80" : "text-slate-400",
+                isActive
+                  ? "rounded-full text-white bg-primary/80"
+                  : "text-slate-400"
               )}
             >
               {icon}
@@ -68,43 +67,94 @@ export const Header = () => {
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
     burgerMenuRef,
-    useCallback(() => setIsDrawerOpen(false), []),
+    useCallback(() => setIsDrawerOpen(false), [])
   );
+  const path = usePathname();
+  
 
-  return (
-    <header className="sticky lg:static top-0 navbar min-h-0  py-5 flex justify-between z-20 px-0 sm:px-2 border-b border-gray-300">
-      <div className=" flex items-center space-x-3">
-        <div className="lg:hidden dropdown" ref={burgerMenuRef}>
-          <label
-            tabIndex={0}
-            className={`ml-1 bg-secondary ${isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"}`}
-            onClick={() => {
-              setIsDrawerOpen(prevIsOpenState => !prevIsOpenState);
-            }}
-          >
-            <Bars3Icon className="h-1/2" />
-          </label>
-          {isDrawerOpen && (
-            <ul
+  const GeneralHeader = () => {
+    return (
+      <>
+        {/* <div className=" flex items-center space-x-3 py-5">
+          <div className="lg:hidden dropdown" ref={burgerMenuRef}>
+            <label
               tabIndex={0}
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+              className={`ml-1 bg-secondary ${
+                isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"
+              }`}
               onClick={() => {
-                setIsDrawerOpen(false);
+                setIsDrawerOpen((prevIsOpenState) => !prevIsOpenState);
               }}
             >
-              <HeaderMenuLinks />
-            </ul>
-          )}
+              <Bars3Icon className="h-1/2" />
+            </label>
+            {isDrawerOpen && (
+              <ul
+                tabIndex={0}
+                className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+                onClick={() => {
+                  setIsDrawerOpen(false);
+                }}
+              >
+                <HeaderMenuLinks />
+              </ul>
+            )}
+          </div>
+
+          <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
+            <HeaderMenuLinks />
+          </ul>
+        </div> */}
+         <div className="text-xl font-bold text-blue-600 py-6">SmartLease</div>
+      </>
+    );
+  };
+
+  const getHeaderType = (): ReactNode => {
+    //@ts-ignore
+    if (path.startsWith("/tenant"))
+        return (
+          <DashboardTabLayout
+              tabList={TENANTNAV}
+          />);
+          //@ts-ignore
+    if  (path.startsWith("/landlord"))
+      return (
+        <DashboardTabLayout
+            tabList={LANDLORDNAV}
+        />);
+    return <GeneralHeader/>
+  };
+
+
+  return (
+    <header className="sticky top-0  z-20 px-0 sm:px-2 border-b border-gray-300 bg-white">
+      <div className="flex items-end justify-between app-container">
+        {getHeaderType()}
+
+        { (!path.startsWith("/landlord") && !path.startsWith("/tenant")) &&
+          <nav className="space-x-6 py-6">
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Home
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Browse
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                How It Works
+              </a>
+              <a href="#" className="text-gray-700 hover:text-blue-600">
+                Contact
+              </a>
+          </nav>
+        }
+        
+
+        <div className="mr-4 flex items-center py-5 space-x-3">          
+          <WalletWatcher/>
+          <RainbowKitCustomConnectButton />
+          {/* <FaucetButton /> */}
         </div>
-
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
-        </ul>
-      </div>
-
-      <div className="mr-4 flex items-center">
-        <RainbowKitCustomConnectButton />
-        {/* <FaucetButton /> */}
       </div>
     </header>
   );

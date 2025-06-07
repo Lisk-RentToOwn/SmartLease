@@ -1,26 +1,20 @@
-"use client";
+import Hero from "@/components/Hero";
+import HowItWorks from "@/components/HowItWorks";
+import Benefits from "@/components/Benefits";
+import FeaturedProperties from "@/components/FeaturedProperties";
+import Testimonials from "@/components/Testimonials";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
-import Link from "next/link";
-import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Logo } from "~~/components/Logo";
-import { Address } from "~~/components/scaffold-eth";
-
-const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
-
+export default function Home() {
   return (
-    <section className="flex items-center flex-col flex-grow pt-10">
-      <div className="px-5 flex flex-col gap-2 items-center">
-        <div className="flex border px-8 py-3 rounded-md justify-center items-center space-x-2">
-          <p className="my-2 font-medium">Connected Address:</p>
-          <Address address={connectedAddress} />
-        </div>
-      </div>
-
-    </section>
+    <main className="flex flex-col min-h-screen">
+      <Hero />
+      <HowItWorks />
+      <Benefits />
+      <FeaturedProperties />
+      <Testimonials />
+      <Footer />
+    </main>
   );
-};
-
-export default Home;
+}
