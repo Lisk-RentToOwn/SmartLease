@@ -2686,6 +2686,7 @@ __metadata:
     "@tailwindcss/postcss": ^4.1.8
     "@tanstack/react-table": ^8.21.3
     "@trivago/prettier-plugin-sort-imports": ^4.1.1
+    "@types/js-cookie": ^3.0.6
     "@types/node": ^17.0.35
     "@types/nprogress": ^0
     "@types/react": ^18.0.9
@@ -2704,6 +2705,7 @@ __metadata:
     eslint-config-next: ^14.0.4
     eslint-config-prettier: ^8.5.0
     eslint-plugin-prettier: ^4.2.1
+    js-cookie: ^3.0.5
     lucide-react: ^0.512.0
     next: ^14.0.4
     next-themes: ^0.4.6
@@ -3535,6 +3537,13 @@ __metadata:
     "@types/through": "*"
     rxjs: ^7.2.0
   checksum: 78840be19ce6942e068839c40c41cd5be9762ea3618d5b61f70812df60626041ea23a854f28596312efc44d1c24ed328f0b7dbb329daf863c5efb093b8e65d2b
+  languageName: node
+  linkType: hard
+
+"@types/js-cookie@npm:^3.0.6":
+  version: 3.0.6
+  resolution: "@types/js-cookie@npm:3.0.6"
+  checksum: 272d551687547445cb210213c73e72e0e5d58ad73e2e444a65d688b8ff9425529779ee0cd6492aaa1f070161916d4254ef2b1a76d64179100437f60749d094ef
   languageName: node
   linkType: hard
 
@@ -10098,6 +10107,13 @@ __metadata:
   bin:
     jiti: lib/jiti-cli.mjs
   checksum: c6c30c7b6b293e9f26addfb332b63d964a9f143cdd2cf5e946dbe5143db89f7c1b50ad9223b77fb1f6ddb0b9c5ecef995fea024ecf7d2861d285d779cde66e1e
+  languageName: node
+  linkType: hard
+
+"js-cookie@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "js-cookie@npm:3.0.5"
+  checksum: 2dbd2809c6180fbcf060c6957cb82dbb47edae0ead6bd71cbeedf448aa6b6923115003b995f7d3e3077bfe2cb76295ea6b584eb7196cca8ba0a09f389f64967a
   languageName: node
   linkType: hard
 
