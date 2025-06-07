@@ -54,7 +54,9 @@ const LandlordPage = () => {
                             <div className="p-5">
                                 <p className="text-xl font-semibold text-gray-600">Rent Collection Analysis</p>
                             </div>
-                            <RentAnalysisChart/>
+                            <div className="border border-gray-300 p-4 rounded-md">
+                                <RentAnalysisChart/>
+                            </div>
                         </div>
                     </div>
                 </div>
