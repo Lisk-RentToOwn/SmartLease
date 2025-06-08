@@ -23,6 +23,7 @@ contract RentToOwn is Ownable {
         bool isOccupied;
         uint256 escrowBalance;
         uint256 totalPaidToLandlord;
+        uint256 tokenId; // Represent token for property - uncommment
 
         // New metadata fields
         string name;
@@ -40,6 +41,7 @@ contract RentToOwn is Ownable {
     uint256 public nextPropertyId;
     mapping(uint256 => Property) private properties;
 
+    // Add uint256 tokenId later for the property, as well as when emitting
     event PropertyCreated(
         uint256 indexed propertyId,
         address indexed landlord,
@@ -51,7 +53,7 @@ contract RentToOwn is Ownable {
         string city,
         string state,
         string zipCode,
-        string currency
+        string currency,        
     );
 
     event RentPaid(uint256 indexed propertyId, address indexed tenant, uint256 amount);
@@ -61,6 +63,7 @@ contract RentToOwn is Ownable {
 
     constructor(address _liskToken) Ownable() {
         liskToken = IERC20(_liskToken);
+        // propertyToken = PropertyToken(_propertyToken); //Represent the property token - uncomment
     }
 
     function createProperty(
@@ -90,6 +93,10 @@ contract RentToOwn is Ownable {
         prop.state = state;
         prop.zipCode = zipCode;
         prop.currency = currency;
+        
+
+        // uint256 tokenId = propertyToken.mintToLandlord(msg.sender, 100); // mint 100 tokens - uncomment when Token contract is available
+        // prop.tokenId = tokenId;
 
         emit PropertyCreated(
             nextPropertyId,
@@ -148,8 +155,23 @@ contract RentToOwn is Ownable {
 
             tenant.totalPaid += amount;
             tenant.lastPaymentTimestamp = block.timestamp;
-            tenant.equityPercentage = (1e4 * tenant.totalPaid) / prop.value;
+
+            uint256 oldEquity = tenant.equityPercentage;
+            uint256 newEquity = (tenant.totalPaid * 1e4) / prop.value;
+            require(newEquity >= oldEquity, "New equity must be >= old equity");
+            tenant.equityPercentage = newEquity;
+
             prop.totalPaidToLandlord += amount;
+
+            // Transfer tokens only for the increase in equity
+            uint256 equityChange = newEquity - oldEquity;
+            if (equityChange > 0) {
+                uint256 tokensToTransfer = (equityChange * 100) / 1e4;
+                if (tokensToTransfer > 0) {
+                    propertyToken.transferFraction(prop.landlord, msg.sender, prop.tokenId, tokensToTransfer);
+                    emit TokensTransferred(propertyId, prop.landlord, msg.sender, prop.tokenId, tokensToTransfer);
+                }
+            }
 
             emit RentPaid(propertyId, msg.sender, amount);
             emit EquityUpdated(propertyId, msg.sender, tenant.equityPercentage);
