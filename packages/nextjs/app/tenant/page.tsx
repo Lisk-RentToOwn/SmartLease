@@ -12,7 +12,7 @@ import {
   EllipsisVertical,
 } from "lucide-react";
 import Image from "next/image";
-import { ProgressDemo } from "~~/components/ProgressDemo";
+import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
 import { Badge } from "~~/components/ui/badge";
 import { Button } from "~~/components/ui/button";
 import {
@@ -93,7 +93,7 @@ export default function TenantDashboard() {
                     <p className="text-dark">12.5% of 100%</p>
                   </div>
 
-                  <ProgressDemo />
+                  <ProgressDemo value={12.5} className="progress-green-fill" />
                 </div>
               </div>
             </CardContent>
@@ -206,7 +206,7 @@ export default function TenantDashboard() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-2">
                 <Card className="mini-card">
-                  <Ribbon className="mini-card-icon bg-emerald-500/20  text-emerald-500" />
+                  <Ribbon className="mini-card-icon bg-rd-green" />
                   <p className="mini-card-p ">Punctual Payer</p>
                 </Card>
                 <Card className="mini-card">
@@ -217,7 +217,7 @@ export default function TenantDashboard() {
                   <p className="mini-card-p">Equity Builder</p>
                 </Card>
                 <Card className="mini-card">
-                  <Lock className="mini-card-icon bg-gray-400/20 text-gray-400" />
+                  <Lock className="mini-card-icon bg-rd-gray" />
                   <p className=" text-gray-400 mt-1 text-[0.6rem]">Locked</p>
                 </Card>
               </div>
@@ -238,7 +238,7 @@ export default function TenantDashboard() {
             </CardHeader>
             <CardContent className="space-y-2">
               <ul className="nofti-ul">
-                <Bell className="notfi-icon bg-red-300/40 text-red-400" />
+                <Bell className="notfi-icon bg-rd-red" />
                 <li>
                   <p className="text-dark">Rent due Reminder</p>
                   <p className="text-gray nofti-p">
@@ -248,7 +248,7 @@ export default function TenantDashboard() {
                 </li>
               </ul>
               <ul className="nofti-ul">
-                <PieChart className="notfi-icon bg-emerald-400/20 text-emerald-400" />
+                <PieChart className="notfi-icon bg-rd-green " />
                 <li>
                   <p className="text-dark">Equity Update</p>
                   <p className=" text-gray nofti-p ">
@@ -258,7 +258,7 @@ export default function TenantDashboard() {
                 </li>
               </ul>
               <ul className="nofti-ul">
-                <Wallet className="notfi-icon bg-blue-300/40 text-blue-400" />
+                <Wallet className="notfi-icon bg-rd-blue" />
                 <li>
                   <p className="text-dark">Wallet Connected</p>
                   <p className=" text-gray nofti-p ">
@@ -268,7 +268,7 @@ export default function TenantDashboard() {
                 </li>
               </ul>
               <ul className="nofti-ul ">
-                <Gift className="notfi-icon bg-purple-300/40 text-purple-400" />
+                <Gift className="notfi-icon bg-rd-purple" />
                 <li>
                   <p className="text-dark">Reward Earned</p>
                   <p className=" text-gray nofti-p ">

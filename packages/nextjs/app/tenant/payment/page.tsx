@@ -9,10 +9,10 @@ import {
   Car,
   Circle,
 } from "lucide-react";
-import { CalendarDemo } from "~~/components/CalenderDemo";
-import DataTableDemo from "~~/components/DataTableDemo";
-import NotificationBell from "~~/components/NotificationBell";
-import { ProgressDemo } from "~~/components/ProgressDemo";
+import { CalendarDemo } from "~~/components/tenants/CalenderDemo";
+import DataTableDemo from "~~/components/tenants/DataTableDemo";
+import NotificationBell from "~~/components/tenants/NotificationBell";
+import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
 import { Button } from "~~/components/ui/button";
 import {
   Card,
@@ -141,7 +141,7 @@ export default function TenantPaymentPage() {
                     <p className="text-gray">Total Equity Earned</p>
                     <p className="text-dark">1.25%</p>
                   </div>
-                  <ProgressDemo value={1.25} />
+                  <ProgressDemo value={1.25} className="progress-green-fill" />
                 </div>
                 <p className="text-gray-bold">
                   You've earned 1.25% equally in your property through on-time
