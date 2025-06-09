@@ -276,30 +276,6 @@ export default function EquityGrowthPage() {
           </Card>
         </section>
       </main>
-
-      <footer className="flex-jb-ic px-[13rem] py-5 border-t  ">
-        <div className="space-y-2">
-          <p className="text-dark flex-ic gap-2">
-            <Home className="notfi-icon !rounded-sm bg-emerald-400 text-white" />
-            Smart Lease
-          </p>
-          <p className="text-gray">Building ownership, one payment at a time</p>
-        </div>
-        <div className="flex-ic gap-4 ">
-          <p className="text-gray flex-ic gap-2">
-            <HelpCircle className="w-4" />
-            Help
-          </p>
-          <p className="text-gray flex-ic gap-2">
-            <Settings className="w-4" />
-            Settings
-          </p>
-          <p className="text-gray flex-ic gap-2">
-            <Shield className="w-4" />
-            Privacy
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

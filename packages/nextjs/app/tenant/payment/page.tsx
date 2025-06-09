@@ -3,12 +3,10 @@ import {
   Wallet,
   PieChartIcon,
   CreditCard,
-  HelpCircle,
-  HardDriveDownload,
   RefreshCw,
-  Car,
   Circle,
 } from "lucide-react";
+import Link from "next/link";
 import { CalendarDemo } from "~~/components/tenants/CalenderDemo";
 import DataTableDemo from "~~/components/tenants/DataTableDemo";
 import NotificationBell from "~~/components/tenants/NotificationBell";
@@ -150,6 +148,9 @@ export default function TenantPaymentPage() {
                 </p>
               </CardContent>
             </Card>
+            <Button asChild className="w-1/2">
+              <Link href="/tenant/payment/reciept">Reciept view</Link>
+            </Button>
           </div>
         </section>
       </main>
