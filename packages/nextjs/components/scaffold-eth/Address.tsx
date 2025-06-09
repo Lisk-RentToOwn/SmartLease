@@ -7,9 +7,9 @@ import { Address as AddressType, getAddress, isAddress } from "viem";
 import { hardhat } from "viem/chains";
 import { useEnsAvatar, useEnsName } from "wagmi";
 import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { getBlockExplorerAddressLink } from "~~/utils/scaffold-eth";
+import { BlockieAvatar } from "@/components/scaffold-eth";
+import { useTargetNetwork } from "@/hooks/scaffold-eth/useTargetNetwork";
+import { getBlockExplorerAddressLink } from "@/utils/scaffold-eth";
 
 type AddressProps = {
   address?: AddressType;
@@ -111,12 +111,13 @@ export const Address = ({ address, disableAddressLink, format, size = "base" }: 
           {displayAddress}
         </a>
       )}
-      {addressCopied ? (
+      {/* {addressCopied ? (
         <CheckCircleIcon
           className="ml-1.5 text-xl font-normal text-sky-600 h-5 w-5 cursor-pointer"
           aria-hidden="true"
         />
       ) : (
+        //@ts-ignore
         <CopyToClipboard
           text={checkSumAddress}
           onCopy={() => {
@@ -131,7 +132,7 @@ export const Address = ({ address, disableAddressLink, format, size = "base" }: 
             aria-hidden="true"
           />
         </CopyToClipboard>
-      )}
+      )} */}
     </div>
   );
 };

@@ -1,10 +1,10 @@
-import { Button } from "~~/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~~/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy } from "lucide-react";
 import { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "~~/lib/utils";
+import { cn } from "@/lib/utils";
 
 export type TabType = {
     name: string,
@@ -21,15 +21,15 @@ const DashboardTabLayout = ({tabList}: {tabList: TabType[]}) => {
                         <TabsTrigger
                             key={tab.name}
                             value={tab.name}
-                            className="rounded-none bg-background h-full pb-6 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary"
+                            className="rounded-none bg-background h-full pb-6 data-[state=active]:shadow-none text-xl border-b-2 border-transparent data-[state=active]:border-primary"
                         >
-                            <code className="font-sans">
+                            <div className="font-circular">
                                 <TabItem
                                     link={tab.link}
                                     name={tab.name}
                                     Icon={tab.Icon}
                                 />
-                            </code>
+                            </div>
                         </TabsTrigger>
                     ))}
                 </TabsList>
@@ -49,7 +49,7 @@ const TabItem = ({link, name, Icon}: TabType) => {
             <Link href={link} className="">
                 <div className={cn("font-medium flex items-center space-x-3 text-slate-700", {"text-primary" : path === link})}>
                     {Icon && <Icon className="" />}
-                    <p className="font-medium text-base">{name}</p>
+                    <p className="font-medium text-lg font-circular">{name}</p>
                 </div>
             </Link>
         </>

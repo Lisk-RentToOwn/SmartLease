@@ -1,6 +1,6 @@
 import React from "react";
 
-import { cn } from "~~/lib/utils";
+import { cn } from "@/lib/utils";
 
 // data
 import { currencies as AllCurrencies } from "country-data-list";
@@ -13,7 +13,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~~/components/ui/select";
+} from "@/components/ui/select";
 
 // radix-ui
 import { SelectProps } from "@radix-ui/react-select";
@@ -28,7 +28,7 @@ export interface Currency {
 }
 
 // constants
-import { allCurrencies } from "~~/constants/curriencies";
+import { allCurrencies } from "@/constants/curriencies";
 interface CurrencySelectProps extends Omit<SelectProps, "onValueChange"> {
   onValueChange?: (value: string) => void;
   onCurrencySelect?: (currency: Currency) => void;
