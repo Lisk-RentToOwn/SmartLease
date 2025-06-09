@@ -1,13 +1,13 @@
 import { useTargetNetwork } from "./useTargetNetwork";
-import type { ExtractAbiFunctionNames } from "abitype";
-import { useContractRead } from "wagmi";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo } from "@/hooks/scaffold-eth";
 import {
   AbiFunctionReturnType,
   ContractAbi,
   ContractName,
   UseScaffoldReadConfig,
-} from "~~/utils/scaffold-eth/contract";
+} from "@/utils/scaffold-eth/contract";
+import type { ExtractAbiFunctionNames } from "abitype";
+import { useContractRead } from "wagmi";
 
 /**
  * Wrapper around wagmi's useContractRead hook which automatically loads (by name) the contract ABI and address from
@@ -19,7 +19,10 @@ import {
  */
 export const useScaffoldContractRead = <
   TContractName extends ContractName,
-  TFunctionName extends ExtractAbiFunctionNames<ContractAbi<TContractName>, "pure" | "view">,
+  TFunctionName extends ExtractAbiFunctionNames<
+    ContractAbi<TContractName>,
+    "pure" | "view"
+  >
 >({
   contractName,
   functionName,
@@ -36,7 +39,7 @@ export const useScaffoldContractRead = <
     abi: deployedContract?.abi,
     watch: true,
     args,
-    enabled: !Array.isArray(args) || !args.some(arg => arg === undefined),
+    enabled: !Array.isArray(args) || !args.some((arg) => arg === undefined),
     ...(readConfig as any),
   }) as Omit<ReturnType<typeof useContractRead>, "data" | "refetch"> & {
     data: AbiFunctionReturnType<ContractAbi, TFunctionName> | undefined;

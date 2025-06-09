@@ -1,4 +1,3 @@
-// components/ProgressBar.tsx
 import React from "react";
 
 export default function ProgressBar({ percentage }: { percentage: number }) {

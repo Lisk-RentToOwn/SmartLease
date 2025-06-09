@@ -1,12 +1,12 @@
 "use client";
 
+import { useTransactor } from "@/hooks/scaffold-eth";
+import { BanknotesIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { createWalletClient, http, parseEther } from "viem";
 import { hardhat } from "viem/chains";
 import { useAccount, useNetwork } from "wagmi";
 import { useBalance } from "wagmi";
-import { BanknotesIcon } from "@heroicons/react/24/outline";
-import { useTransactor } from "~~/hooks/scaffold-eth";
 
 // Number of ETH faucet sends to an address
 const NUM_OF_ETH = "1";
@@ -66,7 +66,11 @@ export const FaucetButton = () => {
       }
       data-tip="Grab funds from faucet"
     >
-      <button className="btn btn-md bg-base-100 rounded-full flex-nowrap" onClick={sendETH} disabled={loading}>
+      <button
+        className="btn btn-md bg-base-100 rounded-full flex-nowrap"
+        onClick={sendETH}
+        disabled={loading}
+      >
         {!loading ? (
           <>
             <BanknotesIcon className="h-4 w-4" />

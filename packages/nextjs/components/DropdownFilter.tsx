@@ -1,4 +1,5 @@
-// components/DropdownFilter.tsx
+"use client";
+
 import React from "react";
 
 interface DropdownFilterProps {

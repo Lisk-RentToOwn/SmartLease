@@ -2,20 +2,20 @@
 
 import { Logo } from "./Logo";
 import DashboardTabLayout from "./shared/dashboard-tab-layout";
-import { Bars3Icon, BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import React, { ReactNode, useCallback, useRef, useState } from "react";
 import {
   DappConsoleButton,
   FaucetButton,
   RainbowKitCustomConnectButton,
   SuperchainFaucetButton,
-} from "~~/components/scaffold-eth";
-import { LANDLORDNAV, TENANTNAV } from "~~/constants/dashboard-nav";
-import { TenantRoutes, Landlordoutes } from "~~/constants/user-type-routes";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
-import { cn } from "~~/lib/utils";
+} from "@/components/scaffold-eth";
+import { LANDLORDNAV, TENANTNAV } from "@/constants/dashboard-nav";
+import { TenantRoutes, Landlordoutes } from "@/constants/user-type-routes";
+import { useOutsideClick } from "@/hooks/scaffold-eth";
+import { cn } from "@/lib/utils";
+import { Bars3Icon, BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { ReactNode, useCallback, useRef, useState } from "react";
 
 type HeaderMenuLink = {
   label: string;

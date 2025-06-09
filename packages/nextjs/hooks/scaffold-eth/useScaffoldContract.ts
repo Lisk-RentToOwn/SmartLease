@@ -1,8 +1,8 @@
+import { useDeployedContractInfo } from "@/hooks/scaffold-eth";
+import { Contract, ContractName } from "@/utils/scaffold-eth/contract";
 import { Account, Address, Chain, Transport, getContract } from "viem";
 import { PublicClient, usePublicClient } from "wagmi";
 import { GetWalletClientResult } from "wagmi/actions";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
 
 /**
  * Gets a viem instance of the contract present in deployedContracts.ts or externalContracts.ts corresponding to
@@ -13,7 +13,7 @@ import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
  */
 export const useScaffoldContract = <
   TContractName extends ContractName,
-  TWalletClient extends Exclude<GetWalletClientResult, null> | undefined,
+  TWalletClient extends Exclude<GetWalletClientResult, null> | undefined
 >({
   contractName,
   walletClient,
@@ -21,7 +21,8 @@ export const useScaffoldContract = <
   contractName: TContractName;
   walletClient?: TWalletClient | null;
 }) => {
-  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo(contractName);
+  const { data: deployedContractData, isLoading: deployedContractLoading } =
+    useDeployedContractInfo(contractName);
   const publicClient = usePublicClient();
 
   let contract = undefined;

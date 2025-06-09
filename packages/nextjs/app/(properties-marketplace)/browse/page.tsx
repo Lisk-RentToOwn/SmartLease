@@ -20,10 +20,10 @@ const mockProperties = [
     address: "567 Park Lane, Seattle, WA 98101",
     rent: 3200,
     equity: 12,
-    imageUrl: "/images/property2.jpg",
+    imageUrl: //image url here,
     status: "Pending",
   },
-  // Add more mock items as needed...
+  // more mock items as needed to be added here
 ];
 
 export default function BrowsePropertiesPage() {
