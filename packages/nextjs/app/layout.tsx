@@ -1,8 +1,8 @@
-import "@rainbow-me/rainbowkit/styles.css";
-import { Metadata } from "next";
 import { ScaffoldEthAppWithProviders } from "@/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "@/styles/globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
+import { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 const baseUrl = process.env.VERCEL_URL
@@ -57,7 +57,11 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning className="font-circular">
       <body className="font-sans">
-        <ThemeProvider attribute="class" defaultTheme="light">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          forcedTheme="light"
+        >
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
         </ThemeProvider>
       </body>
