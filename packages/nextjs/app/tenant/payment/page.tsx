@@ -97,7 +97,7 @@ export default function TenantPaymentPage() {
           </div>
           <div className="grid grid-rows-[auto_auto] gap-5">
             <Card className="w-calend">
-              <CardHeader className="bg-blue-200/10">
+              <CardHeader className="bg-blue-200/10 ">
                 <CardTitle>Rent Calender</CardTitle>
               </CardHeader>
               <CardContent className="!pb-1 ">

@@ -1,4 +1,4 @@
-@import url('../public/fonts/circular/stylesheet.css');
+@import url("../public/fonts/circular/stylesheet.css");
 
 @tailwind base;
 @tailwind components;
@@ -28,8 +28,6 @@ h4 {
 .btn.btn-ghost {
   @apply shadow-none;
 }
-
-
 
 @layer base {
   :root {
@@ -89,8 +87,6 @@ h4 {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border;
@@ -100,16 +96,184 @@ h4 {
   }
 
   body {
-    font-family: 'Circular Std', sans-serif !important;
+    font-family: "Circular Std", sans-serif !important;
   }
 }
 
 @layer components {
-    .app-container {
-      @apply mx-auto w-full max-w-screen-2xl px-5 ipad:px-12 mini:px-16;
-    }
+  .app-container {
+    @apply mx-auto w-full max-w-screen-2xl px-5 ipad:px-12 mini:px-16;
+  }
 
-    .content-container {
-      @apply mx-auto w-full max-w-screen-lg px-5 ipad:px-12 mini:px-16;
-    }
+  .content-container {
+    @apply mx-auto w-full max-w-screen-lg px-5 ipad:px-12 mini:px-16;
+  }
+}
+
+.text-gray {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.text-dark {
+  color: #111827;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.color {
+  color: rgb(244, 109, 6);
+}
+
+.mini-card {
+  text-align: center;
+  padding: 0.4rem 0;
+  border-radius: 5%;
+}
+
+.mini-card-p {
+  color: #111827;
+  font-size: 0.6rem;
+  margin-top: 0.2rem;
+}
+
+.mini-card-icon {
+  margin: auto;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  border: 0;
+  padding: 0.5rem;
+}
+
+.notfi-icon {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 50%;
+  border: 0;
+  padding: 0.5rem;
+}
+
+.nofti-ul {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.nofti-p {
+  font-weight: 600;
+}
+
+.nofti-span {
+  font-weight: 400;
+}
+
+.text-gray-bold {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.info-color-div {
+  display: grid;
+  grid-template-columns: 2fr;
+  /* align-items: center; */
+}
+
+.w-calend {
+  width: 20rem;
+}
+
+.bg-rd-green {
+  background-color: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+.bg-rd-red {
+  background-color: rgba(252, 165, 165, 0.4);
+  color: #f87171;
+}
+
+.bg-rd-purple {
+  background-color: rgba(216, 180, 254, 0.4);
+  color: #c084fc;
+}
+
+.bg-rd-blue {
+  background-color: rgba(147, 197, 253, 0.4);
+  color: #60a5fa;
+}
+
+.bg-rd-gray {
+  background-color: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+}
+
+.card-hdr {
+  padding-bottom: 0.25rem;
+}
+
+.card-titl {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.value {
+  font-size: 1.5rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.timeBtn-On {
+  background-color: #34d399;
+  color: white;
+}
+
+.timeBtn-styl {
+  font-size: 0.8rem;
+  padding: 1px 1rem;
+}
+
+.timeBtn-Off {
+  background-color: rgba(156, 163, 175, 0.2);
+  color: #111827;
+}
+
+.equity-hd {
+  color: #111827;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.vest-stat-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+  padding: 0.5rem 24px;
+}
+
+.progress-green-fill > div {
+  background-color: #34d399;
+}
+
+.progress-red-fill > div {
+  background-color: #f87171;
+}
+
+.progress-purple-fill > div {
+  background-color: #c084fc;
+}
+
+.flex-jb-ic {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-ic {
+  display: flex;
+  align-items: center;
 }
