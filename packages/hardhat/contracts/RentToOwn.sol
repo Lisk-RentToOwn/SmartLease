@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+///NEW: Import PropertyToken
+import "./PropertyToken.sol"; //Import PropertyToken contract
 
 contract RentToOwn is Ownable {
     enum PaymentType { Fixed, Flexible }
@@ -38,6 +40,7 @@ contract RentToOwn is Ownable {
     }
 
     IERC20 public liskToken;
+    PropertyToken public propertyToken; /// NEW: Declare PropertyToken
     uint256 public nextPropertyId;
     mapping(uint256 => Property) private properties;
 
@@ -53,17 +56,20 @@ contract RentToOwn is Ownable {
         string city,
         string state,
         string zipCode,
-        string currency,        
+        string currency        
     );
 
     event RentPaid(uint256 indexed propertyId, address indexed tenant, uint256 amount);
     event EquityUpdated(uint256 indexed propertyId, address indexed tenant, uint256 newEquity);
     event PropertyOccupied(uint256 indexed propertyId, address indexed tenant);
     event LandlordWithdrawal(address indexed landlord, uint256 indexed propertyId, uint256 amount);
+    event TokensTransferred(uint256 indexed propertyId, address indexed from, address indexed to, uint256 tokenId, uint256 amount); /// NEW EVENT
 
-    constructor(address _liskToken) Ownable() {
+    constructor(address _liskToken, address _propertyToken) Ownable() {
         liskToken = IERC20(_liskToken);
-        // propertyToken = PropertyToken(_propertyToken); //Represent the property token - uncomment
+        /// NEW: Uncommented
+        propertyToken = PropertyToken(_propertyToken); //Represent the property token - uncomment
+        ///
     }
 
     function createProperty(
@@ -94,9 +100,15 @@ contract RentToOwn is Ownable {
         prop.zipCode = zipCode;
         prop.currency = currency;
         
-
+        // /// NEW: Uncommented
         // uint256 tokenId = propertyToken.mintToLandlord(msg.sender, 100); // mint 100 tokens - uncomment when Token contract is available
         // prop.tokenId = tokenId;
+        // ///
+
+        /// NEW: Uncommented
+        uint256 tokenId = propertyToken.mintPropertyToken(image); // mint 100 tokens - uncomment when Token contract is available
+        prop.tokenId = tokenId;
+        ///
 
         emit PropertyCreated(
             nextPropertyId,
@@ -112,7 +124,7 @@ contract RentToOwn is Ownable {
             currency
         );
 
-        nextPropertyId++;
+        nextPropertyId++; 
     }
 
     function payRent(uint256 propertyId, uint256 amount) external {
@@ -283,11 +295,9 @@ function getPropertyMetadata(uint256 propertyId) external view returns (
     function getTotalPaidToLandlord(uint256 propertyId) external view returns (uint256) {
         return properties[propertyId].totalPaidToLandlord;
     }
+    /// NEW: FUNCTION 
+        function getPropertyTokenId(uint256 propertyId) external view returns (uint256) {
+        return properties[propertyId].tokenId;
+    }
 }
-
-
-
-
-
-
 
