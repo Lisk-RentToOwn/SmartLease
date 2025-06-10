@@ -15,7 +15,7 @@ import {
   import { ArrowUpDown, MoreHorizontal, Rows2, Rows3, Rows4 } from "lucide-react";
   import * as React from "react";
 import { useState } from "react";
-  import { Button } from "~~/components/ui/button";
+  import { Button } from "@/components/ui/button";
   import { Progress } from "../ui/progress";
   import {
     DropdownMenu,
@@ -24,7 +24,7 @@ import { useState } from "react";
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-  } from "~~/components/ui/dropdown-menu";
+  } from "@/components/ui/dropdown-menu";
 
   import {
     Table,
@@ -33,8 +33,10 @@ import { useState } from "react";
     TableHead,
     TableHeader,
     TableRow,
-  } from "~~/components/ui/table";
-  import { cn } from "~~/lib/utils";
+  } from "@/components/ui/table";
+  import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Routes } from "@/app/routes";
 
 const data: Property[] = [
     {
@@ -167,7 +169,9 @@ export const columns: ColumnDef<Property>[] = [
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>View on Explorer</DropdownMenuItem>
-              <DropdownMenuItem>View Property details</DropdownMenuItem>
+              <DropdownMenuItem>
+                  <Link href={`${Routes.LANDLORD_PROPERTIES}/1`}>View Property details</Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );

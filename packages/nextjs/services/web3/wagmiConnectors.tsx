@@ -12,9 +12,9 @@ import * as chains from "viem/chains";
 import { configureChains } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
-import scaffoldConfig from "~~/scaffold.config";
-import { burnerWalletConfig } from "~~/services/web3/wagmi-burner/burnerWalletConfig";
-import { getTargetNetworks } from "~~/utils/scaffold-eth";
+import scaffoldConfig from "@/scaffold.config";
+import { burnerWalletConfig } from "@/services/web3/wagmi-burner/burnerWalletConfig";
+import { getTargetNetworks } from "@/utils/scaffold-eth";
 
 const targetNetworks = getTargetNetworks();
 const { onlyLocalBurnerWallet } = scaffoldConfig;

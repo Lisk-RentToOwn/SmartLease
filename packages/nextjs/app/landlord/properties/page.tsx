@@ -1,8 +1,8 @@
 import { PlusIcon } from "lucide-react"
 import Link from "next/link"
-import { Routes } from "~~/app/routes"
-import LandlordPropertyCard from "~~/components/landlord/property-card"
-import { Button } from "~~/components/ui/button"
+import { Routes } from "@/app/routes"
+import LandlordPropertyCard from "@/components/landlord/property-card"
+import { Button } from "@/components/ui/button"
 
 const LandlordPropertiesPage = () => {
     return (

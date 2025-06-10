@@ -1,12 +1,12 @@
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
 import { useTheme } from "next-themes";
 import { useNetwork, useSwitchNetwork } from "wagmi";
-import { Button } from "~~/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenuItem
-} from "~~/components/ui/dropdown-menu";
-import { getNetworkColor } from "~~/hooks/scaffold-eth";
-import { getTargetNetworks } from "~~/utils/scaffold-eth";
+} from "@/components/ui/dropdown-menu";
+import { getNetworkColor } from "@/hooks/scaffold-eth";
+import { getTargetNetworks } from "@/utils/scaffold-eth";
 
 const allowedNetworks = getTargetNetworks();
 

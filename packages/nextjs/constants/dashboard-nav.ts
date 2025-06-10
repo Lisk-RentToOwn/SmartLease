@@ -1,5 +1,5 @@
-import { Routes } from "~~/app/routes";
-import { TabType } from "~~/components/shared/dashboard-tab-layout";
+import { Routes } from "@/app/routes";
+import { TabType } from "@/components/shared/dashboard-tab-layout";
 import {BadgeDollarSign, Gem, HomeIcon, LandPlotIcon, ReceiptText, UserRound} from "lucide-react"
 
 export const LANDLORDNAV: TabType[] = [
