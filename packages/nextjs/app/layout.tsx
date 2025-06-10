@@ -1,6 +1,7 @@
 import { ScaffoldEthAppWithProviders } from "@/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "@/styles/globals.css";
+import "@/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -55,7 +56,7 @@ export const metadata: Metadata = {
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html suppressHydrationWarning className={inter.variable}>
+    <html suppressHydrationWarning className="font-circular">
       <body className="font-sans">
         <ThemeProvider attribute="class" defaultTheme="light">
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>

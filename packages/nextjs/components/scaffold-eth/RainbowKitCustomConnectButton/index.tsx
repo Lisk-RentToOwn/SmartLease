@@ -7,9 +7,12 @@ import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { Button } from "@/components/ui/button";
 import { useAutoConnect, useNetworkColor } from "@/hooks/scaffold-eth";
 import { useTargetNetwork } from "@/hooks/scaffold-eth/useTargetNetwork";
+import { getUserRole } from "@/lib/cookies";
 import { getBlockExplorerAddressLink } from "@/utils/scaffold-eth";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useCallback } from "react";
 import { Address } from "viem";
+import { useAccount } from "wagmi";
 
 /**
  * Custom Wagmi Connect Button (watch balance + custom design)
@@ -33,7 +36,7 @@ export const RainbowKitCustomConnectButton = () => {
               if (!connected) {
                 return (
                   <Button
-                    className="bg-primary text-sm"
+                    className="bg-primary text-base px-4 py-6 rounded-lg"
                     onClick={openConnectModal}
                     type="button"
                   >
@@ -48,21 +51,14 @@ export const RainbowKitCustomConnectButton = () => {
 
               return (
                 <div className="flex items-center space-x-4">
-                  <div className="flex flex-col items-center mr-1 text-sm">
-                    <Balance
-                      address={account.address as Address}
-                      className="min-h-0 h-auto text-base"
-                    />
-                    <span className="text-xs" style={{ color: networkColor }}>
-                      {chain.name}
-                    </span>
-                  </div>
-
                   <AddressInfoDropdown
                     address={account.address as Address}
                     displayName={account.displayName}
                     ensAvatar={account.ensAvatar}
                     blockExplorerAddressLink={blockExplorerAddressLink}
+                    chainImgUrl={chain.iconUrl as string}
+                    chainName={chain.name as string}
+                    networkColor={networkColor}
                   />
                 </div>
               );

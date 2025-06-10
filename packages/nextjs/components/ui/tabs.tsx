@@ -4,7 +4,13 @@ import { cn } from "@/lib/utils";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import * as React from "react";
 
+<<<<<<< HEAD
 const Tabs = TabsPrimitive.Root;
+=======
+import { cn } from "@/lib/utils"
+
+const Tabs = TabsPrimitive.Root
+>>>>>>> 4a43c9ec6771bd72a4b6e6354f8dc91ca6901823
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,

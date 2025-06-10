@@ -1,5 +1,6 @@
 "use client";
 
+import { WalletWatcher } from "./WalletWatcher";
 import { Header } from "@/components/Header";
 import { BlockieAvatar } from "@/components/scaffold-eth";
 import { ProgressBar } from "@/components/scaffold-eth/ProgressBar";

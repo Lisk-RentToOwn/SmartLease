@@ -5,7 +5,11 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import * as React from "react";
 
+<<<<<<< HEAD
 const Dialog = DialogPrimitive.Root;
+=======
+import { cn } from "@/lib/utils"
+>>>>>>> 4a43c9ec6771bd72a4b6e6354f8dc91ca6901823
 
 const DialogTrigger = DialogPrimitive.Trigger;
 

@@ -1,18 +1,12 @@
 "use client";
 
-import { Logo } from "./Logo";
+import { WalletWatcher } from "./WalletWatcher";
+import { RainbowKitCustomConnectButton } from "./scaffold-eth";
 import DashboardTabLayout from "./shared/dashboard-tab-layout";
-import {
-  DappConsoleButton,
-  FaucetButton,
-  RainbowKitCustomConnectButton,
-  SuperchainFaucetButton,
-} from "@/components/scaffold-eth";
 import { LANDLORDNAV, TENANTNAV } from "@/constants/dashboard-nav";
-import { TenantRoutes, Landlordoutes } from "@/constants/user-type-routes";
 import { useOutsideClick } from "@/hooks/scaffold-eth";
 import { cn } from "@/lib/utils";
-import { Bars3Icon, BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
+import { BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { ReactNode, useCallback, useRef, useState } from "react";
@@ -80,7 +74,7 @@ export const Header = () => {
   const GeneralHeader = () => {
     return (
       <>
-        <div className=" flex items-center space-x-3 py-5">
+        {/* <div className=" flex items-center space-x-3 py-5">
           <div className="lg:hidden dropdown" ref={burgerMenuRef}>
             <label
               tabIndex={0}
@@ -109,17 +103,18 @@ export const Header = () => {
           <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
             <HeaderMenuLinks />
           </ul>
-        </div>
+        </div> */}
+        <div className="text-xl font-bold text-blue-600 py-6">SmartLease</div>
       </>
     );
   };
 
   const getHeaderType = (): ReactNode => {
     //@ts-ignore
-    if (TenantRoutes.includes(path))
+    if (path.startsWith("/tenant"))
       return <DashboardTabLayout tabList={TENANTNAV} />;
     //@ts-ignore
-    if (Landlordoutes.includes(path))
+    if (path.startsWith("/landlord"))
       return <DashboardTabLayout tabList={LANDLORDNAV} />;
     return <GeneralHeader />;
   };
@@ -129,7 +124,25 @@ export const Header = () => {
       <div className="flex items-end justify-between app-container">
         {getHeaderType()}
 
-        <div className="mr-4 flex items-center py-5">
+        {!path.startsWith("/landlord") && !path.startsWith("/tenant") && (
+          <nav className="space-x-6 py-6">
+            <a href="#" className="text-gray-700 hover:text-blue-600">
+              Home
+            </a>
+            <a href="#" className="text-gray-700 hover:text-blue-600">
+              Browse
+            </a>
+            <a href="#" className="text-gray-700 hover:text-blue-600">
+              How It Works
+            </a>
+            <a href="#" className="text-gray-700 hover:text-blue-600">
+              Contact
+            </a>
+          </nav>
+        )}
+
+        <div className="mr-4 flex items-center py-5 space-x-3">
+          <WalletWatcher />
           <RainbowKitCustomConnectButton />
           {/* <FaucetButton /> */}
         </div>
