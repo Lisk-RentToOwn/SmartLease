@@ -10,7 +10,7 @@ import {
   getUserRole,
   clearUserRole,
 } from '@/lib/cookies';
-import { checkUserExistsAndRole, registerUserRole } from "@/request/user-request"
+import { checkUserExistsAndRole, registerUserRole} from '@/services/request/user-request';
 
 export function WalletWatcher() {
   const { isConnected, address } = useAccount();
