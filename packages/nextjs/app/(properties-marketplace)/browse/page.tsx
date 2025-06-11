@@ -4,6 +4,16 @@ import DropdownFilter from "@/components/DropdownFilter";
 import PropertyCard from "@/components/PropertyCard";
 import React, { useState } from "react";
 
+type Status = "Active" | "Pending" | "Fully Owned";
+
+// Type narrowing function
+function toStatus(rawStatus: string): Status {
+  if (["Active", "Pending", "Fully Owned"].includes(rawStatus)) {
+    return rawStatus as Status;
+  }
+  return "Pending"; // Fallback or default
+}
+
 const mockProperties = [
   {
     id: "12342",
@@ -23,7 +33,7 @@ const mockProperties = [
     imageUrl: "/images/property2.jpg",
     status: "Pending",
   },
-  // more mock items as needed to be added here
+  // more mock items can be added here
 ];
 
 export default function BrowsePropertiesPage() {
@@ -54,7 +64,11 @@ export default function BrowsePropertiesPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {mockProperties.map((property) => (
-          <PropertyCard key={property.id} {...property} />
+          <PropertyCard
+            key={property.id}
+            {...property}
+            status={toStatus(property.status)}
+          />
         ))}
       </div>
     </div>
