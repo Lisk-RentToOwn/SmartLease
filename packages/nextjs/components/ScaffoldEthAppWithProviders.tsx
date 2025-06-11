@@ -12,7 +12,7 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 import { WagmiConfig } from "wagmi";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
