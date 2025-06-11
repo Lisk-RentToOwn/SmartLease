@@ -1,0 +1,3 @@
+export const RenToOwnAddress = "0x0B82fAE103Ec2a2A57FaE2FaC7e54EFa25d1E8C1"
+export const PropertyTokenContract = "0x7cb9B22d6B7a337f975B75058561760022fA2185"
+export const IdentityProviderContract = "0xA3C24Bacd5cBdE67c29654e661bFCF64aAB2691D"

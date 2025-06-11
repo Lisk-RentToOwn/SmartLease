@@ -1,5 +1,12 @@
-import { ChangeEvent, FocusEvent, ReactNode, useCallback, useEffect, useRef } from "react";
 import { CommonInputProps } from "@/components/scaffold-eth";
+import {
+  ChangeEvent,
+  FocusEvent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 
 type InputBaseProps<T> = CommonInputProps<T> & {
   error?: boolean;
@@ -8,7 +15,9 @@ type InputBaseProps<T> = CommonInputProps<T> & {
   reFocus?: boolean;
 };
 
-export const InputBase = <T extends { toString: () => string } | undefined = string>({
+export const InputBase = <
+  T extends { toString: () => string } | undefined = string
+>({
   name,
   value,
   onChange,
@@ -32,14 +41,17 @@ export const InputBase = <T extends { toString: () => string } | undefined = str
     (e: ChangeEvent<HTMLInputElement>) => {
       onChange(e.target.value as unknown as T);
     },
-    [onChange],
+    [onChange]
   );
 
   // Runs only when reFocus prop is passed, useful for setting the cursor
   // at the end of the input. Example AddressInput
   const onFocus = (e: FocusEvent<HTMLInputElement, Element>) => {
     if (reFocus !== undefined) {
-      e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length);
+      e.currentTarget.setSelectionRange(
+        e.currentTarget.value.length,
+        e.currentTarget.value.length
+      );
     }
   };
   useEffect(() => {
@@ -47,7 +59,9 @@ export const InputBase = <T extends { toString: () => string } | undefined = str
   }, [reFocus]);
 
   return (
-    <div className={`flex border-2 border-base-300 bg-base-200 rounded-full text-accent ${modifier}`}>
+    <div
+      className={`flex border-2 border-base-300 bg-base-200 rounded-full text-accent ${modifier}`}
+    >
       {prefix}
       <input
         className="input input-ghost focus-within:border-transparent focus:outline-none focus:bg-transparent focus:text-gray-400 h-[2.2rem] min-h-[2.2rem] px-4 border w-full font-medium placeholder:text-accent/50 text-gray-400"

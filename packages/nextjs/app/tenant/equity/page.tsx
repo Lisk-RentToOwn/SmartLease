@@ -62,23 +62,15 @@ export const metadata = { title: " Equity Growth Page" };
 
 export default function EquityGrowthPage() {
   return (
-    <div className="pt-4 space-y-7 min-h-screen min-w-full">
-      <header className="flex-jb-ic border-b pb-2 px-[13rem]">
+    <div className="pt-4 app-container">/
+      <header className="flex-jb-ic border-b pb-8">
         <div className="flex gap-2 items-center">
           <Home className="notfi-icon !rounded-sm bg-emerald-400 text-white" />
-          <p className="equity-hd">Equity Growth</p>
-        </div>
-        <div className="flex gap-2 items-center">
-          <Bell className="w-5 text-gray-700" />
-          <Avatar className="">
-            <AvatarImage src="/avatar.jpg" />
-
-            <AvatarFallback>SJ</AvatarFallback>
-          </Avatar>
-          <p className="text-[1rem]">Sarah Johnson</p>
+          <p className="equity-hd text-2xl">Equity Growth</p>
         </div>
       </header>
-      <main className="px-[13rem] space-y-6">
+
+      <main className=" mt-10 space-y-6">
         <section className="grid grid-cols-4 gap-7">
           <Card>
             <CardHeader className="card-hdr">

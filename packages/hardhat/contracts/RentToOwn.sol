@@ -65,7 +65,7 @@ contract RentToOwn is Ownable {
     event LandlordWithdrawal(address indexed landlord, uint256 indexed propertyId, uint256 amount);
     event TokensTransferred(uint256 indexed propertyId, address indexed from, address indexed to, uint256 tokenId, uint256 amount); /// NEW EVENT
 
-    constructor(address _liskToken, address _propertyToken) Ownable() {
+    constructor(address _liskToken, address _propertyToken) Ownable(msg.sender) {
         liskToken = IERC20(_liskToken);
         /// NEW: Uncommented
         propertyToken = PropertyToken(_propertyToken); //Represent the property token - uncomment
@@ -296,7 +296,7 @@ function getPropertyMetadata(uint256 propertyId) external view returns (
         return properties[propertyId].totalPaidToLandlord;
     }
     /// NEW: FUNCTION 
-        function getPropertyTokenId(uint256 propertyId) external view returns (uint256) {
+    function getPropertyTokenId(uint256 propertyId) external view returns (uint256) {
         return properties[propertyId].tokenId;
     }
 }
