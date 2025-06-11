@@ -11,7 +11,7 @@ export function CalendarDemo() {
       mode="single"
       selected={date}
       onSelect={setDate}
-      className=" shadow-sm w-str"
+      className=" shadow-sm w-full"
     />
   );
 }

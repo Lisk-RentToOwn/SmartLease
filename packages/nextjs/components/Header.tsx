@@ -144,7 +144,6 @@ export const Header = () => {
         <div className="mr-4 flex items-center py-5 space-x-3">
           <WalletWatcher />
           <RainbowKitCustomConnectButton />
-          {/* <FaucetButton /> */}
         </div>
       </div>
     </header>

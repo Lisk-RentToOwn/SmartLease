@@ -6,7 +6,7 @@ const TenantLayout = ({ children }: { children: React.ReactNode }) => {
     <>
       {children}
 
-      <footer
+      {/* <footer
         className="flex-jb-ic px-[13rem] py-5 border-t mt-20 relative bottom-1
       "
       >
@@ -31,7 +31,7 @@ const TenantLayout = ({ children }: { children: React.ReactNode }) => {
         <Button className="absolute right-1 shadow-md rounded-tr-none rounded-l-3xl rounded-br-2xl  py-1">
           <HelpCircle /> Help
         </Button>
-      </footer>
+      </footer> */}
     </>
   );
 };

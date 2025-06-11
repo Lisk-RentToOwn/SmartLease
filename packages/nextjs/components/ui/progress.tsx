@@ -1,15 +1,8 @@
 "use client";
 
-<<<<<<< HEAD
 import { cn } from "@/lib/utils";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 import * as React from "react";
-=======
-import * as React from "react"
-import * as ProgressPrimitive from "@radix-ui/react-progress"
-
-import { cn } from "@/lib/utils"
->>>>>>> 4a43c9ec6771bd72a4b6e6354f8dc91ca6901823
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,

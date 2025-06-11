@@ -1,6 +1,5 @@
 "use client";
 
-import { WalletWatcher } from "./WalletWatcher";
 import { Header } from "@/components/Header";
 import { BlockieAvatar } from "@/components/scaffold-eth";
 import { ProgressBar } from "@/components/scaffold-eth/ProgressBar";
@@ -13,7 +12,7 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 import { WagmiConfig } from "wagmi";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
