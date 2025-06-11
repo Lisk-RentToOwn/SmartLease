@@ -1,6 +1,11 @@
+<<<<<<< HEAD
+import { cn } from "@/lib/utils";
+import * as React from "react";
+=======
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+>>>>>>> 4a43c9ec6771bd72a4b6e6354f8dc91ca6901823
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
@@ -14,9 +19,9 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         ref={ref}
         {...props}
       />
-    )
+    );
   }
-)
-Input.displayName = "Input"
+);
+Input.displayName = "Input";
 
-export { Input }
+export { Input };

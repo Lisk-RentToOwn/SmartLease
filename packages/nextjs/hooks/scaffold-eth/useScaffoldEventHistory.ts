@@ -1,10 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
 import { useTargetNetwork } from "./useTargetNetwork";
-import { Abi, AbiEvent, ExtractAbiEventNames } from "abitype";
-import { useInterval } from "usehooks-ts";
-import { Hash } from "viem";
-import * as chains from "viem/chains";
-import { usePublicClient } from "wagmi";
 import { useDeployedContractInfo } from "@/hooks/scaffold-eth";
 import scaffoldConfig from "@/scaffold.config";
 import { replacer } from "@/utils/scaffold-eth/common";
@@ -14,6 +8,12 @@ import {
   UseScaffoldEventHistoryConfig,
   UseScaffoldEventHistoryData,
 } from "@/utils/scaffold-eth/contract";
+import { Abi, AbiEvent, ExtractAbiEventNames } from "abitype";
+import { useEffect, useMemo, useState } from "react";
+import { useInterval } from "usehooks-ts";
+import { Hash } from "viem";
+import * as chains from "viem/chains";
+import { usePublicClient } from "wagmi";
 
 /**
  * Reads events from a deployed contract
@@ -33,7 +33,7 @@ export const useScaffoldEventHistory = <
   TEventName extends ExtractAbiEventNames<ContractAbi<TContractName>>,
   TBlockData extends boolean = false,
   TTransactionData extends boolean = false,
-  TReceiptData extends boolean = false,
+  TReceiptData extends boolean = false
 >({
   contractName,
   eventName,
@@ -44,13 +44,20 @@ export const useScaffoldEventHistory = <
   receiptData,
   watch,
   enabled = true,
-}: UseScaffoldEventHistoryConfig<TContractName, TEventName, TBlockData, TTransactionData, TReceiptData>) => {
+}: UseScaffoldEventHistoryConfig<
+  TContractName,
+  TEventName,
+  TBlockData,
+  TTransactionData,
+  TReceiptData
+>) => {
   const [events, setEvents] = useState<any[]>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [fromBlockUpdated, setFromBlockUpdated] = useState<bigint>(fromBlock);
 
-  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo(contractName);
+  const { data: deployedContractData, isLoading: deployedContractLoading } =
+    useDeployedContractInfo(contractName);
   const publicClient = usePublicClient();
   const { targetNetwork } = useTargetNetwork();
 
@@ -66,12 +73,15 @@ export const useScaffoldEventHistory = <
       }
 
       const event = (deployedContractData.abi as Abi).find(
-        part => part.type === "event" && part.name === eventName,
+        (part) => part.type === "event" && part.name === eventName
       ) as AbiEvent;
 
       const blockNumber = await publicClient.getBlockNumber({ cacheTime: 0 });
 
-      if ((fromBlock && blockNumber >= fromBlock) || blockNumber >= fromBlockUpdated) {
+      if (
+        (fromBlock && blockNumber >= fromBlock) ||
+        blockNumber >= fromBlockUpdated
+      ) {
         const logs = await publicClient.getLogs({
           address: deployedContractData?.address,
           event,
@@ -89,14 +99,20 @@ export const useScaffoldEventHistory = <
             block:
               blockData && logs[i].blockHash === null
                 ? null
-                : await publicClient.getBlock({ blockHash: logs[i].blockHash as Hash }),
+                : await publicClient.getBlock({
+                    blockHash: logs[i].blockHash as Hash,
+                  }),
             transaction:
               transactionData && logs[i].transactionHash !== null
-                ? await publicClient.getTransaction({ hash: logs[i].transactionHash as Hash })
+                ? await publicClient.getTransaction({
+                    hash: logs[i].transactionHash as Hash,
+                  })
                 : null,
             receipt:
               receiptData && logs[i].transactionHash !== null
-                ? await publicClient.getTransactionReceipt({ hash: logs[i].transactionHash as Hash })
+                ? await publicClient.getTransactionReceipt({
+                    hash: logs[i].transactionHash as Hash,
+                  })
                 : null,
           });
         }
@@ -153,7 +169,11 @@ export const useScaffoldEventHistory = <
         readEvents();
       }
     },
-    watch ? (targetNetwork.id !== chains.hardhat.id ? scaffoldConfig.pollingInterval : 4_000) : null,
+    watch
+      ? targetNetwork.id !== chains.hardhat.id
+        ? scaffoldConfig.pollingInterval
+        : 4_000
+      : null
   );
 
   const eventHistoryData = useMemo(
@@ -165,7 +185,7 @@ export const useScaffoldEventHistory = <
         TTransactionData,
         TReceiptData
       >,
-    [events],
+    [events]
   );
 
   return {
