@@ -44,6 +44,8 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { NFTMetadata, uploadMetadata, uploadToIPFS } from "@/services/pinata/pinata";
+import { useContractWrite } from "wagmi";
+import { RentToOwnABI } from "@/abi/RentToOwn";
  
 const formSchema = z.object({
   files: z
