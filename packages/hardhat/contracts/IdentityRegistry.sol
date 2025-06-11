@@ -31,4 +31,10 @@ contract IdentityRegistry {
     function isLandlord(address user) external view returns (bool) {
         return userRoles[user] == Role.Landlord;
     }
+
+    /// NEW FUNCTION:
+    /// Returns true if user has any verified role (required by RentPaymaster)
+    function isVerified(address user) external view returns (bool) {
+        return userRoles[user] != Role.None;
+    }
 }
