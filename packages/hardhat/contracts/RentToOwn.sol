@@ -296,7 +296,7 @@ function getPropertyMetadata(uint256 propertyId) external view returns (
         return properties[propertyId].totalPaidToLandlord;
     }
     /// NEW: FUNCTION 
-        function getPropertyTokenId(uint256 propertyId) external view returns (uint256) {
+    function getPropertyTokenId(uint256 propertyId) external view returns (uint256) {
         return properties[propertyId].tokenId;
     }
 }
