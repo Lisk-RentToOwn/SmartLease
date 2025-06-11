@@ -1,5 +1,6 @@
 "use client";
 
+//this is page allows the landlord to withdraw funds from the wallet
 import React, { useState } from "react";
 
 export default function WithdrawFundsPage() {
