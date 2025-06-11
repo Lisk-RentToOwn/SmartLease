@@ -34,7 +34,7 @@ contract PropertyToken is ERC1155, Ownable {
         _;
     }
 
-    constructor(address _identityRegistry) ERC1155("") {
+    constructor(address _identityRegistry) ERC1155("") Ownable(msg.sender){
         identityRegistry = IIdentityRegistry(_identityRegistry);
     }
 
