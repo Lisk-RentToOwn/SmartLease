@@ -19,7 +19,7 @@ async function main(): Promise<void> {
   console.log("👤 Deployer address:", deployerAddress);
   console.log("💰 Deployer balance (ETH):", ethers.formatEther(balance));
 
-  const entryPointAddress: string = "0x43089951470a387a94631b9a810da6a72c308a08"; // ERC-4337 EntryPoint
+  const entryPointAddress: string = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"; // ERC-4337 EntryPoint
   const useExistingToken: boolean = true;
   const existingLiskTokenAddress: string = "0x5589BB8228C07c4e15558875fAf2B859f678d129"; // Lisk Sepolia
 

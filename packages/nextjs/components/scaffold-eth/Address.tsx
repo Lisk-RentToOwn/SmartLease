@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { BlockieAvatar } from "@/components/scaffold-eth";
+import { useTargetNetwork } from "@/hooks/scaffold-eth/useTargetNetwork";
+import { getBlockExplorerAddressLink } from "@/utils/scaffold-eth";
+import {
+  CheckCircleIcon,
+  DocumentDuplicateIcon,
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Address as AddressType, getAddress, isAddress } from "viem";
 import { hardhat } from "viem/chains";
 import { useEnsAvatar, useEnsName } from "wagmi";
-import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import { BlockieAvatar } from "@/components/scaffold-eth";
-import { useTargetNetwork } from "@/hooks/scaffold-eth/useTargetNetwork";
-import { getBlockExplorerAddressLink } from "@/utils/scaffold-eth";
 
 type AddressProps = {
   address?: AddressType;
@@ -31,7 +34,12 @@ const blockieSizeMap = {
 /**
  * Displays an address (or ENS) with a Blockie image and option to copy address.
  */
-export const Address = ({ address, disableAddressLink, format, size = "base" }: AddressProps) => {
+export const Address = ({
+  address,
+  disableAddressLink,
+  format,
+  size = "base",
+}: AddressProps) => {
   const [ens, setEns] = useState<string | null>();
   const [ensAvatar, setEnsAvatar] = useState<string | null>();
   const [addressCopied, setAddressCopied] = useState(false);
@@ -76,8 +84,12 @@ export const Address = ({ address, disableAddressLink, format, size = "base" }: 
     return <span className="text-error">Wrong address</span>;
   }
 
-  const blockExplorerAddressLink = getBlockExplorerAddressLink(targetNetwork, checkSumAddress);
-  let displayAddress = checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4);
+  const blockExplorerAddressLink = getBlockExplorerAddressLink(
+    targetNetwork,
+    checkSumAddress
+  );
+  let displayAddress =
+    checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4);
 
   if (ens) {
     displayAddress = ens;
@@ -94,9 +106,11 @@ export const Address = ({ address, disableAddressLink, format, size = "base" }: 
           size={(blockieSizeMap[size] * 24) / blockieSizeMap["base"]}
         />
       </div>
-      
+
       {disableAddressLink ? (
-        <span className={`ml-1.5 text-${size} font-normal`}>{displayAddress}</span>
+        <span className={`ml-1.5 text-${size} font-normal`}>
+          {displayAddress}
+        </span>
       ) : targetNetwork.id === hardhat.id ? (
         <span className={`ml-1.5 text-${size} font-normal`}>
           <Link href={blockExplorerAddressLink}>{displayAddress}</Link>

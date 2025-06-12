@@ -10,3 +10,5 @@ export async function checkUserExistsAndRole(address: string): Promise<{ exists:
     // Replace this with wagmi `writeContract()` logic
     console.log(`Registering ${address} as ${role}`);
   }
+
+  

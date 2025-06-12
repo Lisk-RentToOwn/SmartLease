@@ -1,0 +1,85 @@
+specVersion: 0.0.4
+description: SmartLease Platform Subgraph
+repository: https://github.com/Lisk-RentToOwn/RentToOwn
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: IdentityRegistry
+    network: lisk-sepolia-testnet
+    source:
+      address: "0xA3C24Bacd5cBdE67c29654e661bFCF64aAB2691D"
+      abi: IdentityRegistry
+      startBlock: 22158975
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - RoleAssignment
+      abis:
+        - name: IdentityRegistry
+          file: IdentityRegistry/IdentityRegistry.json
+      eventHandlers:
+        - event: RoleAssigned(indexed address,uint8)
+          handler: handleRoleAssigned
+      file: IdentityRegistry/IdentityRegistry.wasm
+  - kind: ethereum/contract
+    name: PropertyToken
+    network: lisk-sepolia-testnet
+    source:
+      address: "0x7cb9B22d6B7a337f975B75058561760022fA2185"
+      abi: PropertyToken
+      startBlock: 22158979
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - PropertyTokenMint
+        - PropertyTokenTransfer
+      abis:
+        - name: PropertyToken
+          file: PropertyToken/PropertyToken.json
+      eventHandlers:
+        - event: PropertyTokenMinted(indexed uint256,indexed address,uint256,string)
+          handler: handlePropertyMinted
+        - event: PropertyTokenTransferred(indexed uint256,indexed address,indexed address,uint256)
+          handler: handlePropertyTransferred
+      file: IdentityRegistry/IdentityRegistry.wasm
+  - kind: ethereum/contract
+    name: RentToOwn
+    network: lisk-sepolia-testnet
+    source:
+      address: "0x0B82fAE103Ec2a2A57FaE2FaC7e54EFa25d1E8C1"
+      abi: RentToOwn
+      startBlock: 22158983
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - PropertyCreated
+        - RentPaidEvent
+        - EquityUpdated
+        - PropertyOccupied
+        - LandlordWithdrawal
+        - TokensTransferred
+      abis:
+        - name: RentToOwn
+          file: RentToOwn/RentToOwn.json
+      eventHandlers:
+        - event: PropertyCreated(indexed uint256,indexed
+            address,uint256,uint256,string,string,string,string,string,string,string)
+          handler: handlePropertyCreated
+        - event: RentPaid(indexed uint256,indexed address,uint256)
+          handler: handleRentPaid
+        - event: EquityUpdated(indexed uint256,indexed address,uint256)
+          handler: handleEquityUpdated
+        - event: PropertyOccupied(indexed uint256,indexed address)
+          handler: handlePropertyOccupied
+        - event: LandlordWithdrawal(indexed address,indexed uint256,uint256)
+          handler: handleLandlordWithdrawal
+        - event: TokensTransferred(indexed uint256,indexed address,indexed address,uint256,uint256)
+          handler: handleTokensTransferred
+      file: IdentityRegistry/IdentityRegistry.wasm
