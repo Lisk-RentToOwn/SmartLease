@@ -1,6 +1,6 @@
 'use client'
 
-import { Pencil, SquarePen } from "lucide-react"
+import { LucideCoins, Pencil, SquarePen } from "lucide-react"
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import PropertyPaymentHistoryTable from "@/components/landlord/rent-pament-history";
@@ -11,6 +11,7 @@ import { useParams, usePathname, useSearchParams } from "next/navigation";
 import PropertyCardSkeleton from "@/components/shared/property-skeleton";
 import { formatDurationFromMonths, priceFormatter } from "@/utils/formatter";
 import Link from "next/link";
+import { Routes } from "@/app/routes";
 
 
 const LandlordPropertiesDetailPage = () => {
@@ -26,7 +27,17 @@ const LandlordPropertiesDetailPage = () => {
     return (
         <>
             <main className="min-h-dvh bg-gray-100">
-                <div className="grid grid-cols-12 gap-x-10 app-container mt-16">
+                <div className="app-container mt-16 mb-4">
+                        <Link href={`${Routes.LANDLORD_WITHDRAW}?id=${timeline[0]?.args.propertyId}`} className="">
+                            <Button className="py-6 px-7 rounded-lg flex items-center space-x-2">
+                                <LucideCoins size={27}/>
+                                <p className="">Withdraw</p>
+                            </Button>
+                        </Link>
+                </div>
+
+                <div className="grid grid-cols-12 gap-x-10 app-container">
+
                     <div className="col-span-8">
                         <div className="bg-white rounded-lg p-5">
                             <div className="flex justify-between items-center">
@@ -230,7 +241,6 @@ const LandlordPropertiesDetailPage = () => {
                         </div>
                     }
                 </div>
-
 
                 <div className="app-container">
                     <div className="bg-white p-5 rounded-lg mt-16 mb-16 py-8">

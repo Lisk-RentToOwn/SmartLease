@@ -6,10 +6,14 @@ import EmptyContent from "@/components/shared/empty-content";
 import TablePagination from "@/components/shared/pagination-custom";
 import PropertyCardSkeleton from "@/components/shared/property-skeleton";
 import { useAvailableProperties } from "@/hooks/property/usePropertyEvents";
+import { usePayRent } from "@/services/request/contract/contract-request";
+import { getParsedError } from "@/utils/scaffold-eth";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { useAccount } from "wagmi";
+import { useAccount, useWaitForTransaction } from "wagmi";
 
+
+// propertyId, amt
 export default function BrowsePropertiesPage() {
   const {isConnected} = useAccount()
 
@@ -25,11 +29,42 @@ export default function BrowsePropertiesPage() {
     liveUpdates: true
   });
 
-  const payRent = () => {
-    if (!isConnected) {
-      toast.error("Please connect wallet to payRent")
-    }
+  const [wLoading, setWLoading] = useState(false)
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
+  const {writeAsync: payRent, isLoading: isLoading} = usePayRent()
+  // propertyId, amt
+
+    const withdrawFunds = async (propertyId: number, amount: number) => {
+      setWLoading(true)
+      try {
+          if (!isConnected) {
+            toast.error("Please connect wallet to payRent")
+            return
+          }
+          const tx = await payRent({args: [propertyId, Math.floor(amount)]})
+          setTxHash(tx.hash);
+      }catch (err) {
+          const error = getParsedError(err)
+          toast.error(error)
+      } finally {
+        setWLoading(false)
+      }
   }
+
+  useWaitForTransaction({
+      hash: txHash,
+      confirmations: 1,
+      enabled: !!txHash,
+      onSuccess() {
+          setWLoading(false)
+          toast.success(`Payment successful. You are now a tenant Transaction hash ${txHash}`)
+        // navigate or update UI here
+      },
+      onError(error) {
+        console.error("Tx failed to confirm", error);
+        setWLoading(false)
+      },
+  });
 
   console.log(properties)
   
@@ -80,7 +115,7 @@ export default function BrowsePropertiesPage() {
                 <PropertyCard 
                   key={`${property.args.propertyId}-${property.blockNumber}`}
                   data={property.args as PropertyType}
-                  payRent={payRent}
+                  payRent={withdrawFunds}
                 />
               ))}
             </div>
