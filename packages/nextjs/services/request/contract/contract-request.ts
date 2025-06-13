@@ -14,32 +14,23 @@ export enum PaymentType { Fixed = 0, Flexible = 1}
 
 // create property
 export function useCreateProperty(
-    value: number,
-    duration: number,
-    paymentType: PaymentType,
-    name: string,
-    image: string,
-    propertyAddr: string,
-    city: string,
-    state: string,
-    zipCode: string,
-    currency: string
+    // value: number,
+    // duration: number,
+    // paymentType: PaymentType,
+    // name: string,
+    // image: string,
+    // propertyAddr: string,
+    // city: string,
+    // state: string,
+    // zipCode: string,
+    // currency: string
 ) { 
     return useContractWrite({
         ...genericContractRequestRentToOwn,
         functionName: "createProperty",
-        args: [
-            value,
-            duration,
-            paymentType,
-            name,
-            image,
-            propertyAddr,
-            city,
-            state,
-            zipCode,
-            currency
-        ]
+        // args: [
+     
+        // ]
     })
 }
 
@@ -170,7 +161,6 @@ export function useSetUserRole(
     return useContractWrite({
         ...genericContractRequestIdentityProvider,
         functionName: "setUserRole",
-        // args: [role]
     })
 }
 

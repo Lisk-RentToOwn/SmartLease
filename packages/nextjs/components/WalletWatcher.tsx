@@ -67,21 +67,18 @@ export function WalletWatcher() {
     if (role === "landlord") return RoleEnum.Landlord
     return RoleEnum.None
   }
+
   const roleEnumToString = (role: RoleEnum) => {
     if (role === RoleEnum.Tenant) return "tenant"
     else return "landlord" 
   }
-  
-
-
-
 
   useEffect(() => {
     if (!isConnected && hasHandled) {
       clearUserRole();
       setHasHandled(false);
       setShowRoleModal(false);
-      window.location.href = "/"
+      router.replace("/")
     }
   }, [isConnected, hasHandled, router]);
 
@@ -92,6 +89,7 @@ export function WalletWatcher() {
     try {
         const tx = await setRole({ args: [roleStringToEnum(role)] }); // <== pass args here
         setTxHash(tx.hash); // wait for this tx
+        setUserRole(role)
     } catch (err) {
       const error = getParsedError(err)
       toast.error(error)
@@ -103,7 +101,10 @@ export function WalletWatcher() {
     confirmations: 1,
     enabled: !!txHash,
     onSuccess() {
-      console.log("Transaction confirmed!");
+      // console.log("Transaction confirmed!");
+      
+      toast.success("User role set successfully. You can proceed to your dashboard")
+      setShowRoleModal(false);
       // navigate or update UI here
     },
     onError(error) {

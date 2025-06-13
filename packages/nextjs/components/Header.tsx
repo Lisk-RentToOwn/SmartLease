@@ -1,5 +1,6 @@
 "use client";
 
+import { Routes } from "@/app/routes";
 import { WalletWatcher } from "./WalletWatcher";
 import { RainbowKitCustomConnectButton } from "./scaffold-eth";
 import DashboardTabLayout from "./shared/dashboard-tab-layout";
@@ -126,18 +127,18 @@ export const Header = () => {
 
         {!path.startsWith("/landlord") && !path.startsWith("/tenant") && (
           <nav className="space-x-6 py-6">
-            <a href="#" className="text-gray-700 hover:text-blue-600">
+            <Link href={Routes.HOME} className="text-gray-700 hover:text-blue-600">
               Home
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600">
+            </Link>
+            <Link href={Routes.BROWSE_PROPERTIES} className="text-gray-700 hover:text-blue-600">
               Browse
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600">
+            </Link>
+            <Link href="#" className="text-gray-700 hover:text-blue-600">
               How It Works
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600">
+            </Link>
+            <Link href="#" className="text-gray-700 hover:text-blue-600">
               Contact
-            </a>
+            </Link>
           </nav>
         )}
 

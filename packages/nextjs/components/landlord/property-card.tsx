@@ -19,7 +19,8 @@ type LandlordPropertyCardProps = {
     property_image_url: string,
     currency: string,
     lease_end: string,
-    flexible_payment: boolean
+    flexible_payment: boolean,
+    proprtyId: number
 }
 
 const LandlordPropertyCard = ({
@@ -35,7 +36,8 @@ const LandlordPropertyCard = ({
     property_image_url,
     currency,
     lease_end,
-    flexible_payment
+    flexible_payment,
+    proprtyId
 }:LandlordPropertyCardProps) => {
     return (
         <>
@@ -80,7 +82,7 @@ const LandlordPropertyCard = ({
 
                         <div className="">
                             <p className="text-slate-500">Price</p>
-                            <span className="font-bold">{currency}<span className="">{price}</span></span>
+                            <span className="font-bold">{currency} <span className="">{price}</span></span>
                         </div>
                     </div>
 
@@ -95,13 +97,13 @@ const LandlordPropertyCard = ({
                                 <p className="text-gray-600 text-xs">Tenant since {start_date}</p>
                             </div>
                         </div> */}
-                        <p className="text-xs">Lease ends: {lease_end}</p>
+                        <p className="text-sm">Lease ends: {lease_end}</p>
                         <span className="text-gray-400">Is payment flexible: <span className={cn("text-green-500 font-medium", {"text-red-500": !flexible_payment})}>{flexible_payment ? "Yes" : "No"}</span></span>
                     </div>
                 </CardContent>
 
                 <CardFooter>
-                    <Link href={`${Routes.LANDLORD_PROPERTIES}/1`}>
+                    <Link href={`${Routes.LANDLORD_PROPERTIES}/${proprtyId}`}>
                         <Button className="">View Details</Button>
                     </Link>
                 </CardFooter>
