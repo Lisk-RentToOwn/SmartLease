@@ -13,13 +13,13 @@ import { GenericContractsDeclaration } from "@/utils/scaffold-eth/contract";
  * } as const;
  */
 const externalContracts = {
-    33234: {
-        IdentityRegisteryContract: {
-            address: "",
-            abi: IdentityRegistryABI,
-            inheritedFunctions: {},
-        },
-    }
+    // 33234: {
+    //     IdentityRegisteryContract: {
+    //         address: "",
+    //         abi: IdentityRegistryABI,
+    //         inheritedFunctions: {},
+    //     },
+    // }
 } as const;
 
 export default externalContracts satisfies GenericContractsDeclaration;
