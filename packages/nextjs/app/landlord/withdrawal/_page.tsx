@@ -11,11 +11,13 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useWaitForTransaction } from "wagmi";
 
-export default function WithdrawFundsPage() {
+export default function WithdrawFundsClientPage() {
   const params = useSearchParams()
   const propertyId = params.get("id")
+
   const [balance, setBalance] = useState(0);
   const [amount, setAmount] = useState("");
+  
   const [lastUpdated, setLastUpdated] = useState("Today at 09:45 AM");
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const {address} = useAccount()
@@ -48,7 +50,7 @@ export default function WithdrawFundsPage() {
       try {
           const tx = await createProperty({args: [propertyId]})
           setTxHash(tx.hash);
-      }catch (err) {
+      }catch (err) {'['
           const error = getParsedError(err)
           toast.error(error)
       } finally {
