@@ -52,34 +52,34 @@ export default function TenantPaymentPage() {
 
   const [autoPayEnable, setAutoPayEnable] = useState(false);
 
-  const { writeAsync: payRent, isLoading: isPaying } = usePayRent(
-    propertyInfo.propertyId,
-    amtInWei
-  );
+  // const { writeAsync: payRent, isLoading: isPaying } = usePayRent(
+  //   propertyInfo.propertyId,
+  //   amtInWei
+  // );
 
   const handlePayRent = async () => {
-    try {
-      toast.loading("Processing payment");
-      const tx = await payRent();
+    // try {
+    //   toast.loading("Processing payment");
+    //   const tx = await payRent();
 
-      toast.dismiss();
-      toast.success("Payment completed", {
-        duration: 500,
-        description: "Your rent for June 2023 has been paid",
-        action: {
-          label: "View on Explorer",
-          onClick: () =>
-            window.open(
-              `https://sepolia-blockscout.lisk.com/address/${tx.hash}`,
-              "_blank"
-            ),
-        },
-      });
-    } catch (error) {
-      toast.dismiss();
-      console.log("Payment fails:", error);
-      toast.error("Payment failed");
-    }
+    //   toast.dismiss();
+    //   toast.success("Payment completed", {
+    //     duration: 500,
+    //     description: "Your rent for June 2023 has been paid",
+    //     action: {
+    //       label: "View on Explorer",
+    //       onClick: () =>
+    //         window.open(
+    //           `https://sepolia-blockscout.lisk.com/address/${tx.hash}`,
+    //           "_blank"
+    //         ),
+    //     },
+    //   });
+    // } catch (error) {
+    //   toast.dismiss();
+    //   console.log("Payment fails:", error);
+    //   toast.error("Payment failed");
+    // }
   };
 
   return (
@@ -126,10 +126,10 @@ export default function TenantPaymentPage() {
                       </p>
                     </div>
                   </div>
-                  <Button onClick={handlePayRent} disabled={isPaying}>
+                  <Button onClick={handlePayRent}>
                     <CreditCard />
                     <span className="text-xs">
-                      ${isPaying ? "Processing" : "Pay Now"}
+                      {/* ${isPaying ? "Processing" : "Pay Now"} */}
                     </span>
                   </Button>
                 </CardContent>
