@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import PropertyPaymentHistoryTable from "@/components/landlord/rent-pament-history";
 import { PropertyEquityChart } from "@/components/landlord/property-equity-chart";
 import Image from "next/image";
+import { useTokenHolders } from "@/hooks/property/usePropertyEvents";
 
 
 const LandlordPropertiesDetailPage = () => {
+
+    const {} = useTokenHolders()
+    // const
     return (
         <>
             <main className="min-h-dvh bg-gray-100">
