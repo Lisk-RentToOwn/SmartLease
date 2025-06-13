@@ -58,16 +58,16 @@ const wallets = [
   braveWallet(walletsOptions),
   coinbaseWallet({ ...walletsOptions, appName: "scaffold-eth-2" }),
   rainbowWallet(walletsOptions),
-  ...(!targetNetworks.some((network) => network.id !== chains.hardhat.id) ||
-  !onlyLocalBurnerWallet
-    ? [
-        burnerWalletConfig({
-          chains: appChains.chains.filter((chain) =>
-            targetNetworks.map(({ id }) => id).includes(chain.id)
-          ),
-        }),
-      ]
-    : []),
+  // ...(!targetNetworks.some((network) => network.id !== chains.hardhat.id) ||
+  // !onlyLocalBurnerWallet
+  //   ? [
+  //       burnerWalletConfig({
+  //         chains: appChains.chains.filter((chain) =>
+  //           targetNetworks.map(({ id }) => id).includes(chain.id)
+  //         ),
+  //       }),
+  //     ]
+  //   : []),
   safeWallet({ ...walletsOptions }),
 ];
 

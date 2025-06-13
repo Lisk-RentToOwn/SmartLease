@@ -34,8 +34,7 @@ export type PropertyType = {
 export default function PropertyCard({
   data,
   payRent
-}: {data :PropertyType, payRent: () => void}) {
-
+}: {data :PropertyType, payRent: (propertyId: number, amount: number) => Promise<void>}) {
 
   return (
     <div className="bg-white shadow rounded-xl overflow-hidden">
@@ -63,7 +62,7 @@ export default function PropertyCard({
           <p className="">Duration</p>
           <p className="">{formatDurationFromMonths(Number(data.duration))}</p>
         </div>
-        <button onClick={payRent} className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">
+        <button onClick={() => {payRent(Number(data.propertyId), (Number(data.value)/Number(data.duration)))}} className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">
           Pay Rent
         </button>
       </div>
