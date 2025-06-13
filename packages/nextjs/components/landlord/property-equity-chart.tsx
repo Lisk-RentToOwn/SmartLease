@@ -17,6 +17,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { useEquityDistribution } from "@/hooks/property/usePropertyEvents"
+import { usePathname } from "next/navigation"
 
 export const description = "A linear line chart"
 
@@ -37,6 +39,10 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function PropertyEquityChart() {
+  const path = usePathname()
+  
+  const propertyId = path.split("/")[3]
+  const {data: data, loading:equityLoading} = useEquityDistribution(+propertyId, 12)
   return (
         <ChartContainer config={chartConfig} className="h-[300px] w-full p-4">
           <LineChart

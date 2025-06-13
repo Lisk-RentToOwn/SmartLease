@@ -136,12 +136,12 @@ export const columns: ColumnDef<NewProperty>[] = [
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Link href={`https://sepolia-blockscout.lisk.com/tx/${property.txHash}`}>
+                <Link target="_blank" href={`https://sepolia-blockscout.lisk.com/tx/${property.txHash}`}>
                   View on Explorer
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                  <Link href={`${Routes.LANDLORD_PROPERTIES}/${Number(property.args.propertyId)}`}>View Property details</Link>
+                  <Link href={`${Routes.LANDLORD_PROPERTIES}/${Number(property.args.propertyId)}?tokenId=${property.args.tokenId}`}>View Property details</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

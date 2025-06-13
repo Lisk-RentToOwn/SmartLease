@@ -36,6 +36,8 @@ import { useState } from "react";
   } from "@/components/ui/table";
   import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useRentPayments } from "@/hooks/property/usePropertyEvents";
+import { usePathname } from "next/navigation";
 
 const data: PaymentHistory[] = [
     {
@@ -144,6 +146,12 @@ export const columns: ColumnDef<PaymentHistory>[] = [
 const PropertyPaymentHistoryTable = () => {
     const [density, setDensity] = useState<string>("flexible");
   const [sorting, setSorting] = useState<SortingState>([]);
+  const path = usePathname()
+  const propertyId = path.split("/")[3]
+
+  const { payments, loading: paymentHistoryLoading } = useRentPayments({
+      propertyId: +propertyId
+  });
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   );

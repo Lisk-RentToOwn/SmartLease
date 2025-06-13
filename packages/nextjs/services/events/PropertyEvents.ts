@@ -122,6 +122,41 @@ export class PropertyEventService {
         });
     }
 
+    async getRentPaymentHistory(
+        filters: {
+          landlord?: string;
+          propertyId?: number;
+          tenant?: string;
+          fromBlock?: number;
+          toBlock?: number | string;
+        } = {}
+      ): Promise<PropertyEvent[]> {
+        const { events } = await this.getEvents(
+          "RentToOwn",
+          "RentPaid",
+          {
+            ...(filters.propertyId && { propertyId: filters.propertyId }),
+            ...(filters.tenant && { tenant: filters.tenant })
+          },
+          filters.fromBlock || 0,
+          filters.toBlock || "latest",
+          10000 // High limit for full history
+        );
+      
+        // Additional landlord filter if needed
+        if (filters.landlord) {
+          const landlordProperties = await this.getLandlordProperties(filters.landlord);
+          const propertyIds = landlordProperties.map(p => p.args.propertyId);
+          
+          return events.filter(event => 
+            propertyIds.includes(event.args.propertyId)
+          );
+        }
+      
+        return events;
+      }
+      
+
     async getRentAnalysis(landlordAddress: string, year?: number): Promise<{
         month: string;
         collected: number;
