@@ -5339,6 +5339,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/graphql@npm:^14.5.0":
+  version: 14.5.0
+  resolution: "@types/graphql@npm:14.5.0"
+  dependencies:
+    graphql: "*"
+  checksum: 8f6e3873a75f1818b6551dae88002d786f764c6c3f5d3b228078ecfc8fb1b116fcec03a1a0dd1f83790505d8e5ecfc4737e152ad7abb6948ff5412f11d7b1b38
+  languageName: node
+  linkType: hard
+
 "@types/inquirer@npm:^9":
   version: 9.0.8
   resolution: "@types/inquirer@npm:9.0.8"
@@ -11611,7 +11620,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:16.11.0, graphql@npm:^16.6.0":
+"graphql@npm:*, graphql@npm:16.11.0, graphql@npm:^16.6.0":
   version: 16.11.0
   resolution: "graphql@npm:16.11.0"
   checksum: 65bc206edbe980f2759a8e4cf324873f75a66ab48263961472716e50127ae446739be20f926bb7f036a8d199bd4de072f684fd147c285bd6ba965d98cebb6200
@@ -16582,7 +16591,9 @@ __metadata:
   dependencies:
     "@graphprotocol/graph-ts": ^0.38.1
     "@tanstack/react-table": ^8.21.3
+    "@types/graphql": ^14.5.0
     "@typescript-eslint/parser": ^5.39.0
+    graphql-request: ^7.2.0
     hardhat: ^2.24.2
     husky: ^8.0.1
     lint-staged: ^13.0.3
