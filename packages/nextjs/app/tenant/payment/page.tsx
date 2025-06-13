@@ -1,3 +1,5 @@
+"use client";
+
 import {
   UserRound,
   Wallet,
@@ -7,6 +9,11 @@ import {
   Circle,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { formatEther } from "viem";
+import { parseEther } from "viem";
+import { useAccount } from "wagmi";
 import { CalendarDemo } from "~~/components/tenants/CalenderDemo";
 import DataTableDemo from "~~/components/tenants/DataTableDemo";
 import NotificationBell from "~~/components/tenants/NotificationBell";
@@ -21,16 +28,65 @@ import {
   CardFooter,
 } from "~~/components/ui/card";
 import { Switch } from "~~/components/ui/switch";
-
-export const metadata = { title: "Tenant Payment Page" };
+import {
+  usePayRent,
+  useGetPropertyMetadata,
+} from "~~/services/request/contract/contract-request";
 
 export default function TenantPaymentPage() {
+  useEffect(() => {
+    document.title = "Tenant Payment Page";
+  }, []);
+
+  const { address } = useAccount();
+
+  const propertyInfo = {
+    propertyId: 1,
+    amount: 20,
+    date: new Date(2023, 5, 1),
+    equity: 0.25,
+    address: "123 Main Street, Apt 4B San Francisco CA 94105",
+  };
+
+  const amtInWei = parseEther(`${propertyInfo.amount}`);
+
+  const [autoPayEnable, setAutoPayEnable] = useState(false);
+
+  const { writeAsync: payRent, isLoading: isPaying } = usePayRent(
+    propertyInfo.propertyId,
+    amtInWei
+  );
+
+  const handlePayRent = async () => {
+    try {
+      toast.loading("Processing payment");
+      const tx = await payRent();
+
+      toast.dismiss();
+      toast.success("Payment completed", {
+        duration: 500,
+        description: "Your rent for June 2023 has been paid",
+        action: {
+          label: "View on Explorer",
+          onClick: () =>
+            window.open(
+              `https://sepolia-blockscout.lisk.com/address/${tx.hash}`,
+              "_blank"
+            ),
+        },
+      });
+    } catch (error) {
+      toast.dismiss();
+      console.log("Payment fails:", error);
+      toast.error("Payment failed");
+    }
+  };
+
   return (
     <div className="bg-gray-100">
       <div className="app-container mt-20 space-y-4 pb-32">
         <header className="flex justify-between items-center">
-          <div className="flex gap-3 items-center ">
-          </div>
+          <div className="flex gap-3 items-center "></div>
           <div className="flex justify-end gap-2 items-center">
             <NotificationBell />
             <UserRound className="w-6 bg-blue-500 text-white rounded-full p-1 ml-1" />
@@ -55,7 +111,7 @@ export default function TenantPaymentPage() {
                 <CardContent className="flex justify-between">
                   <div>
                     <p className="font-semibold text-[1.2rem] flex items-center gap-1">
-                      $1,850.00
+                      ${propertyInfo.amount}
                       <span className=" text-[0.6rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 p-1">
                         Due in 5 days
                       </span>
@@ -65,12 +121,16 @@ export default function TenantPaymentPage() {
                     </p>
                     <div className="flex items-center gap-1">
                       <PieChartIcon className="w-3 text-emerald-400" />
-                      <p className="text-gray">Earns 0.25% equity this month</p>
+                      <p className="text-gray">
+                        Earns ${propertyInfo.equity}% equity this month
+                      </p>
                     </div>
                   </div>
-                  <Button>
+                  <Button onClick={handlePayRent} disabled={isPaying}>
                     <CreditCard />
-                    <span className="text-xs">Pay Now</span>
+                    <span className="text-xs">
+                      ${isPaying ? "Processing" : "Pay Now"}
+                    </span>
                   </Button>
                 </CardContent>
               </Card>
@@ -86,7 +146,8 @@ export default function TenantPaymentPage() {
                   </div>
                 </CardContent>
                 <Switch
-                  checked={true}
+                  checked={autoPayEnable}
+                  onCheckedChange={setAutoPayEnable}
                   className="data-[state=checked]:bg-emerald-400"
                 />
               </Card>
@@ -94,7 +155,6 @@ export default function TenantPaymentPage() {
               <Card>
                 <DataTableDemo />
               </Card>
-
             </div>
 
             <div className="col-span-4 flex flex-col gap-y-8">
@@ -144,12 +204,16 @@ export default function TenantPaymentPage() {
                   <div className="space-y-1">
                     <div className="flex justify-between ">
                       <p className="text-gray">Total Equity Earned</p>
-                      <p className="text-dark">1.25%</p>
+                      <p className="text-dark">${propertyInfo.equity}</p>
                     </div>
-                    <ProgressDemo value={1.25} className="progress-green-fill" />
+                    <ProgressDemo
+                      value={propertyInfo.equity}
+                      className="progress-green-fill"
+                    />
                   </div>
                   <p className="text-gray-bold">
-                    You've earned 1.25% equally in your property through on-time
+                    You've earned {propertyInfo.equity} equally in your property
+                    through on-time
                     <br />
                     rent payments. Keep it up!
                   </p>
