@@ -48,6 +48,7 @@ contract RentToOwn is Ownable {
     event PropertyCreated(
         uint256 indexed propertyId,
         address indexed landlord,
+        uint256 tokenId,
         uint256 value,
         uint256 duration,
         string name,
@@ -101,18 +102,19 @@ contract RentToOwn is Ownable {
         prop.currency = currency;
         
         // /// NEW: Uncommented
-        // uint256 tokenId = propertyToken.mintToLandlord(msg.sender, 100); // mint 100 tokens - uncomment when Token contract is available
-        // prop.tokenId = tokenId;
+        uint256 tokenId = propertyToken.mintToLandlord(msg.sender, image); // mint 100 tokens - uncomment when Token contract is available
+        prop.tokenId = tokenId;
         // ///
 
         /// NEW: Uncommented
-        uint256 tokenId = propertyToken.mintPropertyToken(image); // mint 100 tokens - uncomment when Token contract is available
-        prop.tokenId = tokenId;
+        // uint256 tokenId = propertyToken.mintPropertyToken(image); // mint 100 tokens - uncomment when Token contract is available
+        // prop.tokenId = tokenId;
         ///
 
         emit PropertyCreated(
             nextPropertyId,
             msg.sender,
+            prop.tokenId, // Added by joe
             value,
             duration,
             name,
