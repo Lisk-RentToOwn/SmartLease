@@ -687,3 +687,32 @@ export async function verifyLandlordProperties(landlordAddress: string) {
     }
   }
   
+
+  export function useRentPayments(
+    filters: {
+      landlord?: string;
+      propertyId?: number;
+      tenant?: string;
+    } = {}
+  ) {
+    const [payments, setPayments] = useState<PropertyEvent[]>([]);
+    const [loading, setLoading] = useState(false);
+  
+    useEffect(() => {
+      const fetchPayments = async () => {
+        setLoading(true);
+        try {
+          const payments = await eventService.getRentPaymentHistory(filters);
+          setPayments(payments);
+        } catch (error) {
+          console.error("Failed to fetch payments:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchPayments();
+    }, [JSON.stringify(filters)]); // Re-run when filters change
+  
+    return { payments, loading };
+  }

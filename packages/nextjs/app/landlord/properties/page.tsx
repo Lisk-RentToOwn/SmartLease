@@ -56,8 +56,7 @@ const LandlordPropertiesPage = () => {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                            <p className="font-medium text-black ">6 properties,</p>
-                            <p className="text-green-500">4 occupied</p>
+                            <p className="text-green-500">{properties.length} properties</p>
                         </div>
 
                         <div className="grid grid-cols-3 gap-7 mt-8">

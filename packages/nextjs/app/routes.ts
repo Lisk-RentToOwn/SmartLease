@@ -13,4 +13,5 @@ export enum Routes {
     LANDLORD_CREATE = "/landlord/create",
     LANDLORD_PROPERTIES = "/landlord/properties",
     LANDLORD_TENANTS = "/landlord/tenants",
+    LANDLORD_WITHDRAW = "/landlord/withdraw",
 }
