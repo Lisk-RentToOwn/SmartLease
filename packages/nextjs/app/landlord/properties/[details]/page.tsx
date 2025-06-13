@@ -15,18 +15,18 @@ import { Routes } from "@/app/routes";
 
 
 const LandlordPropertiesDetailPage = () => {
-    const params = useSearchParams()
-    const tokenId = params.get("tokenId")
-    const path = usePathname()
-    const propertyId = path.split("/")[3]
+    // const params = useSearchParams()
+    // const tokenId = params.get("tokenId")
+    // const path = usePathname()
+    // const propertyId = path.split("/")[3]
 
-    const {holders, loading} = useTokenHolders(+(tokenId as string))
-    const {loading: timelineLoading, timeline} = usePropertyTimeline(+propertyId)
-    console.log(timeline)
+    // const {holders, loading} = useTokenHolders(+(tokenId as string))
+    // const {loading: timelineLoading, timeline} = usePropertyTimeline(+propertyId)
+    // console.log(timeline)
 
     return (
         <>
-            <main className="min-h-dvh bg-gray-100">
+            {/* <main className="min-h-dvh bg-gray-100">
                 <div className="app-container mt-16 mb-4">
                         <Link href={`${Routes.LANDLORD_WITHDRAW}?id=${timeline[0]?.args.propertyId}`} className="">
                             <Button className="py-6 px-7 rounded-lg flex items-center space-x-2">
@@ -248,7 +248,7 @@ const LandlordPropertiesDetailPage = () => {
                         <PropertyPaymentHistoryTable/>
                     </div>
                 </div>
-            </main>
+            </main> */}
         </>
     )
 }
