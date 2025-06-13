@@ -20,33 +20,24 @@ export enum PaymentType {
 
 // create property
 export function useCreateProperty(
-  value: number,
-  duration: number,
-  paymentType: PaymentType,
-  name: string,
-  image: string,
-  propertyAddr: string,
-  city: string,
-  state: string,
-  zipCode: string,
-  currency: string
-) {
-  return useContractWrite({
-    ...genericContractRequestRentToOwn,
-    functionName: "createProperty",
-    args: [
-      value,
-      duration,
-      paymentType,
-      name,
-      image,
-      propertyAddr,
-      city,
-      state,
-      zipCode,
-      currency,
-    ],
-  });
+    // value: number,
+    // duration: number,
+    // paymentType: PaymentType,
+    // name: string,
+    // image: string,
+    // propertyAddr: string,
+    // city: string,
+    // state: string,
+    // zipCode: string,
+    // currency: string
+) { 
+    return useContractWrite({
+        ...genericContractRequestRentToOwn,
+        functionName: "createProperty",
+        // args: [
+     
+        // ]
+    })
 }
 
 // User pays rent
@@ -149,14 +140,14 @@ export function useGetPropertyMetadataUri(tokenId: number) {
 }
 
 // IDENTITY PROVIDER CONTRACT
-export function useSetUserRole() {
-  // role: number,
-  // console.log(role)
-  return useContractWrite({
-    ...genericContractRequestIdentityProvider,
-    functionName: "setUserRole",
-    // args: [role]
-  });
+export function useSetUserRole(
+    // role: number,
+) { 
+    // console.log(role)
+    return useContractWrite({
+        ...genericContractRequestIdentityProvider,
+        functionName: "setUserRole",
+    })
 }
 
 export function useGetUserRole(user: Address) {

@@ -37,62 +37,35 @@ import { useState } from "react";
   import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Routes } from "@/app/routes";
+import { readEventLogsFromWagmi } from "@/hooks/useRadEventFromWagmi";
+import { RentToOwnABI } from "@/abi/RentToOwn";
+import { RenToOwnAddress } from "@/constants/contract-address";
+import { useLandlordDashboard } from "@/hooks/property/usePropertyEvents";
+import { useAccount } from "wagmi";
+import EmptyContent from "../shared/empty-content";
 
-const data: Property[] = [
-    {
-        equity: 23,
-        property: {
-            addres: "No 12 california street USA",
-            imgUrl:"/thumbnail.jpg",
-            name: "Oak Residence"
-        },
-        tenant: "0X1617BE12908494",
-        token: 234,
-        tokenId: 1234,
-        tokenUri: 'https://google.com'
-    },
-    {
-        equity: 30,
-        property: {
-            addres: "No 12 california street USA",
-            imgUrl:"/thumbnail.jpg",
-            name: "Wall street"
-        },
-        tenant: "0X1617BE12908494",
-        token: 23,
-        tokenId: 124,
-        tokenUri: 'https://google.com'
-    },
-    {
-        equity: 60,
-        property: {
-            addres: "No 12 california street USA",
-            imgUrl:"/thumbnail.jpg",
-            name: "Maple townhall"
-        },
-        tenant: "0X1617BE12908494",
-        token: 23,
-        tokenId: 124,
-        tokenUri: 'https://google.com'
-    },
-]
-
-export type Property = {
-    property:  {
-        name: string,
-        addres: string,
-        imgUrl: string
-    },
-    tenant: string,
-    token: number,
-    equity: number,
-    tokenId: number,
-    tokenUri: string
+export type NewProperty = {
+  timestamp:1749759312
+  txHash:string
+  args: {
+    city:string
+    currency:string
+    duration:BigInt
+    image:string
+    landlord:string
+    name:string
+    propertyAddress:string
+    propertyId:BigInt
+    state:string
+    tokenId:BigInt
+    value:BigInt
+    zipCode:string
+  }
 }
 
-export const columns: ColumnDef<Property>[] = [
+export const columns: ColumnDef<NewProperty>[] = [
     {
-      accessorKey: "property",
+      id: "property",
       header: ({ column }) => {
         return (
             <p className=" uppercase">PROPERTY</p>
@@ -100,51 +73,45 @@ export const columns: ColumnDef<Property>[] = [
       },
       cell: ({ row }) => {
         const property = row.original
-        const img = property.property.imgUrl
+        const img = property.args.image
         return (<div className="flex items-center space-x-1">
             <div className="">
                 <img src={img} alt="property_img" className="w-12"/>
             </div>
             <div className="flex flex-col gap-y-1">
-                <p className="text-green-500 font-medium text-lg">{property.property.name}</p>
-                <p className="text-gray-700">{(property.property.addres).slice(0, 20)}...</p>
+                <p className="text-green-500 font-medium text-lg">{property.args.name}</p>
+                <p className="text-gray-700">{(property.args.propertyAddress).slice(0, 20)}...</p>
             </div>
         </div>)
       },
     },
     {
-      accessorKey: "tenant",
-      header: () => {
-        return (
-            <p className=" uppercase">Tenant</p>
-        );
-      },
-      cell: ({ row }) => <div className="lowercase">{row.getValue("tenant")}</div>,
-    },
-    {
-      accessorKey: "token",
-      header: () => <div className="uppercase">Token</div>,
-      cell: ({ row }) => {
-        return <div className="font-medium">{row.getValue('token')}</div>;
-      },
-    },
-    {
-        accessorKey: "equity",
-        header: () => <div className="uppercase">Equity</div>,
+        id: "value",
+        header: () => <div className="uppercase">Price</div>,
         cell: ({ row }) => {
+            const property = row.original
             return (
-                <div className="w-full flex items-center justify-center gap-3">
-                    <Progress value={row.getValue('equity')} className="w-[60%] [&>div]:bg-green-500" />
-                    <span className="text-sm">{row.getValue('equity')}%</span>
-                </div>
+              <p className="text-sm">{property.args.currency}  {Number(property.args.value)}</p>
             )
         },
     },
+
     {
-        accessorKey: "tokenId",
+      id: "monthly",
+      header: () => <div className="uppercase">Monthly Rent</div>,
+      cell: ({ row }) => {
+          const property = row.original
+          return (
+            <p className="text-sm">{property.args.currency}  {Number(property.args.value)/Number(property.args.duration)}</p>
+          )
+      },
+  },
+    {
+        id: "tokenId",
         header: () => <div className="uppercase text-center">Token ID</div>,
         cell: ({ row }) => {
-            return <p className="text-sm text-center">#{row.getValue('tokenId')}</p>
+            const property = row.original
+            return <p className="text-sm text-center">#{Number(property.args.tokenId)}</p>
         },
     },
     {
@@ -163,14 +130,18 @@ export const columns: ColumnDef<Property>[] = [
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(`${property.tokenUri}`)}
+                onClick={() => navigator.clipboard.writeText(`${property.args.tokenId}`)}
               >
                 Copy Token ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View on Explorer</DropdownMenuItem>
               <DropdownMenuItem>
-                  <Link href={`${Routes.LANDLORD_PROPERTIES}/1`}>View Property details</Link>
+                <Link href={`https://sepolia-blockscout.lisk.com/tx/${property.txHash}`}>
+                  View on Explorer
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                  <Link href={`${Routes.LANDLORD_PROPERTIES}/${Number(property.args.propertyId)}`}>View Property details</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -179,12 +150,14 @@ export const columns: ColumnDef<Property>[] = [
     },
 ];
 
-const DashboardpropertyTable = () => {
+const DashboardpropertyTable = ({allData}:{allData: NewProperty[]}) => {
     const [density, setDensity] = useState<string>("flexible");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   );
+  const [data, setData] = useState<NewProperty[]>(allData)
+
   const [columnVisibility, setColumnVisibility] =
     useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
@@ -206,63 +179,73 @@ const DashboardpropertyTable = () => {
       rowSelection,
     },
   });
+
+
   return (
     <div className="w-full mt-6">
       <div className="rounded-md border">
-        <Table
-          className={cn({
-            "[&_td]:py-px [&_th]:py-px": density === "compact",
-            "[&_td]:py-1 [&_th]:py-1": density === "standard",
-            "[&_td]:py-3 [&_th]:py-2 [&_th]:first:pl-5 [&_td]:first:pl-5 bg-white rounded-lg [&_th]:bg-gray-200": density === "flexible",
-          })}
-        >
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
+
+        {allData.length < 1 ?
+            <EmptyContent
+              className=""
+              emptyText="No property created for now"
+            /> :
+
+            <Table
+              className={cn({
+                "[&_td]:py-px [&_th]:py-px": density === "compact",
+                "[&_td]:py-1 [&_th]:py-1": density === "standard",
+                "[&_td]:py-3 [&_th]:py-2 [&_th]:first:pl-5 [&_td]:first:pl-5 bg-white rounded-lg [&_th]:bg-gray-200": density === "flexible",
+              })}
+            >
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
                           )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+        }
       </div>
     </div>
   );

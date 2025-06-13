@@ -9,10 +9,10 @@ const LandlordDashboardCard = ({amount, currency, title, extraText}: LandlordDas
     return (
         <>
             <div className="rounded-lg p-8 bg-white shadow-sm">
-                <p className="text-slate-800 font-medium">{title}</p>
+                <p className="text-slate-800 font-medium text-2xl">{title}</p>
                 <div className="flex items-center space-x-1 mt-6">
-                    <p className="text-slate-800 font-semibold">{currency}{amount}</p>
-                    <p className="text-sm text-slate-700">{extraText}</p>
+                    <p className="text-slate-800 font-semibold text-xl">{currency}{amount}</p>
+                    <p className="text-base text-slate-700">{extraText}</p>
                 </div>
             </div>
         </>

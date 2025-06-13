@@ -29,6 +29,7 @@ type PropertyCreated @entity(immutable: false) {
   id: ID!
   propertyId: BigInt!
   landlord: Bytes!
+  tokenId: BigInt!
   value: BigInt!
   duration: BigInt! # ← changed from Int! to BigInt!
   name: String!

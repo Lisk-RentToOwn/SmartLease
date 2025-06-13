@@ -105,40 +105,44 @@ export class PropertyCreated__Params {
     return this._event.parameters[1].value.toAddress();
   }
 
-  get value(): BigInt {
+  get tokenId(): BigInt {
     return this._event.parameters[2].value.toBigInt();
   }
 
-  get duration(): BigInt {
+  get value(): BigInt {
     return this._event.parameters[3].value.toBigInt();
   }
 
-  get name(): string {
-    return this._event.parameters[4].value.toString();
+  get duration(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
   }
 
-  get image(): string {
+  get name(): string {
     return this._event.parameters[5].value.toString();
   }
 
-  get propertyAddress(): string {
+  get image(): string {
     return this._event.parameters[6].value.toString();
   }
 
-  get city(): string {
+  get propertyAddress(): string {
     return this._event.parameters[7].value.toString();
   }
 
-  get state(): string {
+  get city(): string {
     return this._event.parameters[8].value.toString();
   }
 
-  get zipCode(): string {
+  get state(): string {
     return this._event.parameters[9].value.toString();
   }
 
-  get currency(): string {
+  get zipCode(): string {
     return this._event.parameters[10].value.toString();
+  }
+
+  get currency(): string {
+    return this._event.parameters[11].value.toString();
   }
 }
 

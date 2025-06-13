@@ -64,16 +64,16 @@ async function main(): Promise<void> {
   console.log("✅ RentToOwn deployed to:", rentToOwnAddress);
 
   // Step 5: Deploy RentPaymaster (depends on RentToOwn and IdentityRegistry)
-  console.log("\n💳 Deploying RentPaymaster...");
-  const RentPaymasterFactory = await ethers.getContractFactory("RentPaymaster");
-  const paymaster: RentPaymaster = await RentPaymasterFactory.deploy(
-    entryPointAddress,
-    rentToOwnAddress,
-    identityRegistryAddress
-  );
-  await paymaster.waitForDeployment();
-  const paymasterAddress = await paymaster.getAddress();
-  console.log("✅ RentPaymaster deployed to:", paymasterAddress);
+  // console.log("\n💳 Deploying RentPaymaster...");
+  // const RentPaymasterFactory = await ethers.getContractFactory("RentPaymaster");
+  // const paymaster: RentPaymaster = await RentPaymasterFactory.deploy(
+  //   entryPointAddress,
+  //   rentToOwnAddress,
+  //   identityRegistryAddress
+  // );
+  // await paymaster.waitForDeployment();
+  // const paymasterAddress = await paymaster.getAddress();
+  // console.log("✅ RentPaymaster deployed to:", paymasterAddress);
 
   // Step 6: Set up contract permissions and relationships
   console.log("\n⚙️ Setting up contract permissions...");
@@ -86,9 +86,9 @@ async function main(): Promise<void> {
   // Optional: Fund the paymaster with some ETH for gas sponsorship
   console.log("\n💰 Funding RentPaymaster...");
   const fundAmount = ethers.parseEther("0.1"); // 0.1 ETH
-  const fundTx = await paymaster.fund({ value: fundAmount });
-  await fundTx.wait();
-  console.log(`✅ RentPaymaster funded with ${ethers.formatEther(fundAmount)} ETH`);
+  // const fundTx = await paymaster.fund({ value: fundAmount });
+  // await fundTx.wait();
+  // console.log(`✅ RentPaymaster funded with ${ethers.formatEther(fundAmount)} ETH`);
 
   // Summary
   console.log("\n🎉 Deployment Summary:");
@@ -97,7 +97,7 @@ async function main(): Promise<void> {
   console.log("IdentityRegistry: ", identityRegistryAddress);
   console.log("PropertyToken:    ", propertyTokenAddress);
   console.log("RentToOwn:        ", rentToOwnAddress);
-  console.log("RentPaymaster:    ", paymasterAddress);
+  // console.log("RentPaymaster:    ", paymasterAddress);
   
   console.log("\n📝 Next Steps:");
   console.log("- Users need to call IdentityRegistry.setUserRole() to set their role as Tenant or Landlord");

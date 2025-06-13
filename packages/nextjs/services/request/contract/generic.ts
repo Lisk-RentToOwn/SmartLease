@@ -2,6 +2,7 @@ import { Contract, ContractName, contracts } from '@/utils/scaffold-eth/contract
 import { Address } from 'viem';
 
 const targetNetwork = 4202
+// const targetNetwork = 31337
 type DeployedContractNameTypes = "RentToOwnContract" | "IdentityRegisteryContract" | "PropertyTokenContract"
 
 const rentContract = contracts?.[targetNetwork]?.["RentToOwnContract" as ContractName] as Contract<DeployedContractNameTypes>
