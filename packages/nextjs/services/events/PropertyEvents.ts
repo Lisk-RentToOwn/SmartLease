@@ -340,7 +340,7 @@ async getEvents(
         return allEvents.sort((a, b) => b.blockNumber - a.blockNumber);
     }
 
-    async getEquityDistribution(propertyId: number, months = 12): Promise<{month: string, equity: number}[]> {
+    async getEquityDistribution(propertyId: number, year = new Date().getFullYear()): Promise<{month: string, equity: number}[]> {
         // Specify "RentToOwn" as the contract name for these events
         const { events } = await this.getEvents(
             "RentToOwn", 
@@ -348,37 +348,29 @@ async getEvents(
             { propertyId }
         );
         
-        const propertyResult = await this.getEvents(
-            "RentToOwn",
-            "PropertyCreated",
-            { propertyId }
-        );
-        const property = propertyResult.events[0]?.args;
-        
-        const monthlyData = [];
-        const now = new Date();
-        const monthlyMilliseconds = 30 * 24 * 60 * 60 * 1000;
-        
-        for (let i = 0; i < months; i++) {
-            const date = new Date(now.getTime() - (i * monthlyMilliseconds));
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            
-            const eventsInMonth = events.filter(e => {
-                const eventDate = new Date((e.timestamp || 0) * 1000);
-                return (
-                    eventDate.getFullYear() === date.getFullYear() && 
-                    eventDate.getMonth() === date.getMonth()
-                );
+        // Filter only events within the selected year
+        const filteredEvents = events.filter(e => {
+            const timestamp = e.timestamp ? e.timestamp * 1000 : 0;
+            const eventDate = new Date(timestamp);
+            return eventDate.getFullYear() === year;
+        });
+
+        // Prepare result for each month from January to December
+        const monthlyData = Array.from({ length: 12 }, (_, i) => {
+            const monthKey = `${year}-${String(i + 1).padStart(2, "0")}`;
+            const monthEvents = filteredEvents.filter(e => {
+                const date = new Date((e.timestamp || 0) * 1000);
+                return date.getMonth() === i;
             });
-            
-            const equityChange = eventsInMonth.reduce((sum, e) => sum + Number(e.args.newEquity), 0);
-            
-            monthlyData.unshift({
+
+            const totalEquity = monthEvents.reduce((sum, e) => sum + Number(e.args.newEquity), 0);
+
+            return {
                 month: monthKey,
-                equity: equityChange || 0
-            });
-        }
-        
+                equity: totalEquity
+            };
+        });
+
         return monthlyData;
     }
 

@@ -1,84 +1,39 @@
 'use client'
 
 import {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-  } from "@tanstack/react-table";
-  import { ArrowUpDown, LucideExternalLink, MoreHorizontal, Rows2, Rows3, Rows4 } from "lucide-react";
-  import * as React from "react";
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { LucideExternalLink } from "lucide-react";
 import { useState } from "react";
-  import { Button } from "@/components/ui/button";
-  import { Progress } from "../ui/progress";
-  import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu";
 
   import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from "@/components/ui/table";
-  import { cn } from "@/lib/utils";
-import Link from "next/link";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useRentPayments } from "@/hooks/property/usePropertyEvents";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const data: PaymentHistory[] = [
-    {
-        amount: 4500,
-        currency: "$",
-        date: "May 1, 2023",
-        status: "completed",
-        txn_hash: "0x67ad5692bc6d892020eed5a0",
-        equity_earned: 2.5          
-    },
-    {
-        amount: 4500,
-        currency: "$",
-        date: "May 1, 2023",
-        status: "completed",
-        txn_hash: "0x67ad5692bc6d892020eed5a0",
-        equity_earned: 2.5          
-    },
-    {
-        amount: 4500,
-        currency: "$",
-        date: "May 1, 2023",
-        status: "pending",
-        txn_hash: "0x67ad5692bc6d892020eed5a0",
-        equity_earned: 2.5          
-    },
-    {
-        amount: 4500,
-        currency: "$",
-        date: "May 1, 2023",
-        status: "completed",
-        txn_hash: "0x67ad5692bc6d892020eed5a0",
-        equity_earned: 2.5          
-    },
-]
+import { useTenantPayments } from "@/hooks/property/useTenant";
+import { useAccount } from "wagmi";
 
 export type PaymentHistory = {
     date: string,
     amount: number,
     currency: string,
-    status: "completed" | "pending",
     txn_hash: string,
     equity_earned: number
 }
@@ -103,14 +58,6 @@ export const columns: ColumnDef<PaymentHistory>[] = [
       cell: ({ row }) => {
         const data = row.original
         return <div className="lowercase text-lg">{data.currency}{data.amount}</div>
-      },
-    },
-    {
-      accessorKey: "status",
-      header: () => <div className="uppercase">Status</div>,
-      cell: ({ row }) => {
-            const status: string = row.getValue('status')
-            return <div className={cn("font-medium rounded-full text-center w-max px-3 py-1 text-base capitalize text-red-500 bg-red-500/20", {"text-green-500 bg-green-500/20": status === "completed"}, {"text-blue-500 bg-blue-500/20": status === "pending"})}>{status}</div>;
       },
     },
     {
@@ -146,12 +93,14 @@ export const columns: ColumnDef<PaymentHistory>[] = [
 const PropertyPaymentHistoryTable = () => {
     const [density, setDensity] = useState<string>("flexible");
   const [sorting, setSorting] = useState<SortingState>([]);
+  const {address} = useAccount()
   const path = usePathname()
   const propertyId = path.split("/")[3]
 
-  const { payments, loading: paymentHistoryLoading } = useRentPayments({
-      propertyId: +propertyId
-  });
+  const {data, error, loading} = useTenantPayments(address, +propertyId)
+  console.log(data)
+
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   );
@@ -227,7 +176,7 @@ const PropertyPaymentHistoryTable = () => {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No payment history for now
                 </TableCell>
               </TableRow>
             )}

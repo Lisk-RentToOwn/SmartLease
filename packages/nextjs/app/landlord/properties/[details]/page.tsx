@@ -6,7 +6,7 @@ import PropertyPaymentHistoryTable from "@/components/landlord/rent-pament-histo
 import PropertyCardSkeleton from "@/components/shared/property-skeleton";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { usePropertyTimeline, useTokenHolders } from "@/hooks/property/usePropertyEvents";
+import { useEquityDistribution, usePropertyTimeline, useTokenHolders } from "@/hooks/property/usePropertyEvents";
 import { formatDurationFromMonths, priceFormatter } from "@/utils/formatter";
 import { LucideCoins, SquarePen } from "lucide-react";
 import Link from "next/link";
@@ -21,6 +21,7 @@ const LandlordPropertiesDetailPage = () => {
 
     const {holders, loading} = useTokenHolders(+(tokenId as string))
     const {loading: timelineLoading, timeline} = usePropertyTimeline(+propertyId)
+
     console.log(timeline)
 
     return (
@@ -77,19 +78,8 @@ const LandlordPropertiesDetailPage = () => {
                         </div>
 
                         <div className="bg-white p-5 rounded-lg mt-16">
-                            <div className="flex justify-between items-center">
-                                <p className="text-slate-600 font-semibold text-2xl">Equity Timeline</p>
-
-                                <div className="flex items-center space-x-3">
-                                    <Button variant={"outline"} className="">Monthly</Button>
-                                    <Button variant={"outline"} className="">Yearly</Button>
-                                    <Button variant={"outline"} className="">All Time</Button>
-                                </div>
-                            </div>
-
-                            <div className="w-full h-[300px] rounded-lg border border-gray-300 mt-5">
-                                <PropertyEquityChart/>
-                            </div>
+                            
+                            <PropertyEquityChart/>
 
                             <div className="mt-5 grid grid-cols-4 gap-x-4">
                                 <div className="min-h-16 border flex flex-col gap-y-1 justify-center border-gray-300 rounded-lg p-3 px-5 bg-gradient-to-r from-pink-500 via-pink-400 to-pink-300">
@@ -229,13 +219,13 @@ const LandlordPropertiesDetailPage = () => {
                                     </svg>
                                 </div>
                             </div>
-
+                            
                             <img
                                 src={timeline[0]?.args.image}
                                 alt="violin"
                                 // height={100}
                                 // width={100}
-                                className="w-full rounded-lg"
+                                className="w-full rounded-lg max-h-52"
                             />
                         </div>
                     }
