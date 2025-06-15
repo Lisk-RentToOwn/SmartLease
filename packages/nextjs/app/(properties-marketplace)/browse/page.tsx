@@ -11,28 +11,22 @@ import { toast } from "sonner";
 import { useAccount } from "wagmi";
 
 export default function BrowsePropertiesPage() {
-  const {isConnected} = useAccount()
+  const { isConnected } = useAccount();
 
-  const {
-    properties,
-    loading,
-    page,
-    setPage,
-    totalPages,
-    totalProperties
-  } = useAvailableProperties({
-    itemsPerPage: 12,
-    liveUpdates: true
-  });
+  const { properties, loading, page, setPage, totalPages, totalProperties } =
+    useAvailableProperties({
+      itemsPerPage: 12,
+      liveUpdates: true,
+    });
 
   const payRent = () => {
     if (!isConnected) {
-      toast.error("Please connect wallet to payRent")
+      toast.error("Please connect wallet to payRent");
     }
-  }
+  };
 
-  console.log(properties)
-  
+  console.log(properties);
+
   return (
     <div className="bg-gray-100">
       <div className="app-container min-h-[90vh]">
@@ -65,43 +59,39 @@ export default function BrowsePropertiesPage() {
             />
           ))} */}
 
-      {loading ? (
-          <div className="grid grid-cols-1 mini:grid-cols-4 gap-6">
-            <PropertyCardSkeleton/>
-            <PropertyCardSkeleton/>
-            <PropertyCardSkeleton/>
-            <PropertyCardSkeleton/>
-          </div>
-      ) : (
-        <>
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {properties.map(property => (
-                <PropertyCard 
-                  key={`${property.args.propertyId}-${property.blockNumber}`}
-                  data={property.args as PropertyType}
-                  payRent={payRent}
-                />
-              ))}
+          {loading ? (
+            <div className="grid grid-cols-1 mini:grid-cols-4 gap-6">
+              <PropertyCardSkeleton />
+              <PropertyCardSkeleton />
+              <PropertyCardSkeleton />
+              <PropertyCardSkeleton />
             </div>
-              
-            <div className="flex justify-between items-center mt-10">
-              <TablePagination
-                  currentPage={page}
-                  itemsPerpage={12}
-                  setpage={setPage}
-                  total={totalPages}
-              />
-            </div>
-          </>
-          
-          {properties.length === 0 && (
-            <EmptyContent 
-              className=""
-            />
+          ) : (
+            <>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {properties.map((property) => (
+                    <PropertyCard
+                      key={`${property.args.propertyId}-${property.blockNumber}`}
+                      data={property.args as PropertyType}
+                      payRent={payRent}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex justify-between items-center mt-10">
+                  <TablePagination
+                    currentPage={page}
+                    itemsPerpage={12}
+                    setpage={setPage}
+                    total={totalPages}
+                  />
+                </div>
+              </>
+
+              {properties.length === 0 && <EmptyContent className="" />}
+            </>
           )}
-        </>
-      )}
         </div>
       </div>
     </div>

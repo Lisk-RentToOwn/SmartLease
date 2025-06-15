@@ -6,6 +6,7 @@ import {
 import { RentToOwnABI } from "@/abi/RentToOwn";
 import { RenToOwnAddress } from "@/constants/contract-address";
 import { Address, useContractRead, useContractWrite } from "wagmi";
+import { erc20ABI } from "wagmi";
 
 export enum RoleEnum {
   None = 0,
@@ -19,25 +20,24 @@ export enum PaymentType {
 }
 
 // create property
-export function useCreateProperty(
-    // value: number,
-    // duration: number,
-    // paymentType: PaymentType,
-    // name: string,
-    // image: string,
-    // propertyAddr: string,
-    // city: string,
-    // state: string,
-    // zipCode: string,
-    // currency: string
-) { 
-    return useContractWrite({
-        ...genericContractRequestRentToOwn,
-        functionName: "createProperty",
-        // args: [
-     
-        // ]
-    })
+export function useCreateProperty() {
+// value: number,
+// duration: number,
+// paymentType: PaymentType,
+// name: string,
+// image: string,
+// propertyAddr: string,
+// city: string,
+// state: string,
+// zipCode: string,
+// currency: string
+  return useContractWrite({
+    ...genericContractRequestRentToOwn,
+    functionName: "createProperty",
+    // args: [
+
+    // ]
+  });
 }
 
 // User pays rent
@@ -48,6 +48,8 @@ export function usePayRent(propertyId: number, amt: BigInt) {
     args: [propertyId, amt],
   });
 }
+
+//approve lisk token
 
 // User pays rent
 export function useWithrawRent(propertyId: number) {
@@ -140,14 +142,13 @@ export function useGetPropertyMetadataUri(tokenId: number) {
 }
 
 // IDENTITY PROVIDER CONTRACT
-export function useSetUserRole(
-    // role: number,
-) { 
-    // console.log(role)
-    return useContractWrite({
-        ...genericContractRequestIdentityProvider,
-        functionName: "setUserRole",
-    })
+export function useSetUserRole() {
+// role: number,
+  // console.log(role)
+  return useContractWrite({
+    ...genericContractRequestIdentityProvider,
+    functionName: "setUserRole",
+  });
 }
 
 export function useGetUserRole(user: Address) {
