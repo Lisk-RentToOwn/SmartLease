@@ -1,3 +1,7 @@
+
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 export function priceFormatter(num: number, digits: number) {
     const lookup = [
       { value: 1, symbol: "" },
@@ -78,9 +82,6 @@ export function formatDurationFromMonths(months: number) {
   }
 
   export const formatRentData = (data: {month: string, collected: number, expected: number}[]) => {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  
     return data.map(item => {
       const [year, month] = item.month.split('-');
       return {
@@ -90,6 +91,20 @@ export function formatDurationFromMonths(months: number) {
       };
     });
   };
+
+export const formatLandlordEquityChart = (data: {
+  month: string;
+  equity: number;
+}[]) => {
+    return data.map(item => {
+        const [year, month] = item.month.split('-');
+        return {
+          ...item,
+          monthName: monthNames[parseInt(month) - 1] || month,
+          year: parseInt(year)
+        };
+    });
+}
 
   export function safeDateFromTimestamp(timestamp?: number): Date | null {
     return timestamp ? new Date(timestamp * 1000) : null;

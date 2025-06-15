@@ -309,22 +309,31 @@ export function usePropertyTimeline(propertyId?: number) {
 
 // Purpose: Monthly equity growth tracking
 // Best for: Tenant equity progress
-export function useEquityDistribution(propertyId?: number, months = 12) {
-    const [data, setData] = useState<{month: string, equity: number}[]>([]);
-    const [loading, setLoading] = useState(false);
+export function useEquityDistribution(propertyId?: number, year: number = new Date().getFullYear()) {
+  const [data, setData] = useState<{ month: string, equity: number }[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-    useEffect(() => {
-        if (!propertyId) return;
-        const load = async () => {
-            setLoading(true);
-            const distribution = await eventService.getEquityDistribution(propertyId, months);
-            setData(distribution);
-            setLoading(false);
-        };
-        load();
-    }, [propertyId, months]);
+  useEffect(() => {
+      if (!propertyId) return;
 
-    return { data, loading };
+      const load = async () => {
+          try {
+              setLoading(true);
+              setError(null);
+              const distribution = await eventService.getEquityDistribution(propertyId, year);
+              setData(distribution);
+          } catch (err) {
+              setError(err as Error);
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      load();
+  }, [propertyId, year]);
+
+  return { data, loading, error };
 }
 
 // Generic Hooks
