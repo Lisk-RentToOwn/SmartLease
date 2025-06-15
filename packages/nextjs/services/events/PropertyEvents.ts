@@ -427,4 +427,80 @@ async getEvents(
         });
         return result;
     }
+
+    // Tenant 
+  
+    async getTenantEquityUpdates(
+        tenantAddress: string,
+        propertyId?: number
+    ): Promise<PropertyEvent[]> {
+        const filters: { tenant: string; propertyId?: number } = { tenant: tenantAddress };
+        if (propertyId) filters.propertyId = propertyId;
+
+        const { events } = await this.getEvents(
+            "RentToOwn",
+            "EquityUpdated",
+            filters,
+            0,
+            "latest",
+            1000
+        );
+
+        return events.sort((a, b) => b.blockNumber - a.blockNumber);
+    }
+
+    /* ------------------------- */
+    /* VESTING CALCULATORS       */
+    /* ------------------------- */
+
+    calculateVestingSchedule(
+        property: PropertyEvent,
+        payments: PropertyEvent[]
+    ): {
+        currentEquity: number;
+        nextVestingDate: Date | null;
+        fullOwnershipDate: Date | null;
+    } {
+        const duration = property.args.duration;
+        const paymentCount = payments.length;
+        const currentEquity = Math.min(100, (paymentCount / duration) * 100);
+
+        const lastPayment = payments[0]?.timestamp 
+            ? new Date(payments[0].timestamp * 1000)
+            : new Date();
+
+        return {
+            currentEquity,
+            nextVestingDate: paymentCount >= duration 
+                ? null 
+                : new Date(lastPayment.setMonth(lastPayment.getMonth() + 1)),
+            fullOwnershipDate: paymentCount >= duration
+                ? new Date(lastPayment.setMonth(lastPayment.getMonth() + (duration - paymentCount)))
+                : null
+        };
+    }
+
+    /* ------------------------- */
+    /* TIER SYSTEM               */
+    /* ------------------------- */
+
+    async getTenantPaymentHistory(
+        tenantAddress: string,
+        propertyId?: number
+      ): Promise<PropertyEvent[]> {
+        const filters: { tenant: string; propertyId?: number } = { tenant: tenantAddress };
+        if (propertyId !== undefined) filters.propertyId = propertyId;
+      
+        const { events } = await this.getEvents(
+          "RentToOwn",
+          "RentPaid",
+          filters,
+          0,
+          "latest",
+          1000
+        );
+      
+        return events.filter(e => e.timestamp !== undefined);
+      }
+
 }
