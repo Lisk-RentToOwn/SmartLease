@@ -90,3 +90,33 @@ export function formatDurationFromMonths(months: number) {
       };
     });
   };
+
+  export function safeDateFromTimestamp(timestamp?: number): Date | null {
+    return timestamp ? new Date(timestamp * 1000) : null;
+  }
+  // export function calculateTokensFromEquity(equity: number, propertyId: number): number {
+  //   // Implementation depends on your tokenomics
+  //   // Example: equity% of total property tokens
+  //   return equity * TOTAL_TOKENS_PER_PROPERTY / 100;
+  // }
+  
+  // export function calculateNextPayment(
+  //   payments: PaymentRecord[],
+  //   property: Property
+  // ): { dueDate: Date; amount: number } | undefined {
+  //   if (payments.length >= property.duration) return undefined;
+    
+  //   const lastPayment = payments[0]?.date || new Date();
+  //   const monthlyAmount = Number(ethers.formatUnits(property.value, 18)) / 12;
+    
+  //   return {
+  //     dueDate: new Date(lastPayment.setMonth(lastPayment.getMonth() + 1)),
+  //     amount: monthlyAmount
+  //   };
+  // }
+  
+  // function isSameMonth(date1: Date, date2: Date): boolean {
+  //   return date1.getFullYear() === date2.getFullYear() && 
+  //          date1.getMonth() === date2.getMonth();
+  // }
+  

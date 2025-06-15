@@ -8,7 +8,7 @@ import { IdentityRegistryABI } from "@/abi/IdentityRegistery";
 import { ethers } from "ethers";
 import { formatRentData } from "@/utils/formatter";
 
-const eventService = new PropertyEventService(
+export const eventService = new PropertyEventService(
   RenToOwnAddress,
   RentToOwnABI,
   PropertyTokenContract,
