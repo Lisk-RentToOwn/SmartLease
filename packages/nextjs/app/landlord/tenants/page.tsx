@@ -1,3 +1,4 @@
+'use client'
 import TenantTable from "@/components/landlord/tenants-table"
 
 import {

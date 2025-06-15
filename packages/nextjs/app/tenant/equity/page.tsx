@@ -1,3 +1,4 @@
+'use client'
 import {
   Bell,
   PieChart,
@@ -57,8 +58,6 @@ const milestones = [
   },
 ];
 const currentMilestone = 2;
-
-export const metadata = { title: " Equity Growth Page" };
 
 export default function EquityGrowthPage() {
   return (

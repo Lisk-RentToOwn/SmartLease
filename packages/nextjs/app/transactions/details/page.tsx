@@ -1,3 +1,5 @@
+'use client'
+
 import FilterBar from "@/components/FilterBar";
 import TransactionTable from "@/components/TransactionTable";
 import { Transaction } from "@/types/transaction";

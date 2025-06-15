@@ -41,22 +41,22 @@ export function useCreateProperty() {
 }
 
 // User pays rent
-export function usePayRent(propertyId: number, amt: BigInt) {
+export function usePayRent() {
   return useContractWrite({
     ...genericContractRequestRentToOwn,
     functionName: "payRent",
-    args: [propertyId, amt],
+    // args: [],
   });
 }
 
 //approve lisk token
 
 // User pays rent
-export function useWithrawRent(propertyId: number) {
+export function useWithrawRent() {
   return useContractWrite({
     ...genericContractRequestRentToOwn,
     functionName: "withdrawRent",
-    args: [propertyId],
+    // args: [],
   });
 }
 
@@ -75,7 +75,7 @@ export function useGetTotalPaidToLandlord(propertyId: number) {
     ...genericContractRequestRentToOwn,
     functionName: "getTotalPaidToLandlord",
     args: [propertyId],
-    watch: true,
+    // watch: true,
   });
 }
 

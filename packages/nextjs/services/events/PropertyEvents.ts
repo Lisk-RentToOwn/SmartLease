@@ -1,4 +1,4 @@
-import { Contract, ethers, EventLog, JsonRpcProvider, InterfaceAbi } from "ethers";
+import { Contract, ethers, EventLog, JsonRpcProvider, InterfaceAbi, WebSocketProvider } from "ethers";
 
 export type ContractName = "RentToOwn" | "PropertyToken" | "IdentityProvider";
 
@@ -13,12 +13,17 @@ export type PropertyEvent = {
 
 const PROVIDER = new JsonRpcProvider(`https://rpc.sepolia-api.lisk.com`);
 
-const WS_PROVIDER = new ethers.WebSocketProvider(`wss://rpc.sepolia-api.lisk.com`);
-
-
 export class PropertyEventService {
+    private readonly rentToOwnAddress: string;
+    private readonly rentToOwnAbi: InterfaceAbi;
+    private readonly propertyTokenAddress: string;
+    private readonly propertyTokenAbi: InterfaceAbi;
+    private readonly identityProviderAddress: string;
+    private readonly identityProviderAbi: InterfaceAbi;
+    
     private contracts: Record<ContractName, Contract>;
-    private wsContracts: Record<ContractName, Contract>;
+    private wsProvider: WebSocketProvider | null = null;
+    private wsContracts: Record<ContractName, Contract> | null = null;
 
     constructor(
         rentToOwnAddress: string,
@@ -28,19 +33,46 @@ export class PropertyEventService {
         identityProviderAddress: string,
         identityProviderAbi: InterfaceAbi
     ) {
-        // Regular providers
+        // Initialize properties
+        this.rentToOwnAddress = rentToOwnAddress;
+        this.rentToOwnAbi = rentToOwnAbi;
+        this.propertyTokenAddress = propertyTokenAddress;
+        this.propertyTokenAbi = propertyTokenAbi;
+        this.identityProviderAddress = identityProviderAddress;
+        this.identityProviderAbi = identityProviderAbi;
+
+        // Initialize regular HTTP providers
         this.contracts = {
             RentToOwn: new Contract(rentToOwnAddress, rentToOwnAbi, PROVIDER),
             PropertyToken: new Contract(propertyTokenAddress, propertyTokenAbi, PROVIDER),
             IdentityProvider: new Contract(identityProviderAddress, identityProviderAbi, PROVIDER)
         };
+    }
 
-        // WebSocket providers for real-time
-        this.wsContracts = {
-            RentToOwn: new Contract(rentToOwnAddress, rentToOwnAbi, WS_PROVIDER),
-            PropertyToken: new Contract(propertyTokenAddress, propertyTokenAbi, WS_PROVIDER),
-            IdentityProvider: new Contract(identityProviderAddress, identityProviderAbi, WS_PROVIDER)
-        };
+    private initializeWebSocket() {
+        if (typeof window === 'undefined') {
+            throw new Error("WebSocketProvider cannot be used in server-side environment");
+        }
+
+        if (!this.wsProvider) {
+            this.wsProvider = new WebSocketProvider(`wss://rpc.sepolia-api.lisk.com`);
+        }
+
+        if (!this.wsContracts && this.wsProvider) {
+            this.wsContracts = {
+                RentToOwn: new Contract(this.rentToOwnAddress, this.rentToOwnAbi, this.wsProvider),
+                PropertyToken: new Contract(this.propertyTokenAddress, this.propertyTokenAbi, this.wsProvider),
+                IdentityProvider: new Contract(this.identityProviderAddress, this.identityProviderAbi, this.wsProvider)
+            };
+        }
+    }
+
+    private getWsContracts(): Record<ContractName, Contract> {
+        this.initializeWebSocket();
+        if (!this.wsContracts) {
+            throw new Error("WebSocket contracts not initialized");
+        }
+        return this.wsContracts;
     }
 
 
@@ -48,32 +80,34 @@ export class PropertyEventService {
   /* CORE EVENT METHODS        */
   /* ------------------------- */
 
-    async getEvents(
-        contractName: ContractName,
-        eventName: string,
-        filters: Record<string, any> = {},
-        fromBlock = 0,
-        toBlock: number | string = "latest",
-        pageSize = 50,
-        page = 1
-    ): Promise<{ events: PropertyEvent[]; total: number }> {
-        const filter = this.contracts[contractName].filters[eventName](...Object.values(filters));
-        const totalEvents = await this.contracts[contractName].queryFilter(filter, fromBlock, toBlock);
-        
-        const paginatedEvents = totalEvents.slice(
+  
+async getEvents(
+    contractName: ContractName,
+    eventName: string, // Add eventName parameter
+    filters: Record<string, any> = {},
+    fromBlock = 0,
+    toBlock: number | string = "latest",
+    pageSize = 50,
+    page = 1
+): Promise<{ events: PropertyEvent[]; total: number }> {
+    const filter = this.contracts[contractName].filters[eventName](...Object.values(filters));
+    const totalEvents = await this.contracts[contractName].queryFilter(filter, fromBlock, toBlock);
+    
+    const paginatedEvents = totalEvents.slice(
         (page - 1) * pageSize,
         page * pageSize
-        );
+    );
 
-        const events = await Promise.all(
-        paginatedEvents.map(log => this.parseEvent(contractName, log))
-        );
+    const events = await Promise.all(
+        //@ts-ignore
+        paginatedEvents.map(log => this.parseEvent(contractName, log, eventName)) // Pass eventName
+    );
 
-        return {
+    return {
         events: events.filter(Boolean) as PropertyEvent[],
         total: totalEvents.length,
-        };
-    }
+    };
+}
 
     onEvent(
         contractName: ContractName,
@@ -81,16 +115,18 @@ export class PropertyEventService {
         callback: (event: PropertyEvent) => void,
         filters: Record<string, any> = {}
     ): () => void {
-        const filter = this.wsContracts[contractName].filters[eventName](...Object.values(filters));
+        const wsContracts = this.getWsContracts();
+        const filter = wsContracts[contractName].filters[eventName](...Object.values(filters));
         
         const listener = async (log: EventLog) => {
-        const parsed = await this.parseEvent(contractName, log);
-        if (parsed) callback(parsed);
+            const parsed = await this.parseEvent(contractName, log, eventName); // Pass eventName here
+            if (parsed) callback(parsed);
         };
-
-        this.wsContracts[contractName].on(filter, listener);
-        return () => this.wsContracts[contractName].off(filter, listener);
+    
+        wsContracts[contractName].on(filter, listener);
+        return () => wsContracts[contractName].off(filter, listener);
     }
+    
 
     /* ------------------------- */
     /* RENT TO OWN SPECIFIC      */
@@ -350,26 +386,37 @@ export class PropertyEventService {
   /* HELPER METHODS            */
   /* ------------------------- */
 
-    private async parseEvent(
-        contractName: ContractName,
-        log: any
-    ): Promise<PropertyEvent | null> {
-        if (!(log instanceof EventLog)) return null;
+  private async parseEvent(
+    contractName: ContractName, 
+    log: EventLog, 
+    eventName: string // Added parameter
+): Promise<PropertyEvent | null> {
+    try {
+        const event = {
+            type: eventName, // Use the passed eventName
+            contract: contractName,
+            blockNumber: log.blockNumber,
+            txHash: log.transactionHash,
+            timestamp: await this.getBlockTimestamp(log.blockNumber),
+            args: log.args || {}
+        };
+        return event;
+    } catch (error) {
+        console.error("Error parsing event:", error);
+        return null;
+    }
+}
 
-        try {
-            const block = await PROVIDER.getBlock(log.blockNumber);
-            
-            return {
-                type: log.fragment.name,
-                contract: contractName,
-                blockNumber: log.blockNumber,
-                txHash: log.transactionHash,
-                timestamp: block?.timestamp,
-                args: this.parseArgs(log.fragment, log.args),
-            };
-        } catch (error) {
-            console.error(`Error parsing ${contractName} event:`, error);
-            return null;
+    private async getBlockTimestamp(blockNumber: number): Promise<number> {
+        const block = await PROVIDER.getBlock(blockNumber);
+        return block?.timestamp || 0;
+    }
+
+    cleanup() {
+        if (this.wsProvider) {
+            this.wsProvider.destroy();
+            this.wsProvider = null;
+            this.wsContracts = null;
         }
     }
 
@@ -380,4 +427,80 @@ export class PropertyEventService {
         });
         return result;
     }
+
+    // Tenant 
+  
+    async getTenantEquityUpdates(
+        tenantAddress: string,
+        propertyId?: number
+    ): Promise<PropertyEvent[]> {
+        const filters: { tenant: string; propertyId?: number } = { tenant: tenantAddress };
+        if (propertyId) filters.propertyId = propertyId;
+
+        const { events } = await this.getEvents(
+            "RentToOwn",
+            "EquityUpdated",
+            filters,
+            0,
+            "latest",
+            1000
+        );
+
+        return events.sort((a, b) => b.blockNumber - a.blockNumber);
+    }
+
+    /* ------------------------- */
+    /* VESTING CALCULATORS       */
+    /* ------------------------- */
+
+    calculateVestingSchedule(
+        property: PropertyEvent,
+        payments: PropertyEvent[]
+    ): {
+        currentEquity: number;
+        nextVestingDate: Date | null;
+        fullOwnershipDate: Date | null;
+    } {
+        const duration = property.args.duration;
+        const paymentCount = payments.length;
+        const currentEquity = Math.min(100, (paymentCount / duration) * 100);
+
+        const lastPayment = payments[0]?.timestamp 
+            ? new Date(payments[0].timestamp * 1000)
+            : new Date();
+
+        return {
+            currentEquity,
+            nextVestingDate: paymentCount >= duration 
+                ? null 
+                : new Date(lastPayment.setMonth(lastPayment.getMonth() + 1)),
+            fullOwnershipDate: paymentCount >= duration
+                ? new Date(lastPayment.setMonth(lastPayment.getMonth() + (duration - paymentCount)))
+                : null
+        };
+    }
+
+    /* ------------------------- */
+    /* TIER SYSTEM               */
+    /* ------------------------- */
+
+    async getTenantPaymentHistory(
+        tenantAddress: string,
+        propertyId?: number
+      ): Promise<PropertyEvent[]> {
+        const filters: { tenant: string; propertyId?: number } = { tenant: tenantAddress };
+        if (propertyId !== undefined) filters.propertyId = propertyId;
+      
+        const { events } = await this.getEvents(
+          "RentToOwn",
+          "RentPaid",
+          filters,
+          0,
+          "latest",
+          1000
+        );
+      
+        return events.filter(e => e.timestamp !== undefined);
+      }
+
 }

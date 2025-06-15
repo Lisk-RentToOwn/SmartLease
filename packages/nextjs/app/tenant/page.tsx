@@ -1,3 +1,4 @@
+'use client'
 import {
   Bell,
   Wallet,
@@ -24,7 +25,7 @@ import {
 } from "~~/components/ui/card";
 import { Switch } from "~~/components/ui/switch";
 
-export const metadata = { title: "Tenant Dashboard" };
+
 export default function TenantDashboard() {
   return (
     <div className="bg-gray-100">
