@@ -300,4 +300,39 @@
             function getPropertyTokenId(uint256 propertyId) external view returns (uint256) {
             return properties[propertyId].tokenId;
         }
+
+        /// NEWEST
+        function getMonthlyRentPayable( uint256 propertyId, address tenantAddr, uint256 monthNumber) external view returns (uint256 rentAmount, bool isPayable) {
+            Property storage prop = properties[propertyId];
+
+            // check if property exists
+            require(prop.landlord != address(0), "Invalid property");
+
+            // Check if month number is valid(1 to duration)
+            if (monthNumber == 0 || monthNumber > prop.duration) {
+                return(0, false);
+            }
+
+            // calculate monthly rent
+            uint256 monthlyRent = prop.value / prop.duration;
+
+            // If property is not occupied, return the monthly rent
+            if (!prop.isOccupied) {
+                return (monthlyRent, true);
+            }
+
+            //If property is occupied, check if the requested address is the current tenant
+            if(prop.tenant != tenantAddr) {
+                return (0, false);
+            }
+
+            // For Occupied properties, check paymment type
+            if (prop.paymentType == PaymentType.Fixed) {
+                // Fixed payment type: always the same monthly rent
+                return (monthlyRent, true);
+            }else {
+                // Flexible payment: return monthly rent as base amount
+                return (monthlyRent, true);
+            }
+        }
     }
