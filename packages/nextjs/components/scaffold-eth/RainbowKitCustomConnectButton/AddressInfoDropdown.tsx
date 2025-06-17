@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AddressQRCodeModal } from "./AddressQRCodeModal";
 import { LucideWallet } from "lucide-react";
+import { setUserRole } from "@/lib/cookies";
 
 const allowedNetworks = getTargetNetworks();
 
@@ -156,7 +157,8 @@ export const AddressInfoDropdown = ({
                         <button
                         className="menu-item text-error btn-sm !rounded-xl flex gap-3 py-3"
                         type="button"
-                        onClick={() => disconnect()}
+                        //@ts-ignore
+                        onClick={() => {disconnect(); setUserRole(undefined)}}
                         >
                         <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
                         </button>

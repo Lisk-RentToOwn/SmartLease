@@ -1,97 +1,89 @@
+'use client'
+
 import { PlusIcon } from "lucide-react"
 import Link from "next/link"
 import { Routes } from "@/app/routes"
 import LandlordPropertyCard from "@/components/landlord/property-card"
 import { Button } from "@/components/ui/button"
+import { useLandlordProperties } from "@/hooks/property/usePropertyEvents"
+import { useAccount } from "wagmi"
+import PropertyCardSkeleton from "@/components/shared/property-skeleton"
+import { formatDurationFromMonths } from "@/utils/formatter"
 
 const LandlordPropertiesPage = () => {
+    const {address} = useAccount()
+
+    const {
+        loading,
+        properties
+    } = useLandlordProperties(address)
+
+    if (!address) {
+        return (
+        <div className="text-center py-60 p-8">
+          <p className="text-muted-foreground mb-4">
+            To view your landlord dashboard
+          </p>
+        </div>
+    );} 
+
+    console.log(properties)
+
     return (
         <>
+       
+
             <main className="bg-gray-100 min-h-[90vh]">
                 <div className="mt-16 app-container">
-                    <div className="flex items-center justify-between">
-                        <p className="font-semibold text-2xl text-slate-700">My Properties</p>
 
-                        <Link href={Routes.LANDLORD_CREATE} className="">
-                            <Button className="p-6">
-                                <PlusIcon className=""/>
-                                <p className="font-medium">Create New Property</p>
-                            </Button>
-                        </Link>
-                    </div>
+                { loading ?
+                    <div className="grid grid-cols-1 mini:grid-cols-4 gap-6 mt-16">
+                        <PropertyCardSkeleton/>
+                        <PropertyCardSkeleton/>
+                        <PropertyCardSkeleton/>
+                    </div> :
 
-                    <div className="flex items-center space-x-2">
-                        <p className="font-medium text-black ">6 properties,</p>
-                        <p className="text-green-500">4 occupied</p>
-                    </div>
+                    <>                    
+                        <div className="flex items-center justify-between">
+                            <p className="font-semibold text-2xl text-slate-700">My Properties</p>
 
-                    <div className="grid grid-cols-3 gap-7 mt-8">
-                        <LandlordPropertyCard
-                            address="No 20 wall  street 12 Avenue"
-                            duration="6 years"
-                            explorer_url="htps://google.com"
-                            is_occupied={false}
-                            name="Owklane City"
-                            price="1233333"
-                            currency="$"
-                            property_image_url="https://shadcnblocks.com/images/block/placeholder-dark-1.svg"
-                            start_date="12th Jan, 2024"
-                            tenant_address="0X13939393"
-                            token_id={23}
-                            lease_end="Dec 2023"
-                            flexible_payment={false}
-                        />
+                            <Link href={Routes.LANDLORD_CREATE} className="">
+                                <Button className="p-6">
+                                    <PlusIcon className=""/>
+                                    <p className="font-medium">Create New Property</p>
+                                </Button>
+                            </Link>
+                        </div>
 
-                        <LandlordPropertyCard
-                            address="No 20 wall  street 12 Avenue"
-                            duration="6 years"
-                            explorer_url="htps://google.com"
-                            is_occupied={true}
-                            name="Owklane City"
-                            price="1233333"
-                            currency="$"
-                            property_image_url="https://shadcnblocks.com/images/block/placeholder-dark-1.svg"
-                            start_date="12th Jan, 2024"
-                            tenant_address="0X13939393"
-                            token_id={23}
-                            lease_end="Dec 2023"
-                            flexible_payment={true}
-                        />
+                        <div className="flex items-center space-x-2">
+                            <p className="text-green-500">{properties.length} properties</p>
+                        </div>
 
-
-                        <LandlordPropertyCard
-                            address="No 20 wall  street 12 Avenue"
-                            duration="6 years"
-                            explorer_url="htps://google.com"
-                            is_occupied={false}
-                            name="Owklane City"
-                            price="1233333"
-                            currency="$"
-                            property_image_url="https://shadcnblocks.com/images/block/placeholder-dark-1.svg"
-                            start_date="12th Jan, 2024"
-                            tenant_address="0X13939393"
-                            token_id={23}
-                            lease_end="Dec 2023"
-                            flexible_payment={false}
-                        />
-
-
-                        <LandlordPropertyCard
-                            address="No 20 wall  street 12 Avenue"
-                            duration="6 years"
-                            explorer_url="htps://google.com"
-                            is_occupied={true}
-                            name="Owklane City"
-                            price="1233333"
-                            currency="$"
-                            property_image_url="https://shadcnblocks.com/images/block/placeholder-dark-1.svg"
-                            start_date="12th Jan, 2024"
-                            tenant_address="0X13939393"
-                            token_id={23}
-                            lease_end="Dec 2023"
-                            flexible_payment={true}
-                        />
-                    </div>
+                        <div className="grid grid-cols-3 gap-7 mt-8">
+                            { properties.map(p => {
+                                return (
+                                    <LandlordPropertyCard
+                                        address={p.args.propertyAddress}
+                                        duration={formatDurationFromMonths(Number(p.args.duration))}
+                                        explorer_url={`https://sepolia-blockscout.lisk.com/tx/${p.txHash}`}
+                                        is_occupied={false}
+                                        name={p.args.name}
+                                        price={`${Number(p.args.value)}`}
+                                        currency={p.args.currency}
+                                        property_image_url={p.args.image}
+                                        start_date={`${new Date(Number(p.timestamp))}`}
+                                        tenant_address=""
+                                        token_id={Number(p.args.tokenId)}
+                                        lease_end={formatDurationFromMonths(Number(p.args.duration))}
+                                        flexible_payment={false}
+                                        key={p.txHash}
+                                        proprtyId={Number(p.args.propertyId)}
+                                    />
+                                )
+                            })}
+                        </div>
+                    </>
+                    }
                 </div>
             </main>
         </>

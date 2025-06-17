@@ -1,3 +1,5 @@
+'use client'
+
 export default function RewardsPage() {
   return (
     <div className="h-full self-center my-auto  ">

@@ -7,6 +7,7 @@
     "compile": "hardhat compile",
     "deploy": "node scripts/deployOptions.mjs",
     "deploy:lisk": "hardhat run scripts/deployAll.ts --network liskSepolia",
+    "deploy:local": "hardhat run scripts/deployAll.ts --network localhost",
     "fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",
     "generate": "hardhat run scripts/generateAccount.ts",
     "flatten": "hardhat flatten",
@@ -15,7 +16,8 @@
     "format": "prettier --write ./*.ts ./deploy/**/*.ts ./scripts/**/*.ts ./test/**/*.ts",
     "test": "REPORT_GAS=true hardhat test --network hardhat",
     "verify": "hardhat etherscan-verify",
-    "hardhat-verify": "hardhat verify"
+    "hardhat-verify": "hardhat verify",
+    "der": "hardhat console --network localhost"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",

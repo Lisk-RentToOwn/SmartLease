@@ -14,6 +14,7 @@ export const Landlordoutes = [
   Routes.LANDLORD_CREATE,
   Routes.LANDLORD_PROPERTIES,
   Routes.LANDLORD_TENANTS,
+  Routes.LANDLORD_WITHDRAW
 ];
 
 export const Others = [];

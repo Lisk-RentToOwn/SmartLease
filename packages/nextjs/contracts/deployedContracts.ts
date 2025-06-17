@@ -136,6 +136,12 @@ const deployedContracts = {
             {
               "indexed": false,
               "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
               "name": "value",
               "type": "uint256"
             },
@@ -1310,9 +1316,9 @@ const deployedContracts = {
               "type": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
+              "internalType": "string",
+              "name": "uri",
+              "type": "string"
             }
           ],
           "name": "mintToLandlord",

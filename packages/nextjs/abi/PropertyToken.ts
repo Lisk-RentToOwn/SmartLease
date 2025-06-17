@@ -539,9 +539,9 @@ export const PropertyTokenABI = [
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "uri",
+        "type": "string"
       }
     ],
     "name": "mintToLandlord",

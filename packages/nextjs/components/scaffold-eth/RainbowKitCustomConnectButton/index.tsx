@@ -18,7 +18,8 @@ import { useAccount } from "wagmi";
  * Custom Wagmi Connect Button (watch balance + custom design)
  */
 export const RainbowKitCustomConnectButton = () => {
-  // useAutoConnect();
+  
+  useAutoConnect();
   const networkColor = useNetworkColor();
   const { targetNetwork } = useTargetNetwork();
 
