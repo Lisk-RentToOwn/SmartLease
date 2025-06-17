@@ -1,11 +1,9 @@
+import { Address, useContractRead, useContractWrite } from "wagmi";
 import {
   genericContractRequestIdentityProvider,
   genericContractRequestPropertyToken,
   genericContractRequestRentToOwn,
 } from "./generic";
-import { RentToOwnABI } from "@/abi/RentToOwn";
-import { RenToOwnAddress } from "@/constants/contract-address";
-import { Address, useContractRead, useContractWrite } from "wagmi";
 
 export enum RoleEnum {
   None = 0,
@@ -48,6 +46,15 @@ export function usePayRent() {
     // args: [],
   });
 }
+
+// export function useApproveToken(tokenAddress: `0x${string}`, spender: `0x${string}`) {
+//   return useContractWrite({
+//     address: LiskSepoliaAddress,
+//     abi: erc20ABI,
+//     functionName: 'approve',
+//     args: undefined, // you’ll pass this dynamically
+//   });
+// }
 
 // User pays rent
 export function useWithrawRent() {
