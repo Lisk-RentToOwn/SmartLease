@@ -25,14 +25,11 @@ export type PropertyType = {
 
 export const PropertyCard = React.memo(function PropertyCard({ data}:{data :PropertyType}) {
     const {
-        convertedAmount,
         error,
-        exchangeRate,
         executePayment,
         isApproving,
         isLoading,
         isPaying,
-        needsApproval
     } = useSmartRentPayment({
         paymentTokenAddress: LiskSepoliaAddress,
         propertyId: Number(data.propertyId),
@@ -74,7 +71,7 @@ export const PropertyCard = React.memo(function PropertyCard({ data}:{data :Prop
                 <p className="">
                     {isApproving ? "Approving..." : 
                         isPaying ? "Processing Payment..." : 
-                        needsApproval ? "Approve Tokens" : "Pay Rent"}
+                        (!isApproving && isPaying) ? "Approve Tokens" : "Pay Rent"}
                 </p>
             </button>
             </div>

@@ -3,6 +3,8 @@
 import { Header } from "@/components/Header";
 import { BlockieAvatar } from "@/components/scaffold-eth";
 import { ProgressBar } from "@/components/scaffold-eth/ProgressBar";
+import { PushProvider } from "@/context/PushContext";
+import { XmtpProvider } from "@/context/XmtpContext";
 import { wagmiConfig } from "@/services/web3/wagmiConfig";
 import { appChains } from "@/services/web3/wagmiConnectors";
 import {
@@ -50,7 +52,11 @@ export const ScaffoldEthAppWithProviders = ({
           mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()
         }
       >
-        <ScaffoldEthApp>{children}</ScaffoldEthApp>;
+        <PushProvider>
+          <XmtpProvider>
+            <ScaffoldEthApp>{children}</ScaffoldEthApp>;
+          </XmtpProvider>
+        </PushProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );
