@@ -44,20 +44,20 @@
         uint256 public nextPropertyId;
         mapping(uint256 => Property) private properties;
 
-        // Add uint256 tokenId later for the property, as well as when emitting
-        event PropertyCreated(
-            uint256 indexed propertyId,
-            address indexed landlord,
-            uint256 value,
-            uint256 duration,
-            string name,
-            string image,
-            string propertyAddress,
-            string city,
-            string state,
-            string zipCode,
-            string currency        
-        );
+    // Add uint256 tokenId later for the property, as well as when emitting
+    event PropertyCreated(
+        uint256 indexed propertyId,
+        address indexed landlord,
+        uint256 value,
+        uint256 duration,
+        string name,
+        string image,
+        string propertyAddress,
+        string city,
+        string state,
+        string zipCode,
+        string currency
+    );
 
         event RentPaid(uint256 indexed propertyId, address indexed tenant, uint256 amount);
         event EquityUpdated(uint256 indexed propertyId, address indexed tenant, uint256 newEquity);
