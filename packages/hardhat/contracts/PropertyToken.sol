@@ -13,6 +13,8 @@ contract PropertyToken is ERC1155, Ownable {
     uint256 private nextTokenId;
     mapping(uint256 => address) public landlordOf;
     mapping(uint256 => string) private tokenURIs;
+    /// NEW
+    mapping(address => bool) public authorizedContracts; // Allow RentToOwn contract to call functions
 
     uint256 public constant TOKEN_SUPPLY_PER_PROPERTY = 100;
 
@@ -26,8 +28,20 @@ contract PropertyToken is ERC1155, Ownable {
         _;
     }
 
-    constructor(address _identityRegistry) ERC1155("") {
+    /// NEW
+    modifier onlyAuthorized() {
+        require(authorizedContracts[msg.sender] || owner() == msg.sender, "Not authorized");
+        _;
+    }
+
+    constructor(address _identityRegistry) ERC1155("") Ownable(msg.sender){
         identityRegistry = IIdentityRegistry(_identityRegistry);
+    }
+
+    /// NEW FUNCTION:
+    // Allow owner to authorize contracts (like RentToOwn)
+    function setAuthorizedContract(address contractAddr, bool authorized) external onlyOwner {
+        authorizedContracts[contractAddr] = authorized;
     }
 
     function mintPropertyToken(string memory uri) external onlyLandlord returns (uint256) {
@@ -41,6 +55,21 @@ contract PropertyToken is ERC1155, Ownable {
         nextTokenId++;
         return tokenId;
     }
+    
+    /// NEW FUNCTION:
+    // Function specifically for RentToOwn contract to mint tokens
+    function mintToLandlord(address landlord, string memory uri) external onlyAuthorized returns (uint256) {
+        uint256 tokenId = nextTokenId;
+        landlordOf[tokenId] = landlord;
+        tokenURIs[tokenId] = uri; // Can be set later
+
+        _mint(landlord, tokenId, TOKEN_SUPPLY_PER_PROPERTY, "");
+        emit PropertyTokenMinted(tokenId, landlord, TOKEN_SUPPLY_PER_PROPERTY, "");
+
+        nextTokenId++;
+        return tokenId;
+    }
+
 
     function getPropertyMetadataUri(uint256 tokenId) public view returns (string memory) {
         return tokenURIs[tokenId];
@@ -50,9 +79,19 @@ contract PropertyToken is ERC1155, Ownable {
         return landlordOf[tokenId] == user;
     }
 
+    /// NEW FUNCTION:
     function transferFraction(address to, uint256 tokenId, uint256 amount) external {
         require(balanceOf(msg.sender, tokenId) >= amount, "Insufficient balance");
         _safeTransferFrom(msg.sender, to, tokenId, amount, "");
+        emit PropertyTokenTransferred(tokenId, msg.sender, to, amount);
+    }
+
+    /// NEW UPDATES
+    // Updated function signature to match RentToOwn contract expectations
+    function transferFraction(address from, address to, uint256 tokenId, uint256 amount) external onlyAuthorized {
+        require(balanceOf(from, tokenId) >= amount, "Insufficient balance");
+        _safeTransferFrom(from, to, tokenId, amount, "");
+        emit PropertyTokenTransferred(tokenId, from, to, amount);
     }
 
 }

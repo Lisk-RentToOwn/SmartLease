@@ -1,21 +1,11 @@
-"use client"
+import { ReactNode } from "react"
 
-import { PlusIcon } from "lucide-react"
-import DashboardTabLayout from "@/components/shared/dashboard-tab-layout"
-import { Button } from "@/components/ui/button"
-import { LANDLORDNAV } from "@/constants/dashboard-nav"
-import { Routes } from "../routes"
-import Link from "next/link"
-
-const LayoutPage = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <>
-            <main className="bg-gray-100">
-                {children}
-            </main>
-        </>
-    )
+const LandlordDashboard = ({children}: {children: ReactNode}) => {
+  return (
+    <>
+        {children}
+    </>
+  )
 }
 
-
-export default LayoutPage
+export default LandlordDashboard
