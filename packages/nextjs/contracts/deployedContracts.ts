@@ -405,6 +405,40 @@ const deployedContracts = {
               "internalType": "uint256",
               "name": "propertyId",
               "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "tenantAddr",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "monthNumber",
+              "type": "uint256"
+            }
+          ],
+          "name": "getMonthlyRentPayable",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "rentAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isPayable",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "propertyId",
+              "type": "uint256"
             }
           ],
           "name": "getPropertyMetadata",

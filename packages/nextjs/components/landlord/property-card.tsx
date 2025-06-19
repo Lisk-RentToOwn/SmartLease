@@ -5,6 +5,7 @@ import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card"
 import { Routes } from "@/app/routes"
+import { formatUnits } from "ethers"
 
 type LandlordPropertyCardProps = {
     name: string,
@@ -82,7 +83,7 @@ const LandlordPropertyCard = ({
 
                         <div className="">
                             <p className="text-slate-500">Price</p>
-                            <span className="font-bold">{currency} <span className="">{price}</span></span>
+                            <span className="font-bold">{currency} <span className="">{formatUnits(price, 18)}</span></span>
                         </div>
                     </div>
 

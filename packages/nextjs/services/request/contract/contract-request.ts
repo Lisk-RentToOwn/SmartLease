@@ -185,3 +185,12 @@ export function useIsLandlord(user: Address) {
     enabled: !!user,
   });
 }
+
+export function useGetMonthlyRentPayable(propertyId: string, tenantAddr: Address, monthNumber: number) {
+  return useContractRead({
+    ...genericContractRequestPropertyToken,
+    functionName: "getMonthlyRentPayable",
+    args: [propertyId, tenantAddr, monthNumber],
+    enabled: !!tenantAddr,
+  });
+}

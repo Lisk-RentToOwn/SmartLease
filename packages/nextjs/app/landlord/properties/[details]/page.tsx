@@ -22,7 +22,7 @@ const LandlordPropertiesDetailPage = () => {
     const {holders, loading} = useTokenHolders(+(tokenId as string))
     const {loading: timelineLoading, timeline} = usePropertyTimeline(+propertyId)
 
-    console.log(timeline)
+    console.log(timeline, "timeline")
 
     return (
         <>

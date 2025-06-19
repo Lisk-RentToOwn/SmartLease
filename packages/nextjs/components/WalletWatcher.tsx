@@ -26,9 +26,6 @@ export function WalletWatcher() {
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const { writeAsync: setRole , isLoading: isLoading } = useSetUserRole();
 
-  useEffect(() => {
-    toast("Hello")
-  }, [])
 
   const {
     data: userRole, 
@@ -113,6 +110,7 @@ export function WalletWatcher() {
   });
 
   const renderDasboardHeader = useCallback(() => {
+    console.log(role)
     return (
       <>
         { (role !== undefined && isConnected) &&

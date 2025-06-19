@@ -43,6 +43,7 @@ import { RenToOwnAddress } from "@/constants/contract-address";
 import { useLandlordDashboard } from "@/hooks/property/usePropertyEvents";
 import { useAccount } from "wagmi";
 import EmptyContent from "../shared/empty-content";
+import { formatUnits } from "viem";
 
 export type NewProperty = {
   timestamp:1749759312
@@ -50,7 +51,7 @@ export type NewProperty = {
   args: {
     city:string
     currency:string
-    duration:BigInt
+    duration:bigint
     image:string
     landlord:string
     name:string
@@ -58,7 +59,7 @@ export type NewProperty = {
     propertyId:BigInt
     state:string
     tokenId:BigInt
-    value:BigInt
+    value:bigint
     zipCode:string
   }
 }
@@ -90,8 +91,9 @@ export const columns: ColumnDef<NewProperty>[] = [
         header: () => <div className="uppercase">Price</div>,
         cell: ({ row }) => {
             const property = row.original
+            const formatU = formatUnits(property.args.value, 18)
             return (
-              <p className="text-sm">{property.args.currency}  {Number(property.args.value)}</p>
+              <p className="text-sm">{property.args.currency}  {formatU}</p>
             )
         },
     },
@@ -102,7 +104,7 @@ export const columns: ColumnDef<NewProperty>[] = [
       cell: ({ row }) => {
           const property = row.original
           return (
-            <p className="text-sm">{property.args.currency}  {Number(property.args.value)/Number(property.args.duration)}</p>
+            <p className="text-sm">{property.args.currency}  {(+(formatUnits(property.args.value/property.args.duration, 18))).toFixed(9)}</p>
           )
       },
   },

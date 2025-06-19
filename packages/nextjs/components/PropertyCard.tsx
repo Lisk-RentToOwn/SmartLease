@@ -6,11 +6,12 @@ import { currencyPairFormatter, formatDurationFromMonths, priceFormatter } from 
 import { useSmartRentPayment } from "@/hooks/property/use-smartpayment";
 import { LiskSepoliaAddress, RenToOwnAddress } from "@/constants/contract-address";
 import { Loader } from "lucide-react";
+import { formatUnits } from "viem";
 
 export type PropertyType = {
     city: string
     currency: string
-    duration:BigInt
+    duration:bigint
     image:string
     landlord:string
     name:string
@@ -18,12 +19,14 @@ export type PropertyType = {
     propertyId:BigInt
     state:string
     tokenId:BigInt
-    value:BigInt
+    value: bigint
     zipCode:string
 }
 
 
 export const PropertyCard = React.memo(function PropertyCard({ data}:{data :PropertyType}) {
+    const rentAmountHumanReadable = formatUnits(data.value/data.duration, 18);
+
     const {
         error,
         executePayment,
@@ -34,9 +37,10 @@ export const PropertyCard = React.memo(function PropertyCard({ data}:{data :Prop
         paymentTokenAddress: LiskSepoliaAddress,
         propertyId: Number(data.propertyId),
         rentContractAddress: RenToOwnAddress,
-        rentFiatAmount: Number(data.value)/Number(data.duration),
+        rentFiatAmount: +rentAmountHumanReadable,
         tokenDecimals: 18
     });
+
 
     return (
         <div className="bg-white shadow rounded-xl overflow-hidden">
@@ -57,7 +61,8 @@ export const PropertyCard = React.memo(function PropertyCard({ data}:{data :Prop
             <div className="mt-3 flex items-center space-x-2">
                 <p className="text-sm text-gray-700">Current Rent</p>
                 <p className="text-blue-600 font-semibold text-lg">
-                {data.currency} {priceFormatter((Number(data.value)/Number(data.duration)), 5)}
+                 {(+rentAmountHumanReadable).toFixed(9)} {data.currency}
+                {/* {((Number(data.value)/Number(data.duration)))} */}
                 </p>
             </div>
             <div className="mt-1 flex space-x-1">

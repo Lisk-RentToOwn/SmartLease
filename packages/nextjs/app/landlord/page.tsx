@@ -43,7 +43,7 @@ const LandlordPage = () => {
                         <div className="">
                             <div className="grid grid-cols-3 gap-8">
                                 <LandlordDashboardCard
-                                    amount={totalRentCollected}
+                                    amount={+(totalRentCollected.toFixed(6))}
                                     title="Total Rent Collected"
                                     extraText="this month"
                                 />

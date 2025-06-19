@@ -1,4 +1,5 @@
 import { RentToOwnABI } from "@/abi/RentToOwn";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { parseUnits } from "viem";
@@ -23,6 +24,7 @@ export const useSmartRentPayment = ({
   const [convertedAmount, setConvertedAmount] = useState<bigint | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
   
   // 1. Add allowance check
   const { data: currentAllowance, refetch: refetchAllowance } = useContractRead({
@@ -69,6 +71,8 @@ export const useSmartRentPayment = ({
     hash: approveTx?.hash,
     onSuccess: async () => {
       toast.success("Approval confirmed");
+      // console.log(currentAllowance)
+      // console.log(convertedAmount)
       
       // Refresh allowance
       await refetchAllowance();
@@ -86,6 +90,8 @@ export const useSmartRentPayment = ({
     hash: payRentTx?.hash,
     onSuccess: () => {
       toast.success("Rent payment successful");
+      router.refresh()
+
       setError(null);
     },
     onError: (err) => {
@@ -107,6 +113,8 @@ export const useSmartRentPayment = ({
 
     // Check if approval is needed
     if (currentAllowance && currentAllowance >= convertedAmount) {
+      console.log(currentAllowance, "currentAllowance")
+      console.log(convertedAmount, "convertedAmount")
       // Direct payment if already approved
       payRent();
     } else {

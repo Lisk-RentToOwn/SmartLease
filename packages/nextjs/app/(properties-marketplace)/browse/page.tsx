@@ -6,12 +6,10 @@ import EmptyContent from "@/components/shared/empty-content";
 import TablePagination from "@/components/shared/pagination-custom";
 import PropertyCardSkeleton from "@/components/shared/property-skeleton";
 import { useAvailableProperties } from "@/hooks/property/usePropertyEvents";
-import { useAccount } from "wagmi";
 
 
 // propertyId, amt
 export default function BrowsePropertiesPage() {
-  const {isConnected, address} = useAccount()
 
   const {
     properties,
