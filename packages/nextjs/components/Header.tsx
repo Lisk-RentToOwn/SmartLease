@@ -133,7 +133,7 @@ export const Header = () => {
             <Link href={Routes.BROWSE_PROPERTIES} className="text-gray-700 hover:text-blue-600">
               Browse
             </Link>
-            <Link href="#" className="text-gray-700 hover:text-blue-600">
+            <Link href={Routes.HOW_IT_WORKS} className="text-gray-700 hover:text-blue-600">
               How It Works
             </Link>
             <Link href="#" className="text-gray-700 hover:text-blue-600">

@@ -1,6 +1,7 @@
 export enum Routes {
     HOME = "/",
     BROWSE_PROPERTIES = '/browse',
+    HOW_IT_WORKS = '/works'
 
     // Tenant Routes
     TENANT = "/tenant",
