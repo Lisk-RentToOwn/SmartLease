@@ -53,7 +53,7 @@ contract RentToOwn is Ownable {
         string city,
         string state,
         string zipCode,
-        string currency,        
+        string currency
     );
 
     event RentPaid(uint256 indexed propertyId, address indexed tenant, uint256 amount);
