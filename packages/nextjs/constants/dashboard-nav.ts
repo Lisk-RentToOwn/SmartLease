@@ -5,6 +5,7 @@ import {
   Gem,
   HomeIcon,
   LandPlotIcon,
+  Mails,
   ReceiptText,
   UserRound,
 } from "lucide-react";
@@ -25,6 +26,11 @@ export const LANDLORDNAV: TabType[] = [
     name: "Tenants",
     Icon: UserRound,
   },
+  {
+    link: Routes.LANDLORD_MESSAGING_CENTER,
+    name: "Messages and Notifications",
+    Icon: Mails,
+  },
 ];
 
 export const TENANTNAV: TabType[] = [
@@ -39,13 +45,13 @@ export const TENANTNAV: TabType[] = [
     Icon: ReceiptText,
   },
   {
-    link: Routes.TENANT_REWARDS,
-    name: "Rewards",
-    Icon: Gem,
-  },
-  {
     link: Routes.TENANT_EQUITY,
     name: "Equity",
     Icon: BadgeDollarSign,
+  },
+  {
+    link: Routes.TENANT_MESSAGING_CENTER,
+    name: "Messages and Notifications",
+    Icon: Mails,
   },
 ];

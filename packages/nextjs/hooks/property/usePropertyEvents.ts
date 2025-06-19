@@ -694,7 +694,7 @@ export async function verifyLandlordProperties(landlordAddress: string) {
       console.error("Verification failed:", error);
       return null;
     }
-  }
+}
   
 
   export function useRentPayments(

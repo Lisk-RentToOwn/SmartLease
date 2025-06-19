@@ -9,6 +9,7 @@ import { PlusIcon } from "lucide-react"
 import Link from "next/link"
 import { useAccount } from "wagmi"
 import { Routes } from "../routes"
+import NotificationPanel from "@/components/shared/messaging/NotificationPanel"
 
 const LandlordPage = () => {
     const {address} = useAccount()
@@ -34,7 +35,7 @@ const LandlordPage = () => {
     return (
         <>
             <div className="bg-gray-100">
-                <main className="min-h-[80vh] app-container mt-10 ">
+                <main className="min-h-[80vh] app-container mt-10 mb-12">
 
                     { loading ?
                         <DashboardSkeleton/> :
@@ -42,7 +43,7 @@ const LandlordPage = () => {
                         <div className="">
                             <div className="grid grid-cols-3 gap-8">
                                 <LandlordDashboardCard
-                                    amount={totalRentCollected}
+                                    amount={+(totalRentCollected.toFixed(6))}
                                     title="Total Rent Collected"
                                     extraText="this month"
                                 />
@@ -80,14 +81,19 @@ const LandlordPage = () => {
                         </div>
                     }
 
-                    <div className="mt-16">
-                        <div className="bg-white p-6 rounded-md">
+                    <div className="mt-16 grid grid-cols-12 gap-x-8">
+                        <div className="bg-white p-6 rounded-md col-span-8">
                             <div className="p-5">
                                 <p className="text-xl font-semibold text-gray-600">Rent Collection Analysis</p>
                             </div>
                             <div className="border border-gray-300 p-4 rounded-md">
                                 <RentAnalysisChart/>
                             </div>
+                        </div>
+
+                        <div className="col-span-4 p-5 bg-white rounded-lg">
+                            <h2 className="text-lg font-semibold">Notifications</h2>
+                            <NotificationPanel/>
                         </div>
                     </div>
                 </main>
