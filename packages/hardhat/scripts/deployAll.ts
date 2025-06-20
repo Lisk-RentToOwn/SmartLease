@@ -21,7 +21,8 @@ async function main(): Promise<void> {
 
   const entryPointAddress: string = "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789"; // ERC-4337 EntryPoint
   const useExistingToken: boolean = true;
-  const existingLiskTokenAddress: string = "0x5589BB8228C07c4e15558875fAf2B859f678d129"; // Lisk Sepolia
+  // const existingLiskTokenAddress: string = "0x5589BB8228C07c4e15558875fAf2B859f678d129"; // Lisk Sepolia
+  const existingLiskTokenAddress: string = "0x8a21CF9Ba08Ae709D64Cb25AfAA951183EC9FF6D"; // Lisk Sepolia
 
   let liskToken: Contract;
 

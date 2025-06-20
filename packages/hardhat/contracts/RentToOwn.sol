@@ -44,20 +44,21 @@
         uint256 public nextPropertyId;
         mapping(uint256 => Property) private properties;
 
-    // Add uint256 tokenId later for the property, as well as when emitting
-    event PropertyCreated(
-        uint256 indexed propertyId,
-        address indexed landlord,
-        uint256 value,
-        uint256 duration,
-        string name,
-        string image,
-        string propertyAddress,
-        string city,
-        string state,
-        string zipCode,
-        string currency
-    );
+        // Add uint256 tokenId later for the property, as well as when emitting
+        event PropertyCreated(
+            uint256 indexed propertyId,
+            address indexed landlord,
+            uint256 tokenId,
+            uint256 value,
+            uint256 duration,
+            string name,
+            string image,
+            string propertyAddress,
+            string city,
+            string state,
+            string zipCode,
+            string currency
+        );
 
         event RentPaid(uint256 indexed propertyId, address indexed tenant, uint256 amount);
         event EquityUpdated(uint256 indexed propertyId, address indexed tenant, uint256 newEquity);
@@ -102,18 +103,20 @@
             prop.currency = currency;
             
             // /// NEW: Uncommented
-            // uint256 tokenId = propertyToken.mintToLandlord(msg.sender, 100); // mint 100 tokens - uncomment when Token contract is available
-            // prop.tokenId = tokenId;
+            uint256 tokenId = propertyToken.mintToLandlord(msg.sender, image); // mint 100 tokens - uncomment when Token contract is available
+            prop.tokenId = tokenId;
+            // uint256 pMethod = uint256(paymentType);
             // ///
 
             /// NEW: Uncommented
-            uint256 tokenId = propertyToken.mintPropertyToken(image); // mint 100 tokens - uncomment when Token contract is available
-            prop.tokenId = tokenId;
+            // uint256 tokenId = propertyToken.mintPropertyToken(image); // mint 100 tokens - uncomment when Token contract is available
+            // prop.tokenId = tokenId;
             ///
 
             emit PropertyCreated(
                 nextPropertyId,
                 msg.sender,
+                prop.tokenId,
                 value,
                 duration,
                 name,
@@ -123,6 +126,7 @@
                 state,
                 zipCode,
                 currency
+                // pMethod
             );
 
             nextPropertyId++; 
@@ -217,44 +221,44 @@
         }
 
         function getBasicPropertyDetails(uint256 propertyId) external view returns (
-        address landlord,
-        uint256 value,
-        uint256 duration,
-        PaymentType paymentType,
-        address tenant,
-        bool isOccupied
-    ) {
-        Property storage p = properties[propertyId];
-        return (
-            p.landlord,
-            p.value,
-            p.duration,
-            p.paymentType,
-            p.tenant,
-            p.isOccupied
-        );
-    }
+            address landlord,
+            uint256 value,
+            uint256 duration,
+            PaymentType paymentType,
+            address tenant,
+            bool isOccupied
+        ) {
+            Property storage p = properties[propertyId];
+            return (
+                p.landlord,
+                p.value,
+                p.duration,
+                p.paymentType,
+                p.tenant,
+                p.isOccupied
+            );
+        }
 
-    function getPropertyMetadata(uint256 propertyId) external view returns (
-        string memory name,
-        string memory image,
-        string memory propertyAddress,
-        string memory city,
-        string memory state,
-        string memory zipCode,
-        string memory currency
-    ) {
-        Property storage p = properties[propertyId];
-        return (
-            p.name,
-            p.image,
-            p.propertyAddress,
-            p.city,
-            p.state,
-            p.zipCode,
-            p.currency
-        );
-    }
+        function getPropertyMetadata(uint256 propertyId) external view returns (
+            string memory name,
+            string memory image,
+            string memory propertyAddress,
+            string memory city,
+            string memory state,
+            string memory zipCode,
+            string memory currency
+        ) {
+            Property storage p = properties[propertyId];
+            return (
+                p.name,
+                p.image,
+                p.propertyAddress,
+                p.city,
+                p.state,
+                p.zipCode,
+                p.currency
+            );
+        }
 
         // function getPropertyDetails(uint256 propertyId) external view returns (
         //     address landlord,

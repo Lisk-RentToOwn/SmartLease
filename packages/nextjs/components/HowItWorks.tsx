@@ -1,6 +1,6 @@
 "use client";
 import { Wallet, Search, FileText, Home, BarChart3, Shield, Users, ArrowRight } from "lucide-react";
-import Link from "next/Link";
+import Link from "next/link";
 import {Routes} from "@/app/routes"
 
 export default function HowItWorks() {
