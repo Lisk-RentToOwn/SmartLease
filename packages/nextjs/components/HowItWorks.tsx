@@ -50,14 +50,14 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative overflow-hidden">
+    <section className="py-20 pt-28 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200/30 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <div className="relative z-10 px-6">
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-4">
@@ -70,7 +70,7 @@ export default function HowItWorks() {
         </div>
 
         {/* Main Steps */}
-        <div className="grid lg:grid-cols-4 gap-8 mb-20">
+        <div className="grid lg:grid-cols-4 gap-8 app-container mb-20">
           {steps.map((step, index) => (
             <div key={index} className="relative group">
               {/* Connection Line */}
@@ -105,7 +105,7 @@ export default function HowItWorks() {
         </div>
 
         {/* Role-Based Experience */}
-        <div className="grid lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid lg:grid-cols-2 gap-12 mb-28 max-w-7xl mx-auto">
           {/* Landlord Experience */}
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/50">
             <div className="flex items-center mb-6">
@@ -164,66 +164,72 @@ export default function HowItWorks() {
         </div>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div key={index} className="text-center group">
-              <div className="inline-flex p-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl text-white mb-4 group-hover:scale-110 transition-transform duration-300">
-                {feature.icon}
+        <div className="bg-blue-600/5 py-28 text-white">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-blue-600">Why Choose Us</h2>
+
+          <div className="grid md:grid-cols-3 gap-8 gap-y-10 max-w-7xl mx-auto mt-10">
+            {features.map((feature, index) => (
+              <div key={index} className="text-center group">
+                <div className="inline-flex p-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl text-white mb-4 group-hover:scale-110 transition-transform duration-300">
+                  {feature.icon}
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  {feature.title}
+                </h4>
+                <p className="text-gray-600">
+                  {feature.description}
+                </p>
               </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                {feature.title}
-              </h4>
-              <p className="text-gray-600">
-                {feature.description}
-              </p>
+            ))}
+
+
+            <div className="text-center group">
+                <div className="inline-flex p-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl text-white mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Wallet className="w-9 h-9" />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  Flexible Payment Options
+                </h4>
+                <p className="text-gray-600">
+                  Gradual payments towards full ownership without a mortgage.
+                </p>
             </div>
-          ))}
-        </div>
+
+            <div className="text-center group">
+                <div className="inline-flex p-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl text-white mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Wallet className="w-9 h-9" />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  Verified Properties
+                </h4>
+                <p className="text-gray-600">
+                All listings are vetted and approved by our platform experts.
+                </p>
+            </div>
+
+            <div className="text-center group">
+                <div className="inline-flex p-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl text-white mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Wallet className="w-9 h-9" />
+                </div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  Secure Payments
+                </h4>
+                <p className="text-gray-600">
+                Built on blockchain technology for transparency and trust.
+                </p>
+            </div>
+          </div>
 
         {/* CTA */}
-        <div className="text-center mt-16">
-          <div className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer">
-            <Link href={Routes.BROWSE_PROPERTIES}>Get Started Today</Link>
-            <ArrowRight className="w-5 h-5 ml-2" />
+          <div className="text-center mt-16">
+            <div className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 cursor-pointer">
+              <Link href={Routes.BROWSE_PROPERTIES}>Get Started Today</Link>
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </div>
           </div>
         </div>
+
       </div>
     </section>
   );
 }
-
-
-// "use client";
-// export default function HowItWorks() {
-//   return (
-//     <section className="py-20 bg-white">
-//       <div className="max-w-6xl mx-auto px-6">
-//         <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
-//         <div className="grid md:grid-cols-3 gap-10 text-center">
-//           <div>
-//             <div className="text-blue-600 text-4xl mb-4">🔍</div>
-//             <h3 className="text-xl font-semibold mb-2">Browse Listings</h3>
-//             <p className="text-gray-600">
-//               Find rent-to-own homes that match your preferences and location.
-//             </p>
-//           </div>
-//           <div>
-//             <div className="text-blue-600 text-4xl mb-4">📝</div>
-//             <h3 className="text-xl font-semibold mb-2">Apply & Sign</h3>
-//             <p className="text-gray-600">
-//               Apply easily and sign the agreement digitally through our
-//               platform.
-//             </p>
-//           </div>
-//           <div>
-//             <div className="text-blue-600 text-4xl mb-4">🏠</div>
-//             <h3 className="text-xl font-semibold mb-2">Move In & Pay</h3>
-//             <p className="text-gray-600">
-//               Move in right away and pay monthly towards your future ownership.
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }

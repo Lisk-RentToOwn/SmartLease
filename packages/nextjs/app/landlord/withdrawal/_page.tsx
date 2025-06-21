@@ -46,39 +46,40 @@ export default function WithdrawFundsClientPage() {
 
 
     const withdrawFunds = async () => {
-      setWLoading(true)
-      try {
-          const tx = await createProperty({args: [propertyId]})
-          setTxHash(tx.hash);
-      }catch (err) {'['
-          const error = getParsedError(err)
-          toast.error(error)
-      } finally {
-        setWLoading(false)
-      }
-  }
-  
-  useWaitForTransaction({
-      hash: txHash,
-      confirmations: 1,
-      enabled: !!txHash,
-      onSuccess() {
+        setWLoading(true)
+        try {
+            const tx = await createProperty({args: [propertyId]})
+            setTxHash(tx.hash);
+        }catch (err) {'['
+            const error = getParsedError(err)
+            toast.error(error)
+        } finally {
           setWLoading(false)
-          toast.success(`Withdrawl successful. Tnx  hash ${txHash}`)
-          router.push(Routes.LANDLORD)
-        // navigate or update UI here
-      },
-      onError(error) {
-        console.error("Tx failed to confirm", error);
-        setWLoading(false)
-      },
-  });
+        }
+    }
+  
+    useWaitForTransaction({
+        hash: txHash,
+        confirmations: 1,
+        enabled: !!txHash,
+        onSuccess() {
+            setWLoading(false)
+            toast.success(`Withdrawl successful. Tnx  hash ${txHash}`)
+            router.push(Routes.LANDLORD)
+          // navigate or update UI here
+        },
+        onError(error) {
+          console.error("Tx failed to confirm", error);
+          setWLoading(false)
+        },
+    });
   
 
 
   return (
       <div className="bg-gray-100 mt-3 min-h-[90vh]">
-        <div className="max-w-lg mx-auto w-full mt-20 p-6 bg-white rounded-lg shadow-md">
+        {/* <div className="max-w-lg mx-auto w-full mt-20 p-6 bg-white rounded-lg shadow-md"> */}
+        <div className="max-w-lg mx-auto w-full mt-20 p-6 bg-white rounded-lg shadow-mdrounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl">
           <h2 className="text-lg font-semibold mb-2">Withdraw Funds</h2>
 
           <p className="text-2xl font-bold text-gray-800">{balance}</p>
@@ -108,7 +109,7 @@ export default function WithdrawFundsClientPage() {
           <Button
             onClick={withdrawFunds}
             // disabled={balance < 1}
-            className="w-full bg-blue-600 disabled:bg-gray-200 text-white py-7 rounded-md hover:bg-blue-700 font-semibold"
+            className="w-full py-6 bg-gradient-to-r from-[#9765E0] to-[#CE95FB] text-white hover:opacity-90 transition"
           >
               { wLoading ?
               <div className="">

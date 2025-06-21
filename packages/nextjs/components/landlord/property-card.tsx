@@ -105,7 +105,7 @@ const LandlordPropertyCard = ({
 
                 <CardFooter>
                     <Link href={`${Routes.LANDLORD_PROPERTIES}/${proprtyId}?tokenId=${token_id}`}>
-                        <Button className="">View Details</Button>
+                        <Button className="bg-gradient-web3-blue text-white hover:opacity-90 transition">View Details</Button>
                     </Link>
                 </CardFooter>
                 </Card>

@@ -1,11 +1,13 @@
 import { Routes } from "@/app/routes";
 import { TabType } from "@/components/shared/dashboard-tab-layout";
+import { ChatBubbleLeftEllipsisIcon, ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/20/solid";
 import {
   BadgeDollarSign,
   Gem,
   HomeIcon,
   LandPlotIcon,
   Mails,
+  MessageCircle,
   ReceiptText,
   UserRound,
 } from "lucide-react";
@@ -28,8 +30,8 @@ export const LANDLORDNAV: TabType[] = [
   },
   {
     link: Routes.LANDLORD_MESSAGING_CENTER,
-    name: "Messages and Notifications",
-    Icon: Mails,
+    name: "Chat",
+    Icon: MessageCircle,
   },
 ];
 
@@ -51,7 +53,7 @@ export const TENANTNAV: TabType[] = [
   },
   {
     link: Routes.TENANT_MESSAGING_CENTER,
-    name: "Messages and Notifications",
-    Icon: Mails,
+    name: "Chat",
+    Icon: ChatBubbleOvalLeftEllipsisIcon,
   },
 ];

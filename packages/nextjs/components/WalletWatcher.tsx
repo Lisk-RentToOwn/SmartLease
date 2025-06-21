@@ -115,12 +115,12 @@ export function WalletWatcher() {
       <>
         { (role !== undefined && isConnected) &&
             <div  className="">
-                <Button onClick={() => { router.push(`/${role}`)}} className="bg-white border-primary border text-primary rounded-lg py-6 hover:bg-white px-4 shadow-none">Dashbboard</Button>
+                <Button onClick={() => { router.push(`/${role}`)}} className="bg-white border-[#9765E0] border text-[#9765E0] rounded-lg py-6 hover:bg-white px-4 shadow-none">Dashbboard</Button>
             </div>
         }
         { (role === undefined && isConnected) &&
             <div className="">
-                <Button onClick={() => {setShowRoleModal(true)}} className="bg-white border-primary border text-primary rounded-lg py-6 hover:bg-white px-4 shadow-none">Select Role</Button>
+                <Button onClick={() => {setShowRoleModal(true)}} className="bg-white border-[#9765E0] border text-primary rounded-lg py-6 hover:bg-white px-4 shadow-none">Select Role</Button>
             </div>
         }
       </>

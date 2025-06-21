@@ -10,7 +10,7 @@ import { PushContextProps, usePushProtocol } from '@/context/PushContext';
     <div className="p-4">
       
       <ul className='flex flex-col gap-y-3'>
-        {notifications.map((notif, idx) => (
+        {notifications?.map((notif, idx) => (
           <li key={idx} className="border-b py-2">
             <p className="font-medium">{notif.title}</p>
             <p className="text-sm">{notif.body}</p>

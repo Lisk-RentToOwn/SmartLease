@@ -2,16 +2,39 @@
 
 import { Routes } from "@/app/routes";
 import { PropertyEquityChart } from "@/components/landlord/property-equity-chart";
-import PropertyPaymentHistoryTable from "@/components/landlord/rent-pament-history";
+import PropertyPaymentHistoryTable, { PaymentHistory } from "@/components/landlord/rent-pament-history";
 import PropertyCardSkeleton from "@/components/shared/property-skeleton";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useEquityDistribution, usePropertyTimeline, useTokenHolders } from "@/hooks/property/usePropertyEvents";
 import { formatDurationFromMonths, priceFormatter } from "@/utils/formatter";
+import { ethers } from "ethers";
 import { LucideCoins, SquarePen } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
+export type PropertyDetails = {
+    propertyId: number;
+    owner: string;
+    propertyType: number;
+    rentAmount: number;
+    duration: number;
+    title: string;
+    image: string;
+    addressLine: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    currency: string;
+};
+
+export type PropertyOccupancy = {
+    propertyId: number;
+    tenant: string;
+    txHash: string;
+    timestamp: number;
+    blockNumber: number;
+};
 
 const LandlordPropertiesDetailPage = () => {
     const params = useSearchParams()
@@ -21,14 +44,66 @@ const LandlordPropertiesDetailPage = () => {
 
     const {holders, loading} = useTokenHolders(+(tokenId as string))
     const {loading: timelineLoading, timeline} = usePropertyTimeline(+propertyId)
+    
+    const rentPaymentHistory = timeline["RentPaid"] ?? []
+    const equityUpdated = timeline["EquityUpdated"] ?? []
+    const propertyCreated = (timeline["PropertyCreated"] ?? [])[0]
+    
+    const equityByTx: Record<string, number> = {};
 
-    console.log(timeline, "timeline")
+    equityUpdated.forEach(e => {
+        const equity = Number(e.args[2] ?? 0); // depends on your contract structure
+        equityByTx[e.txHash] = equity;
+    });
+
+    const paymentHistory: PaymentHistory[] = rentPaymentHistory.map(e => {
+        const amount = Number(ethers.formatUnits(e.args[2] ?? 0n, 18));
+        const equity = equityByTx[e.txHash] ?? 0;
+      
+        return {
+          date: new Date((e.timestamp ?? 0) * 1000).toLocaleDateString(),
+          amount,
+          currency: "tLISK",
+          txn_hash: e.txHash,
+          equity_earned: equity
+        };
+    });
+
+    let propertyDetails: PropertyDetails | null = null;
+    if (propertyCreated) {
+        const args = propertyCreated.args;
+
+        propertyDetails = {
+            propertyId: Number(args[0]),
+            owner: args[1],
+            propertyType: Number(args[2]),
+            rentAmount: Number(ethers.formatUnits(args[3], 18)), // formatted into LSK
+            duration: Number(args[4]),
+            title: args[5],
+            image: args[6],
+            addressLine: args[7],
+            city: args[8],
+            state: args[9],
+            postalCode: args[10],
+            currency: args[11],
+        };
+    }
+
+    const occupancyEvents: PropertyOccupancy[] = (timeline["PropertyOccupied"] ?? []).map(e => ({
+        propertyId: Number(e.args[0]),
+        tenant: e.args[1],
+        txHash: e.txHash,
+        timestamp: e.timestamp ?? 0,
+        blockNumber: e.blockNumber
+    }));
+
+    // console.log(propertyOccupied, "Property")
 
     return (
         <>
             <main className="min-h-dvh bg-gray-100">
                 <div className="app-container mt-16 mb-4">
-                        <Link href={`${Routes.LANDLORD_WITHDRAW}?id=${timeline[0]?.args.propertyId}`} className="">
+                        <Link href={`${Routes.LANDLORD_WITHDRAW}?id=${propertyDetails?.propertyId}`} className="">
                             <Button className="py-6 px-7 rounded-lg flex items-center space-x-2">
                                 <LucideCoins size={27}/>
                                 <p className="">Withdraw</p>
@@ -69,8 +144,8 @@ const LandlordPropertiesDetailPage = () => {
                                             <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn"/>
                                         </Avatar>
                                         <div className="">
-                                            <p className="">0x8AE82...</p>
-                                            <p className="text-gray-500">Tenant since 23 May</p>
+                                            <p className="">{occupancyEvents[0]?.tenant.slice(0, 6)}...{occupancyEvents[0]?.tenant.slice(-6)}</p>
+                                            <p className="text-gray-500 text-sm">Tenant since {new Date(occupancyEvents[0]?.timestamp * 1000).toLocaleDateString()}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -120,19 +195,19 @@ const LandlordPropertiesDetailPage = () => {
                                 <div className="py-8 text-primary flex flex-col gap-y-2">
                                     <div className="flex space-x-2">
                                         <p className=" text-white min-w-32">Name:</p>
-                                        <p className="text-lg">{timeline[0]?.args.name}</p>
+                                        <p className="text-lg">{propertyDetails?.title}</p>
                                     </div>
                                     <div className="flex space-x-2">
                                         <p className="text-white min-w-32">Address:</p>
-                                        <p className="text-lg">{timeline[0]?.args.propertyAddress}</p>
+                                        <p className="text-lg">{propertyDetails?.addressLine}</p>
                                     </div>
                                     <div className="flex space-x-2">
                                         <p className="text-white min-w-32">Current Price:</p>
-                                        <p className="text-lg">{timeline[0]?.args.currency} {priceFormatter(Number(timeline[0]?.args.value), 5)} {}</p>
+                                        <p className="text-lg">{propertyDetails?.rentAmount.toFixed(8)} {propertyDetails?.currency}</p>
                                     </div>
                                     <div className="flex space-x-2">
                                         <p className="text-white min-w-28">Payment Duration:</p>
-                                        <p className="">{formatDurationFromMonths(Number(timeline[0]?.args.duration))}</p>
+                                        <p className="">{formatDurationFromMonths(Number(propertyDetails?.duration))}</p>
                                     </div>
 
                                     <div className="flex space-x-2">
@@ -142,10 +217,10 @@ const LandlordPropertiesDetailPage = () => {
                                 </div>
 
                                 <p  className=' font-circular text-base text-[#F4F4F5] mt-3'>
-                                    Continue to view property payment history on explorer
+                                    Continue to view property creation on explorer
                                 </p>
 
-                                <Link target="_blank" href={`https://sepolia-blockscout.lisk.com/tx/${timeline[0]?.txHash}`}>
+                                <Link target="_blank" href={`https://sepolia-blockscout.lisk.com/tx/${propertyCreated?.txHash}`}>
                                     <Button className='flex items-center space-x-2 text-white bg-[#545756] mt-6'>
                                         <p className=''>View on Explorer</p>
                                         <svg
@@ -221,7 +296,7 @@ const LandlordPropertiesDetailPage = () => {
                             </div>
                             
                             <img
-                                src={timeline[0]?.args.image}
+                                src={propertyDetails?.image}
                                 alt="violin"
                                 // height={100}
                                 // width={100}
@@ -234,7 +309,9 @@ const LandlordPropertiesDetailPage = () => {
                 <div className="app-container">
                     <div className="bg-white p-5 rounded-lg mt-16 mb-16 py-8">
                         <p className="text-slate-600 font-semibold text-2xl mb-5">Rent Payment History</p>
-                        <PropertyPaymentHistoryTable/>
+                        <PropertyPaymentHistoryTable
+                            paymentHistory={paymentHistory}
+                        />
                     </div>
                 </div>
             </main>

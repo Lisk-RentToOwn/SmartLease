@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { LucideExternalLink } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
   import {
   Table,
@@ -29,6 +29,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTenantPayments } from "@/hooks/property/useTenant";
 import { useAccount } from "wagmi";
+import { PropertyEvent } from "@/services/events/PropertyEvents";
 
 export type PaymentHistory = {
     date: string,
@@ -57,15 +58,16 @@ export const columns: ColumnDef<PaymentHistory>[] = [
       },
       cell: ({ row }) => {
         const data = row.original
-        return <div className="lowercase text-lg">{data.currency}{data.amount}</div>
+        return <div className="capitalize text-lg">{data.amount.toFixed(8)} LSK</div>
       },
     },
     {
         accessorKey: "equity_earned",
         header: () => <div className="uppercase">Equity Earned</div>,
         cell: ({ row }) => {
+            const equity = row.getValue('equity_earned') as number
             return (
-                <div className="w-full flex text-lg text-center gap-3">{row.getValue('equity_earned')}%</div>
+                <div className="w-full flex text-lg text-center gap-3">{equity/100}%</div>
             )
         },
     },
@@ -82,7 +84,7 @@ export const columns: ColumnDef<PaymentHistory>[] = [
       enableHiding: false,
       cell: ({ row }) => {
         return (
-            <Link href={""}>
+            <Link target="_blank" href={`https://sepolia-blockscout.lisk.com/tx/${row.original.txn_hash}`}>
                 <LucideExternalLink size={20} className="text-primary"/>
             </Link>
         );
@@ -90,15 +92,19 @@ export const columns: ColumnDef<PaymentHistory>[] = [
     },
 ];
 
-const PropertyPaymentHistoryTable = () => {
+const PropertyPaymentHistoryTable = ({paymentHistory}: {paymentHistory: PaymentHistory[]}) => {
     const [density, setDensity] = useState<string>("flexible");
   const [sorting, setSorting] = useState<SortingState>([]);
   const {address} = useAccount()
   const path = usePathname()
   const propertyId = path.split("/")[3]
 
-  const {data, error, loading} = useTenantPayments(address, +propertyId)
-  console.log(data)
+  // const {data, error, loading} = useTenantPayments(address, +propertyId)
+  const [data, setData] = useState(paymentHistory)
+
+  useEffect(() => {
+    setData(paymentHistory)
+  }, [paymentHistory])
 
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
