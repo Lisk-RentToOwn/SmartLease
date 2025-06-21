@@ -45,7 +45,7 @@ import { formatDurationFromMonths, priceFormatter } from "@/utils/formatter";
 import { getParsedError } from "@/utils/scaffold-eth";
 import { InfoIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { parseUnits } from "viem";
 import { useWaitForTransaction } from "wagmi";
@@ -93,7 +93,9 @@ const LandlordCreate= () => {
 
   const {writeAsync: createProperty, isLoading: isLoading} = useCreateProperty()
 
-
+useEffect(() => {
+    form.setValue("currency", "LSK")
+}, [])
   
 const showPreview = async () => {
     console.log(form.getValues())
@@ -221,9 +223,9 @@ const calculateEquity = () => {
 
 
   return (
-    <main className=" bg-gray-100 pb-16">
+    <main className="bg-gray-100 pb-16">
         <div className="content-container bg-white mt-16 py-10 rounded-lg">
-            <p className="text-slate-700 font-semibold text-xl mb-5">Create Property</p>
+            <p className="text-slate-700 font-semibold text-2xl mb-5">Create Property</p>
             <Form {...form}>
                 <form className="w-full flex flex-col gap-y-5">
                     <FormField
@@ -383,7 +385,7 @@ const calculateEquity = () => {
                             </FormLabel>
 
                             <div className="flex items-center gap-2">
-                                <FormField
+                                {/* <FormField
                                     control={form.control}
                                     name="currency"
                                     render={({ field }) => (
@@ -399,7 +401,7 @@ const calculateEquity = () => {
                                             />
                                         </FormControl>
                                     )}
-                                />
+                                /> */}
 
                                 <FormField
                                 control={form.control}
@@ -407,15 +409,17 @@ const calculateEquity = () => {
                                 render={({ field }) => (
                                     <div className="relative w-full">
                                     <FormControl>
-                                        <Input
-                                            {...field}
-                                            type="number"
-                                            disabled={!selectedCurrency}
-                                            onChange={(e) =>
-                                                field.onChange(Number(e.target.value))
-                                            }
-                                            className="pr-10 py-6"
-                                        />
+                                        <div className="">
+                                            <Input
+                                                {...field}
+                                                type="number"
+                                                // disabled={!selectedCurrency}
+                                                onChange={(e) =>
+                                                    field.onChange(Number(e.target.value))
+                                                }
+                                                className="pr-10 py-6"
+                                            />
+                                        </div>
                                     </FormControl>
                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">
                                         {selectedCurrency?.symbol}
@@ -451,7 +455,7 @@ const calculateEquity = () => {
                                             {...field} 
                                             className="py-6" 
                                             type="number" 
-                                            placeholder="Owl CIty" 
+                                            placeholder="11" 
                                             onChange={(e) =>
                                                 field.onChange(Number(e.target.value))
                                             }
@@ -487,7 +491,7 @@ const calculateEquity = () => {
                         />
                     </div>
 
-                    <Button onClick={() => {showPreview()}} type="button" className="mt-4 py-6">
+                    <Button onClick={() => {showPreview()}} type="button" className="mt-4 bg-gradient-web3-blue text-base py-7">
                         Preview
                     </Button>
 
@@ -560,7 +564,7 @@ const calculateEquity = () => {
                                     )}
       
                                 </div>
-                                <Button onClick={form.handleSubmit(onSubmit)} type="submit" className="py-6 rounded-md font-medium w-full">
+                                <Button onClick={form.handleSubmit(onSubmit)} type="submit" className="py-6 bg-gradient-web3-blue rounded-md font-medium w-full">
                                     {status === "uploading" || status === "minting" ? (
                                     <>
                                         <Loader className="w-4 h-4 animate-spin" />

@@ -314,30 +314,72 @@ async getEvents(
     /* CROSS-CONTRACT METHODS    */
     /* ------------------------- */
 
+    // async getPropertyTimeline(
+    //     propertyId: number,
+    //     fromBlock = 0,
+    //     toBlock: number | string = "latest"
+    // ): Promise<PropertyEvent[]> {
+    //     const eventQueries = [
+    //         this.getEvents("RentToOwn", "PropertyCreated", { propertyId }, fromBlock, toBlock)
+    //             .then(res => res.events),
+    //         this.getEvents("RentToOwn", "RentPaid", { propertyId }, fromBlock, toBlock)
+    //             .then(res => res.events),
+    //         this.getEvents("RentToOwn", "EquityUpdated", { propertyId }, fromBlock, toBlock)
+    //             .then(res => res.events),
+    //         this.getEvents("RentToOwn", "PropertyOccupied", { propertyId }, fromBlock, toBlock)
+    //             .then(res => res.events),
+    //         this.getEvents("PropertyToken", "PropertyTokenMinted", {}, fromBlock, toBlock)
+    //             .then(res => res.events.filter(e => e.args.tokenId === propertyId)),
+    //         this.getEvents("PropertyToken", "PropertyTokenTransferred", {}, fromBlock, toBlock)
+    //             .then(res => res.events.filter(e => e.args.tokenId === propertyId))
+    //     ];
+    
+    //     const results = await Promise.all(eventQueries);
+    //     const allEvents = results.flat();
+        
+    //     return allEvents.sort((a, b) => b.blockNumber - a.blockNumber);
+    // }
+
     async getPropertyTimeline(
         propertyId: number,
         fromBlock = 0,
         toBlock: number | string = "latest"
-    ): Promise<PropertyEvent[]> {
+      ): Promise<Record<string, PropertyEvent[]>> {
         const eventQueries = [
-            this.getEvents("RentToOwn", "PropertyCreated", { propertyId }, fromBlock, toBlock)
-                .then(res => res.events),
-            this.getEvents("RentToOwn", "RentPaid", { propertyId }, fromBlock, toBlock)
-                .then(res => res.events),
-            this.getEvents("RentToOwn", "EquityUpdated", { propertyId }, fromBlock, toBlock)
-                .then(res => res.events),
-            this.getEvents("RentToOwn", "PropertyOccupied", { propertyId }, fromBlock, toBlock)
-                .then(res => res.events),
-            this.getEvents("PropertyToken", "PropertyTokenMinted", {}, fromBlock, toBlock)
-                .then(res => res.events.filter(e => e.args.tokenId === propertyId)),
-            this.getEvents("PropertyToken", "PropertyTokenTransferred", {}, fromBlock, toBlock)
-                .then(res => res.events.filter(e => e.args.tokenId === propertyId))
+          this.getEvents("RentToOwn", "PropertyCreated", { propertyId }, fromBlock, toBlock)
+            .then(res => res.events.map(e => ({ ...e, type: "PropertyCreated" }))),
+          this.getEvents("RentToOwn", "RentPaid", { propertyId }, fromBlock, toBlock)
+            .then(res => res.events.map(e => ({ ...e, type: "RentPaid" }))),
+          this.getEvents("RentToOwn", "EquityUpdated", { propertyId }, fromBlock, toBlock)
+            .then(res => res.events.map(e => ({ ...e, type: "EquityUpdated" }))),
+          this.getEvents("RentToOwn", "PropertyOccupied", { propertyId }, fromBlock, toBlock)
+            .then(res => res.events.map(e => ({ ...e, type: "PropertyOccupied" }))),
+          this.getEvents("PropertyToken", "PropertyTokenMinted", {}, fromBlock, toBlock)
+            .then(res =>
+              res.events
+                .filter(e => e.args.tokenId === propertyId)
+                .map(e => ({ ...e, type: "PropertyTokenMinted" }))
+            ),
+          this.getEvents("PropertyToken", "PropertyTokenTransferred", {}, fromBlock, toBlock)
+            .then(res =>
+              res.events
+                .filter(e => e.args.tokenId === propertyId)
+                .map(e => ({ ...e, type: "PropertyTokenTransferred" }))
+            )
         ];
-    
+      
         const results = await Promise.all(eventQueries);
         const allEvents = results.flat();
-        
-        return allEvents.sort((a, b) => b.blockNumber - a.blockNumber);
+      
+        // Group by `type`
+        const grouped: Record<string, PropertyEvent[]> = {};
+        for (const event of allEvents) {
+          const key = event.type;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(event);
+        }
+      
+        return grouped;
     }
 
     async getEquityDistribution(propertyId: number, year = new Date().getFullYear()): Promise<{month: string, equity: number}[]> {
@@ -367,7 +409,7 @@ async getEvents(
 
             return {
                 month: monthKey,
-                equity: totalEquity
+                equity: totalEquity/100
             };
         });
 

@@ -6,7 +6,7 @@ const MessageCenter = () => {
 
     return (
         <>      
-            <div className='bg-gray-100'>
+            <div className='bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'>
                 <div className='app-container'>
                     {/* <Tabs defaultValue="notifications">
                         <TabsList className="w-full justify-center">

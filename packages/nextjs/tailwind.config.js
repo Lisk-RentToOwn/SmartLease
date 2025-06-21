@@ -89,6 +89,12 @@ module.exports = {
         desktop: "1024px",
         large: "1280px",
       },
+      backgroundImage: {
+        'gradient-web3-blue': 'linear-gradient(135deg, #534FA5 0%, #9765E0 40%, #00C2BA 100%)',
+        'chat-gradient': 'linear-gradient(135deg, #F4F8FF 0%, #EDE7FB 50%, #E6FAF9 100%)',
+        'chat-gradient-teal': 'linear-gradient(135deg, #F4FDFC 0%, #E6FAF9 40%, #F4F8FF 100%)',
+        'chat-sidebar-gradient': 'linear-gradient(160deg, #534FA5 0%, #00C2BA 100%)',
+      }
     },
   },
   plugins: [require("tailwindcss-animate"), require("daisyui")],

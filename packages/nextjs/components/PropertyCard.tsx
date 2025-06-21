@@ -43,7 +43,7 @@ export const PropertyCard = React.memo(function PropertyCard({ data}:{data :Prop
 
 
     return (
-        <div className="bg-white shadow rounded-xl overflow-hidden">
+        <div className="bg-white overflow-hidden bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/50 group-hover:scale-105">
             <div className="relative h-48 w-full">
             <img
                 src={data.image}
@@ -69,7 +69,7 @@ export const PropertyCard = React.memo(function PropertyCard({ data}:{data :Prop
                 <p className="">Duration</p>
                 <p className="">{formatDurationFromMonths(Number(data.duration))}</p>
             </div>
-            <button onClick={executePayment} disabled={isApproving || isPaying} className="mt-4 disabled:bg-primary/50 w-full bg-blue-600 flex items-center justify-center space-x-2 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">
+            <button onClick={executePayment} disabled={isApproving || isPaying} className="mt-4 disabled:bg-primary/50 w-full bg-gradient-web3-blue flex items-center justify-center space-x-2 text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">
                 { (isApproving || isPaying) &&
                     <Loader className="h-7 7 animate-spin"/>
                 }

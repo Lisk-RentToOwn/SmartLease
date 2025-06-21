@@ -24,18 +24,18 @@ export default function BrowsePropertiesPage() {
   });
 
   return (
-    <div className="bg-gray-100">
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="app-container min-h-[90vh]">
-        <div className="flex justify-between items-center mb-6 mt-20">
+        <div className="flex justify-between items-center mb-16 mt-20">
           <div>
-            <h1 className="text-3xl font-bold">Properties</h1>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Property MarketPlace</h1>
             <p className="text-green-600 text-lg">
               Available Properties found ({totalProperties})
             </p>
           </div>
         </div>
 
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-4 mb-10">
           <DropdownFilter
             label="Filter"
             options={["All Properties", "Active", "Pending", "Owned"]}

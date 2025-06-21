@@ -42,7 +42,6 @@ export function PropertyEquityChart() {
 
 
   const chartData = formatLandlordEquityChart(data)
-  console.log(chartData)
   
   return (
         <div className="">

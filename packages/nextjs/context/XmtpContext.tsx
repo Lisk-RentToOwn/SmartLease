@@ -1,56 +1,54 @@
-'use client'; // optional if this is inside a `pages` or `app` client component
+'use client';
 
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useWalletClient } from 'wagmi';
 import { Web3Provider } from '@ethersproject/providers';
-
-// 🛑 ❌ REMOVE THIS TOP-LEVEL IMPORT
-// import { Client } from '@xmtp/xmtp-js';
+import type { Client, Conversation } from '@xmtp/xmtp-js';
 
 interface XmtpContextType {
-  conversations: any[];
+  conversations: Conversation[];
   sendMessage: (to: string, message: string) => Promise<void>;
-  xmtpClient: any | null; // use `any` to avoid Client type import
+  xmtpClient: Client | null;
 }
 
 const XmtpContext = createContext<XmtpContextType | undefined>(undefined);
 
 export const XmtpProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: walletClient } = useWalletClient();
-  const [xmtpClient, setXmtpClient] = useState<any | null>(null);
-  const [conversations, setConversations] = useState<any[]>([]);
+  const [xmtpClient, setXmtpClient] = useState<Client | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const initialized = useRef(false);
 
   useEffect(() => {
-    const init = async () => {
+    const initXMTP = async () => {
       if (!walletClient || initialized.current || typeof window === 'undefined') return;
 
       initialized.current = true;
 
-      const { Client } = await import('@xmtp/xmtp-js'); // ✅ dynamic import here
-
-      const provider = new Web3Provider(walletClient.transport);
-      const signer = provider.getSigner(walletClient.account.address);
-      const cacheKey = `xmtpEnabled:${walletClient.account.address}`;
-
       try {
-        const shouldInit = !!localStorage.getItem(cacheKey);
+        const { Client } = await import('@xmtp/xmtp-js');
 
-        const client = await Client.create(signer, { env: 'dev' });
+        const provider = new Web3Provider(walletClient.transport);
+        const signer = provider.getSigner(walletClient.account.address);
+
+        // Use cached identity if it exists (stored in IndexedDB automatically)
+        const client = await Client.create(signer, {
+          env: 'dev',
+          persistConversations: true, // ✅ this one is valid
+        });
+
         setXmtpClient(client);
-
-        if (!shouldInit) {
-          localStorage.setItem(cacheKey, 'true');
-        }
 
         const convs = await client.conversations.list();
         setConversations(convs);
       } catch (err) {
-        console.error('Failed to initialize XMTP:', err);
+        console.error('❌ Failed to initialize XMTP:', err);
+        // Optional: reset local identity cache if corrupted
+        // indexedDB.deleteDatabase('xmtp'); // advanced use
       }
     };
 
-    init();
+    initXMTP();
   }, [walletClient]);
 
   const sendMessage = async (to: string, message: string) => {
