@@ -6,7 +6,6 @@ import Benefits from "@/components/Benefits";
 import FeaturedProperties from "@/components/FeaturedProperties";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { fetchProperties } from "@/services/request/grapql/landlord";
 
@@ -19,10 +18,10 @@ export default function Home() {
   }, []);
   
   return (
-    <main className="flex flex-col min-h-screen">
+    <main className="flex flex-col">
       <Hero />
       <HowItWorks />
-      <Benefits />
+      {/* <Benefits /> */}
       <FeaturedProperties />
       <Testimonials />
       <Footer />

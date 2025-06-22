@@ -82,7 +82,7 @@ export const AddressInfoDropdown = ({
 
         <DropdownMenu>
             <DropdownMenuTrigger>
-                <Button tabIndex={0} className="py-6 rounded-lg">
+                <Button tabIndex={0} className="py-6 rounded-lg bg-gradient-web3-blue">
                     <LucideWallet size={23} className="text-white"/>
                     <span className="ml-2 mr-1 text-base">
                         {isENS(displayName) ? displayName : checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4)}

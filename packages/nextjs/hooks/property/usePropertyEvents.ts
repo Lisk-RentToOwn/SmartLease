@@ -290,7 +290,8 @@ export function useUserRoles(userAddress?: string) {
 // Purpose: All stats for a single property
 // Best for: Property detail pages
 export function usePropertyTimeline(propertyId?: number) {
-    const [timeline, setTimeline] = useState<PropertyEvent[]>([]);
+    // const [timeline, setTimeline] = useState<PropertyEvent[]>([]);
+    const [timeline, setTimeline] = useState<Record<string, PropertyEvent[]>>({});
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -378,57 +379,57 @@ export function usePaginatedEvents(
 // Purpose: All stats for a single property
 // Best for: Property detail pages
 export function usePropertyStats(propertyId?: number) {
-    const { timeline } = usePropertyTimeline(propertyId);
-    const { data: equityData } = useEquityDistribution(propertyId);
-    const { holders } = useTokenHolders(propertyId);
-    
-    // Get property creation details
-    const createdEvent = timeline.find(e => 
-        e.type === "PropertyCreated" && e.contract === "RentToOwn"
-    );
-    
-    // Filter relevant events
-    const rentPayments = timeline.filter(e => 
-        e.type === "RentPaid" && e.contract === "RentToOwn"
-    );
-    const equityUpdates = timeline.filter(e => 
-        e.type === "EquityUpdated" && e.contract === "RentToOwn"
-    );
-    const tokenTransfers = timeline.filter(e => 
-        e.type === "PropertyTokenTransferred" && e.contract === "PropertyToken"
-    );
-    
-    // Calculate statistics
-    const totalRent = rentPayments.reduce(
-        (sum, e) => sum + BigInt(e.args.amount || 0), 
-        0n
-    );
-    
-    const lastEquity = equityUpdates.at(-1)?.args.newEquity || 0;
-    const totalTokens = holders.reduce(
-        (sum, h) => sum + h.amount, 
-        0
-    );
+  const { timeline } = usePropertyTimeline(propertyId); // timeline is Record<string, PropertyEvent[]>
+  const { data: equityData } = useEquityDistribution(propertyId);
+  const { holders } = useTokenHolders(propertyId);
 
-    return {
-        propertyDetails: createdEvent?.args,
-        totalRent: Number(ethers.formatUnits(totalRent, 18)),
-        currentEquity: lastEquity,
-        totalTokens,
-        paymentHistory: rentPayments,
-        equityHistory: equityUpdates,
-        equityDistribution: equityData,
-        tokenDistribution: holders.map(h => ({
-            holder: h.address,
-            percentage: (h.amount / totalTokens) * 100
-        })),
-        occupancyHistory: timeline.filter(e => 
-            e.type === "PropertyOccupied" && e.contract === "RentToOwn"
-        ),
-        tokenTransfers
-    };
+  // Flatten grouped events into a single array
+  const allEvents = Object.values(timeline).flat();
+
+  // Get property creation details
+  const createdEvent = allEvents.find(e => 
+    e.type === "PropertyCreated" && e.contract === "RentToOwn"
+  );
+
+  // Filter relevant events
+  const rentPayments = allEvents.filter(e => 
+    e.type === "RentPaid" && e.contract === "RentToOwn"
+  );
+  const equityUpdates = allEvents.filter(e => 
+    e.type === "EquityUpdated" && e.contract === "RentToOwn"
+  );
+  const tokenTransfers = allEvents.filter(e => 
+    e.type === "PropertyTokenTransferred" && e.contract === "PropertyToken"
+  );
+  const occupancyHistory = allEvents.filter(e =>
+    e.type === "PropertyOccupied" && e.contract === "RentToOwn"
+  );
+
+  // Calculate statistics
+  const totalRent = rentPayments.reduce(
+    (sum, e) => sum + BigInt(e.args.amount || 0),
+    0n
+  );
+
+  const lastEquity = equityUpdates.at(-1)?.args.newEquity || 0;
+  const totalTokens = holders.reduce((sum, h) => sum + h.amount, 0);
+
+  return {
+    propertyDetails: createdEvent?.args,
+    totalRent: Number(ethers.formatUnits(totalRent, 18)),
+    currentEquity: lastEquity,
+    totalTokens,
+    paymentHistory: rentPayments,
+    equityHistory: equityUpdates,
+    equityDistribution: equityData,
+    tokenDistribution: holders.map(h => ({
+      holder: h.address,
+      percentage: totalTokens > 0 ? (h.amount / totalTokens) * 100 : 0
+    })),
+    occupancyHistory,
+    tokenTransfers
+  };
 }
-
 /* ------------------------- */
 /* COMPOSITE DASHBOARD HOOKS */
 /* ------------------------- */
@@ -694,7 +695,7 @@ export async function verifyLandlordProperties(landlordAddress: string) {
       console.error("Verification failed:", error);
       return null;
     }
-  }
+}
   
 
   export function useRentPayments(

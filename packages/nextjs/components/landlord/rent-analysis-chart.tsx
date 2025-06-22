@@ -1,25 +1,11 @@
 'use client'
 
-const chartData = [
-    { month: "January", collected: 186, expected: 80 },
-    { month: "February", collected: 305, expected: 200 },
-    { month: "March", collected: 237, expected: 120 },
-    { month: "April", collected: 73, expected: 190 },
-    { month: "May", collected: 209, expected: 130 },
-    { month: "June", collected: 214, expected: 140 },
-    { month: "July", collected: 214, expected: 140 },
-    { month: "August", collected: 214, expected: 140 },
-    { month: "Sept", collected: 214, expected: 140 },
-    { month: "Oct", collected: 214, expected: 140 },
-    { month: "Nov", collected: 214, expected: 140 },
-    { month: "Dec", collected: 214, expected: 140 },
-  ]
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { useRentAnalysis } from "@/hooks/property/usePropertyEvents"
-import { useAccount } from "wagmi"
 import toast from "react-hot-toast"
+import { Bar, BarChart, XAxis } from "recharts"
+import { useAccount } from "wagmi"
 import EmptyContent from "../shared/empty-content"
 
 const chartConfig = {

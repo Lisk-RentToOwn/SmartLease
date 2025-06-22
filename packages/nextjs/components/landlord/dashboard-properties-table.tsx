@@ -1,47 +1,41 @@
 'use client'
 
+import { Button } from "@/components/ui/button";
 import {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    useReactTable,
-  } from "@tanstack/react-table";
-  import { ArrowUpDown, MoreHorizontal, Rows2, Rows3, Rows4 } from "lucide-react";
-  import * as React from "react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
-  import { Button } from "@/components/ui/button";
-  import { Progress } from "../ui/progress";
-  import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu";
 
-  import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from "@/components/ui/table";
-  import { cn } from "@/lib/utils";
+  import { Routes } from "@/app/routes";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Routes } from "@/app/routes";
-import { readEventLogsFromWagmi } from "@/hooks/useRadEventFromWagmi";
-import { RentToOwnABI } from "@/abi/RentToOwn";
-import { RenToOwnAddress } from "@/constants/contract-address";
-import { useLandlordDashboard } from "@/hooks/property/usePropertyEvents";
-import { useAccount } from "wagmi";
+import { formatUnits } from "viem";
 import EmptyContent from "../shared/empty-content";
 
 export type NewProperty = {
@@ -50,7 +44,7 @@ export type NewProperty = {
   args: {
     city:string
     currency:string
-    duration:BigInt
+    duration:bigint
     image:string
     landlord:string
     name:string
@@ -58,7 +52,7 @@ export type NewProperty = {
     propertyId:BigInt
     state:string
     tokenId:BigInt
-    value:BigInt
+    value:bigint
     zipCode:string
   }
 }
@@ -90,8 +84,9 @@ export const columns: ColumnDef<NewProperty>[] = [
         header: () => <div className="uppercase">Price</div>,
         cell: ({ row }) => {
             const property = row.original
+            const formatU = formatUnits(property.args.value, 18)
             return (
-              <p className="text-sm">{property.args.currency}  {Number(property.args.value)}</p>
+              <p className="text-sm">{property.args.currency}  {formatU}</p>
             )
         },
     },
@@ -102,7 +97,7 @@ export const columns: ColumnDef<NewProperty>[] = [
       cell: ({ row }) => {
           const property = row.original
           return (
-            <p className="text-sm">{property.args.currency}  {Number(property.args.value)/Number(property.args.duration)}</p>
+            <p className="text-sm">{property.args.currency}  {(+(formatUnits(property.args.value/property.args.duration, 18))).toFixed(9)}</p>
           )
       },
   },

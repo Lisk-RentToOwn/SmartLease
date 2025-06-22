@@ -11,6 +11,7 @@ import { BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { ReactNode, useCallback, useRef, useState } from "react";
+import Image from "next/image";
 
 type HeaderMenuLink = {
   label: string;
@@ -75,37 +76,13 @@ export const Header = () => {
   const GeneralHeader = () => {
     return (
       <>
-        {/* <div className=" flex items-center space-x-3 py-5">
-          <div className="lg:hidden dropdown" ref={burgerMenuRef}>
-            <label
-              tabIndex={0}
-              className={`ml-1 bg-secondary ${
-                isDrawerOpen ? "hover:bg-secondary" : "hover:bg-transparent"
-              }`}
-              onClick={() => {
-                setIsDrawerOpen((prevIsOpenState) => !prevIsOpenState);
-              }}
-            >
-              <Bars3Icon className="h-1/2" />
-            </label>
-            {isDrawerOpen && (
-              <ul
-                tabIndex={0}
-                className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-                onClick={() => {
-                  setIsDrawerOpen(false);
-                }}
-              >
-                <HeaderMenuLinks />
-              </ul>
-            )}
-          </div>
-
-          <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-            <HeaderMenuLinks />
-          </ul>
-        </div> */}
-        <div className="text-xl font-bold text-blue-600 py-6">SmartLease</div>
+        <div className="py-4">
+          <img
+            src={'/logo-light_preview.png'}
+            alt="logo"
+            className="h-12"
+          />
+        </div>
       </>
     );
   };
@@ -133,7 +110,7 @@ export const Header = () => {
             <Link href={Routes.BROWSE_PROPERTIES} className="text-gray-700 hover:text-blue-600">
               Browse
             </Link>
-            <Link href="#" className="text-gray-700 hover:text-blue-600">
+            <Link href={Routes.HOW_IT_WORKS} className="text-gray-700 hover:text-blue-600">
               How It Works
             </Link>
             <Link href="#" className="text-gray-700 hover:text-blue-600">

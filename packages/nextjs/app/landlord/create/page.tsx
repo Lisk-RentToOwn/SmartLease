@@ -2,58 +2,53 @@
  
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CloudUpload, Loader, X } from "lucide-react";
-import * as React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
  
+import { Routes } from "@/app/routes";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  FileUpload,
-  FileUploadDropzone,
-  FileUploadItem,
-  FileUploadItemDelete,
-  FileUploadItemMetadata,
-  FileUploadItemPreview,
-  FileUploadList,
-  FileUploadTrigger,
-} from "@/components/ui/file-upload";
+import { Currency, CurrencySelect } from "@/components/ui/currency-select";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
-  } from "@/components/ui/dialog"
-import { toast } from "sonner";
+    DialogTrigger
+} from "@/components/ui/dialog";
+import {
+    FileUpload,
+    FileUploadDropzone,
+    FileUploadItem,
+    FileUploadItemDelete,
+    FileUploadItemMetadata,
+    FileUploadItemPreview,
+    FileUploadList,
+    FileUploadTrigger,
+} from "@/components/ui/file-upload";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CurrencySelect, Currency } from "@/components/ui/currency-select";
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { NFTMetadata, uploadMetadata, uploadToIPFS } from "@/services/pinata/pinata";
-import { useContractWrite, useWaitForTransaction } from "wagmi";
-import { RentToOwnABI } from "@/abi/RentToOwn";
 import { PaymentType, useCreateProperty } from "@/services/request/contract/contract-request";
-import { getParsedError } from "@/utils/scaffold-eth";
 import { formatDurationFromMonths, priceFormatter } from "@/utils/formatter";
-import { useContractLogs, useScaffoldEventHistory } from "@/hooks/scaffold-eth";
-import { PropertyTokenContract, RenToOwnAddress } from "@/constants/contract-address";
-import { Contract, ethers, JsonRpcProvider } from "ethers";
-import { genericContractRequestRentToOwn } from "@/services/request/contract/generic";
-import { readEventLogsFromWagmi } from "@/hooks/useRadEventFromWagmi";
+import { getParsedError } from "@/utils/scaffold-eth";
+import { InfoIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { parseUnits } from "viem";
+import { useWaitForTransaction } from "wagmi";
  
 const formSchema = z.object({
   files: z
@@ -70,9 +65,9 @@ const formSchema = z.object({
     city: z.string({required_error: "City is required"}),
     state: z.string({required_error: "State is required"}),
     zip_code: z.string({required_error: "please provide a valid zipcode"}),
-    price: z.number().min(1, { message: "Price is required" }),
-    duration: z.number().min(1, { message: "Price is required" }),
-    currency: z.string().min(1, { message: "Currency is required" }),
+    price: z.number().min(0, { message: "Price is required" }),
+    duration: z.number().min(1, { message: "Duration is required" }),
+    currency: z.string({ required_error: "Currency is required" }),
     flexible_payment: z.boolean()
 });
  
@@ -94,73 +89,76 @@ const LandlordCreate= () => {
   const [uploadProgress, setUploadProgress] = useState("");
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const router = useRouter()
 
   const {writeAsync: createProperty, isLoading: isLoading} = useCreateProperty()
 
-
+useEffect(() => {
+    form.setValue("currency", "LSK")
+}, [])
   
 const showPreview = async () => {
     console.log(form.getValues())
     const v = await form.trigger()
 
     if (v) {
-    setPreviewOpen(true)
+        setPreviewOpen(true)
     }
 }
 
 const onSubmit = async (data: z.infer<typeof formSchema>) => {
-console.log("Hello")
-setStatus("uploading");
-setUploadProgress("Starting to create property");
+    console.log("Hello")
+    setStatus("uploading");
+    setUploadProgress("Starting to create property");
 
 
-try {
+    try {
 
-    // Upload image to IPFS
-    const imageUrl = await uploadToIPFS(data.files[0]);
-    setUploadProgress("Uploading metadata to IPFS...");
+        // Upload image to IPFS
+        const imageUrl = await uploadToIPFS(data.files[0]);
+        setUploadProgress("Uploading metadata to IPFS...");
 
-    // Create and upload metadata
-    const metadata: NFTMetadata = {
-    name: data.propertY_name,
-    image: imageUrl,
-    };
-    
-    await uploadMetadata(metadata, {
-    city: data.city,
-    currency: data.currency,
-    duration: data.duration,
-    flexible_payment: data.flexible_payment,
-    price: data.price,
-    propertY_address: data.propertY_address,
-    propertY_name: data.propertY_name,
-    state: data.state,
-    zip_code: data.zip_code
-    });
+        // Create and upload metadata
+        const metadata: NFTMetadata = {
+        name: data.propertY_name,
+        image: imageUrl,
+        };
+        
+        await uploadMetadata(metadata, {
+        city: data.city,
+        currency: data.currency,
+        duration: data.duration,
+        flexible_payment: data.flexible_payment,
+        price: data.price,
+        propertY_address: data.propertY_address,
+        propertY_name: data.propertY_name,
+        state: data.state,
+        zip_code: data.zip_code
+        });
 
-    setUploadProgress("Minting NFT...");
-    setStatus("minting");
-    setUploadProgress("");
-    // Mint NFT with specified token ID to recipient address
-    await createPropertyFn({
-    city: data.city,
-    currency: data.currency,
-    duration: data.duration,
-    propertyAddr: data.propertY_address,
-    name: data.propertY_name,
-    state: data.state,
-    zipCode: data.zip_code,
-    paymentType: data.flexible_payment ? PaymentType.Flexible : PaymentType.Fixed,
-    image: imageUrl,
-    value: data.price
-    })
-} catch (error) {
-    toast.error("An error occured while creating a property")
-    setStatus("error");
-//     toast.error(
-//         error instanceof Error ? error.message : "Failed to mint NFT"
-//     );
-}
+        setUploadProgress("Minting NFT...");
+        setStatus("minting");
+        setUploadProgress("");
+        // Mint NFT with specified token ID to recipient address
+        await createPropertyFn({
+        city: data.city,
+        currency: data.currency,
+        duration: data.duration,
+        propertyAddr: data.propertY_address,
+        name: data.propertY_name,
+        state: data.state,
+        zipCode: data.zip_code,
+        paymentType: data.flexible_payment ? PaymentType.Flexible : PaymentType.Fixed,
+        image: imageUrl,
+        value: data.price
+        })
+    } catch (error) {
+        toast.error("An error occured while creating a property")
+        setStatus("error");
+    //     toast.error(
+    //         error instanceof Error ? error.message : "Failed to mint NFT"
+    //     );
+    }
 }
 
 const createPropertyFn = async (
@@ -178,8 +176,11 @@ const createPropertyFn = async (
     }
 ) => {
     try {
+        const lskDecimals = 18;
+        const valueInSmallestUnits = parseUnits(value.toString(), lskDecimals);
+        
         const tx = await createProperty({args: [
-            value,
+            valueInSmallestUnits,
             duration,
             paymentType,
             name,
@@ -188,7 +189,7 @@ const createPropertyFn = async (
             city,
             state,
             zipCode,
-            currency
+            "LSK"
         ]})
         setTxHash(tx.hash);
     }catch (err) {
@@ -206,6 +207,7 @@ useWaitForTransaction({
         form.reset()
         setPreviewOpen(false)
         toast.success(`Property created successfully. Tnx  hash ${txHash}`)
+        router.push(Routes.LANDLORD_PROPERTIES)
       // navigate or update UI here
     },
     onError(error) {
@@ -221,9 +223,9 @@ const calculateEquity = () => {
 
 
   return (
-    <main className=" bg-gray-100 pb-16">
+    <main className="bg-gray-100 pb-16">
         <div className="content-container bg-white mt-16 py-10 rounded-lg">
-            <p className="text-slate-700 font-semibold text-xl mb-5">Create Property</p>
+            <p className="text-slate-700 font-semibold text-2xl mb-5">Create Property</p>
             <Form {...form}>
                 <form className="w-full flex flex-col gap-y-5">
                     <FormField
@@ -383,7 +385,7 @@ const calculateEquity = () => {
                             </FormLabel>
 
                             <div className="flex items-center gap-2">
-                                <FormField
+                                {/* <FormField
                                     control={form.control}
                                     name="currency"
                                     render={({ field }) => (
@@ -399,7 +401,7 @@ const calculateEquity = () => {
                                             />
                                         </FormControl>
                                     )}
-                                />
+                                /> */}
 
                                 <FormField
                                 control={form.control}
@@ -407,15 +409,17 @@ const calculateEquity = () => {
                                 render={({ field }) => (
                                     <div className="relative w-full">
                                     <FormControl>
-                                        <Input
-                                            {...field}
-                                            type="number"
-                                            disabled={!selectedCurrency}
-                                            onChange={(e) =>
-                                                field.onChange(Number(e.target.value))
-                                            }
-                                            className="pr-10 py-6"
-                                        />
+                                        <div className="">
+                                            <Input
+                                                {...field}
+                                                type="number"
+                                                // disabled={!selectedCurrency}
+                                                onChange={(e) =>
+                                                    field.onChange(Number(e.target.value))
+                                                }
+                                                className="pr-10 py-6"
+                                            />
+                                        </div>
                                     </FormControl>
                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">
                                         {selectedCurrency?.symbol}
@@ -451,7 +455,7 @@ const calculateEquity = () => {
                                             {...field} 
                                             className="py-6" 
                                             type="number" 
-                                            placeholder="Owl CIty" 
+                                            placeholder="11" 
                                             onChange={(e) =>
                                                 field.onChange(Number(e.target.value))
                                             }
@@ -487,7 +491,7 @@ const calculateEquity = () => {
                         />
                     </div>
 
-                    <Button onClick={() => {showPreview()}} type="button" className="mt-4 py-6">
+                    <Button onClick={() => {showPreview()}} type="button" className="mt-4 bg-gradient-web3-blue text-base py-7">
                         Preview
                     </Button>
 
@@ -560,7 +564,7 @@ const calculateEquity = () => {
                                     )}
       
                                 </div>
-                                <Button onClick={form.handleSubmit(onSubmit)} type="submit" className="py-6 rounded-md font-medium w-full">
+                                <Button onClick={form.handleSubmit(onSubmit)} type="submit" className="py-6 bg-gradient-web3-blue rounded-md font-medium w-full">
                                     {status === "uploading" || status === "minting" ? (
                                     <>
                                         <Loader className="w-4 h-4 animate-spin" />

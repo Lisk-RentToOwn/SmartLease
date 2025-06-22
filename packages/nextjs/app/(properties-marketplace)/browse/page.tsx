@@ -1,21 +1,15 @@
 "use client";
 
 import DropdownFilter from "@/components/DropdownFilter";
-import PropertyCard, { PropertyType } from "@/components/PropertyCard";
+import { PropertyCard, PropertyType } from "@/components/PropertyCard";
 import EmptyContent from "@/components/shared/empty-content";
 import TablePagination from "@/components/shared/pagination-custom";
 import PropertyCardSkeleton from "@/components/shared/property-skeleton";
 import { useAvailableProperties } from "@/hooks/property/usePropertyEvents";
-import { usePayRent } from "@/services/request/contract/contract-request";
-import { getParsedError } from "@/utils/scaffold-eth";
-import React, { useState } from "react";
-import { toast } from "sonner";
-import { useAccount, useWaitForTransaction } from "wagmi";
 
 
 // propertyId, amt
 export default function BrowsePropertiesPage() {
-  const {isConnected} = useAccount()
 
   const {
     properties,
@@ -29,58 +23,19 @@ export default function BrowsePropertiesPage() {
     liveUpdates: true
   });
 
-  const [wLoading, setWLoading] = useState(false)
-  const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
-  const {writeAsync: payRent, isLoading: isLoading} = usePayRent()
-  // propertyId, amt
-
-    const withdrawFunds = async (propertyId: number, amount: number) => {
-      setWLoading(true)
-      try {
-          if (!isConnected) {
-            toast.error("Please connect wallet to payRent")
-            return
-          }
-          const tx = await payRent({args: [propertyId, Math.floor(amount)]})
-          setTxHash(tx.hash);
-      }catch (err) {
-          const error = getParsedError(err)
-          toast.error(error)
-      } finally {
-        setWLoading(false)
-      }
-  }
-
-  useWaitForTransaction({
-      hash: txHash,
-      confirmations: 1,
-      enabled: !!txHash,
-      onSuccess() {
-          setWLoading(false)
-          toast.success(`Payment successful. You are now a tenant Transaction hash ${txHash}`)
-        // navigate or update UI here
-      },
-      onError(error) {
-        console.error("Tx failed to confirm", error);
-        setWLoading(false)
-      },
-  });
-
-  console.log(properties)
-  
   return (
-    <div className="bg-gray-100">
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="app-container min-h-[90vh]">
-        <div className="flex justify-between items-center mb-6 mt-20">
+        <div className="flex justify-between items-center mb-16 mt-20">
           <div>
-            <h1 className="text-3xl font-bold">Properties</h1>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Property MarketPlace</h1>
             <p className="text-green-600 text-lg">
               Available Properties found ({totalProperties})
             </p>
           </div>
         </div>
 
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-4 mb-10">
           <DropdownFilter
             label="Filter"
             options={["All Properties", "Active", "Pending", "Owned"]}
@@ -115,7 +70,6 @@ export default function BrowsePropertiesPage() {
                 <PropertyCard 
                   key={`${property.args.propertyId}-${property.blockNumber}`}
                   data={property.args as PropertyType}
-                  payRent={withdrawFunds}
                 />
               ))}
             </div>

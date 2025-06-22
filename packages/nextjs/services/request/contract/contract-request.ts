@@ -1,12 +1,9 @@
+import { Address, useContractRead, useContractWrite } from "wagmi";
 import {
   genericContractRequestIdentityProvider,
   genericContractRequestPropertyToken,
   genericContractRequestRentToOwn,
 } from "./generic";
-import { RentToOwnABI } from "@/abi/RentToOwn";
-import { RenToOwnAddress } from "@/constants/contract-address";
-import { Address, useContractRead, useContractWrite } from "wagmi";
-import { erc20ABI } from "wagmi";
 
 export enum RoleEnum {
   None = 0,
@@ -20,24 +17,25 @@ export enum PaymentType {
 }
 
 // create property
-export function useCreateProperty() {
-// value: number,
-// duration: number,
-// paymentType: PaymentType,
-// name: string,
-// image: string,
-// propertyAddr: string,
-// city: string,
-// state: string,
-// zipCode: string,
-// currency: string
-  return useContractWrite({
-    ...genericContractRequestRentToOwn,
-    functionName: "createProperty",
-    // args: [
-
-    // ]
-  });
+export function useCreateProperty(
+    // value: number,
+    // duration: number,
+    // paymentType: PaymentType,
+    // name: string,
+    // image: string,
+    // propertyAddr: string,
+    // city: string,
+    // state: string,
+    // zipCode: string,
+    // currency: string
+) { 
+    return useContractWrite({
+        ...genericContractRequestRentToOwn,
+        functionName: "createProperty",
+        // args: [
+     
+        // ]
+    })
 }
 
 // User pays rent
@@ -49,7 +47,14 @@ export function usePayRent() {
   });
 }
 
-//approve lisk token
+// export function useApproveToken(tokenAddress: `0x${string}`, spender: `0x${string}`) {
+//   return useContractWrite({
+//     address: LiskSepoliaAddress,
+//     abi: erc20ABI,
+//     functionName: 'approve',
+//     args: undefined, // you’ll pass this dynamically
+//   });
+// }
 
 // User pays rent
 export function useWithrawRent() {
@@ -142,13 +147,14 @@ export function useGetPropertyMetadataUri(tokenId: number) {
 }
 
 // IDENTITY PROVIDER CONTRACT
-export function useSetUserRole() {
-// role: number,
-  // console.log(role)
-  return useContractWrite({
-    ...genericContractRequestIdentityProvider,
-    functionName: "setUserRole",
-  });
+export function useSetUserRole(
+    // role: number,
+) { 
+    // console.log(role)
+    return useContractWrite({
+        ...genericContractRequestIdentityProvider,
+        functionName: "setUserRole",
+    })
 }
 
 export function useGetUserRole(user: Address) {
@@ -177,5 +183,14 @@ export function useIsLandlord(user: Address) {
     functionName: "isLandlord",
     args: [user],
     enabled: !!user,
+  });
+}
+
+export function useGetMonthlyRentPayable(propertyId: string, tenantAddr: Address, monthNumber: number) {
+  return useContractRead({
+    ...genericContractRequestPropertyToken,
+    functionName: "getMonthlyRentPayable",
+    args: [propertyId, tenantAddr, monthNumber],
+    enabled: !!tenantAddr,
   });
 }

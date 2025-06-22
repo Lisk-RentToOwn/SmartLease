@@ -1,10 +1,13 @@
 import { Routes } from "@/app/routes";
 import { TabType } from "@/components/shared/dashboard-tab-layout";
+import { ChatBubbleLeftEllipsisIcon, ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/20/solid";
 import {
   BadgeDollarSign,
   Gem,
   HomeIcon,
   LandPlotIcon,
+  Mails,
+  MessageCircle,
   ReceiptText,
   UserRound,
 } from "lucide-react";
@@ -25,6 +28,11 @@ export const LANDLORDNAV: TabType[] = [
     name: "Tenants",
     Icon: UserRound,
   },
+  {
+    link: Routes.LANDLORD_MESSAGING_CENTER,
+    name: "Chat",
+    Icon: MessageCircle,
+  },
 ];
 
 export const TENANTNAV: TabType[] = [
@@ -39,13 +47,13 @@ export const TENANTNAV: TabType[] = [
     Icon: ReceiptText,
   },
   {
-    link: Routes.TENANT_REWARDS,
-    name: "Rewards",
-    Icon: Gem,
-  },
-  {
     link: Routes.TENANT_EQUITY,
     name: "Equity",
     Icon: BadgeDollarSign,
+  },
+  {
+    link: Routes.TENANT_MESSAGING_CENTER,
+    name: "Chat",
+    Icon: ChatBubbleOvalLeftEllipsisIcon,
   },
 ];

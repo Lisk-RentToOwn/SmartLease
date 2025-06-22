@@ -35,6 +35,7 @@ interface CurrencySelectProps extends Omit<SelectProps, "onValueChange"> {
   valid?: boolean;
 }
 
+const currentAccepted = ["NGN", "GHC", "KES", "USD"]
 const CurrencySelect = React.forwardRef<HTMLButtonElement, CurrencySelectProps>(
   (
     {

@@ -7,6 +7,7 @@ export const TenantRoutes = [
   Routes.TENANT,
   Routes.TENANT_REWARDS,
   Routes.TENANT_EQUITY,
+  Routes.TENANT_MESSAGING_CENTER
 ];
 
 export const Landlordoutes = [
@@ -14,7 +15,8 @@ export const Landlordoutes = [
   Routes.LANDLORD_CREATE,
   Routes.LANDLORD_PROPERTIES,
   Routes.LANDLORD_TENANTS,
-  Routes.LANDLORD_WITHDRAW
+  Routes.LANDLORD_WITHDRAW,
+  Routes.LANDLORD_MESSAGING_CENTER
 ];
 
 export const Others = [];
