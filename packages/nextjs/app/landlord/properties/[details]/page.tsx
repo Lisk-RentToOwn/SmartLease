@@ -101,14 +101,14 @@ const LandlordPropertiesDetailPage = () => {
 
     return (
         <>
-            <main className="min-h-dvh bg-gray-100">
+            <main className="min-h-dvh">
                 <div className="app-container mt-16 mb-4">
-                        <Link href={`${Routes.LANDLORD_WITHDRAW}?id=${propertyDetails?.propertyId}`} className="">
-                            <Button className="py-6 px-7 rounded-lg flex items-center space-x-2">
-                                <LucideCoins size={27}/>
-                                <p className="">Withdraw</p>
-                            </Button>
-                        </Link>
+                    <Link href={`${Routes.LANDLORD_WITHDRAW}?id=${propertyDetails?.propertyId}`} className="shadow-md">
+                        <Button className="py-6 px-7 rounded-lg flex bg-gradient-web3-blue items-center space-x-2">
+                            <LucideCoins size={27}/>
+                            <p className="">Withdraw</p>
+                        </Button>
+                    </Link>
                 </div>
 
                 <div className="grid grid-cols-12 gap-x-10 app-container">

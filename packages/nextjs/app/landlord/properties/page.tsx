@@ -48,14 +48,6 @@ const LandlordPropertiesPage = () => {
                     <>                    
                         <div className="flex items-center justify-between">
                             <h1 className="text-4xl pb-8 font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">My Properties</h1>
-
-
-                            <Link href={Routes.LANDLORD_CREATE} className="">
-                                <Button className="p-6 bg-gradient-web3-blue hover:opacity-90 transition">
-                                    <PlusIcon className=""/>
-                                    <p className="font-medium">Create New Property</p>
-                                </Button>
-                            </Link>
                         </div>
 
                         <div className="flex items-center space-x-2">

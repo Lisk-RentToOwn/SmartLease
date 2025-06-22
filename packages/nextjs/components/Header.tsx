@@ -1,17 +1,14 @@
 "use client";
 
 import { Routes } from "@/app/routes";
-import { WalletWatcher } from "./WalletWatcher";
-import { RainbowKitCustomConnectButton } from "./scaffold-eth";
-import DashboardTabLayout from "./shared/dashboard-tab-layout";
-import { LANDLORDNAV, TENANTNAV } from "@/constants/dashboard-nav";
 import { useOutsideClick } from "@/hooks/scaffold-eth";
 import { cn } from "@/lib/utils";
 import { BugAntIcon, HomeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { ReactNode, useCallback, useRef, useState } from "react";
-import Image from "next/image";
+import React, { useCallback, useRef, useState } from "react";
+import { WalletWatcher } from "./WalletWatcher";
+import { RainbowKitCustomConnectButton } from "./scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
@@ -87,22 +84,13 @@ export const Header = () => {
     );
   };
 
-  const getHeaderType = (): ReactNode => {
-    //@ts-ignore
-    if (path.startsWith("/tenant"))
-      return <DashboardTabLayout tabList={TENANTNAV} />;
-    //@ts-ignore
-    if (path.startsWith("/landlord"))
-      return <DashboardTabLayout tabList={LANDLORDNAV} />;
-    return <GeneralHeader />;
-  };
 
   return (
     <header className="sticky top-0  z-20 px-0 sm:px-2 border-b border-gray-300 bg-white">
       <div className="flex items-end justify-between app-container">
-        {getHeaderType()}
+        <GeneralHeader />   
 
-        {!path.startsWith("/landlord") && !path.startsWith("/tenant") && (
+        {/* {!path.startsWith("/landlord") && !path.startsWith("/tenant") && ( */}
           <nav className="space-x-6 py-6">
             <Link href={Routes.HOME} className="text-gray-700 hover:text-blue-600">
               Home
@@ -117,7 +105,7 @@ export const Header = () => {
               Contact
             </Link>
           </nav>
-        )}
+        {/* )} */}
 
         <div className="mr-4 flex items-center py-5 space-x-3">
           <WalletWatcher />

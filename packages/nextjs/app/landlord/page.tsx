@@ -40,8 +40,8 @@ const LandlordPage = () => {
                     { loading ?
                         <DashboardSkeleton/> :
 
-                        <div className="pt-16">
-                            <h1 className="text-4xl pb-8 font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Dashboard</h1>
+                        <div className="">
+                            {/* <h1 className="text-4xl pb-8 font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Dashboard</h1> */}
 
                             <div className="grid grid-cols-3 gap-8">
                                 <LandlordDashboardCard
@@ -80,14 +80,7 @@ const LandlordPage = () => {
                             </div>
 
                             <div className="flex mt-16 justify-between items-center">
-                                <p className="text-xl font-semibold">Properties</p>
-
-                                <Link href={Routes.LANDLORD_CREATE} className="">
-                                    <Button className="p-6 bg-gradient-web3-blue">
-                                        <PlusIcon className=""/>
-                                        <p className="font-medium">Create New Property</p>
-                                    </Button>
-                                </Link>
+                                <p className="text-xl font-semibold">Properties</p>                                
                             </div>
 
                             <div className="">

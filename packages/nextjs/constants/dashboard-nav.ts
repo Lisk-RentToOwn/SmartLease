@@ -1,4 +1,5 @@
 import { Routes } from "@/app/routes";
+import { SideTabListType } from "@/components/app-sidebar";
 import { TabType } from "@/components/shared/dashboard-tab-layout";
 import { ChatBubbleLeftEllipsisIcon, ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/20/solid";
 import {
@@ -12,48 +13,61 @@ import {
   UserRound,
 } from "lucide-react";
 
-export const LANDLORDNAV: TabType[] = [
+export const LANDLORDNAV: SideTabListType[] = [
   {
-    link: Routes.LANDLORD,
-    name: "Overview",
-    Icon: HomeIcon,
+    url: Routes.LANDLORD,
+    title: "Overview",
+    icon: HomeIcon,
+    items: []
   },
   {
-    link: Routes.LANDLORD_PROPERTIES,
-    name: "Properties",
-    Icon: LandPlotIcon,
+    url: Routes.LANDLORD_PROPERTIES,
+    title: "Properties",
+    icon: LandPlotIcon,
+    items: [
+        // {
+        //     title: "Create Property",
+        //     url: Routes.LANDLORD_CREATE
+        // }
+    ]
   },
   {
-    link: Routes.LANDLORD_TENANTS,
-    name: "Tenants",
-    Icon: UserRound,
+    url: Routes.LANDLORD_TENANTS,
+    title: "Tenants",
+    icon: UserRound,
+    items: []
   },
   {
-    link: Routes.LANDLORD_MESSAGING_CENTER,
-    name: "Chat",
-    Icon: MessageCircle,
+    url: Routes.LANDLORD_MESSAGING_CENTER,
+    title: "Chat",
+    icon: MessageCircle,
+    items: []
   },
 ];
 
-export const TENANTNAV: TabType[] = [
+export const TENANTNAV: SideTabListType[] = [
   {
-    link: Routes.TENANT,
-    name: "Overview",
-    Icon: HomeIcon,
+    url: Routes.TENANT,
+    title: "Overview",
+    icon: HomeIcon,
+    items: []
   },
   {
-    link: Routes.TENANT_PAYMENT,
-    name: "Payment",
-    Icon: ReceiptText,
+    url: Routes.TENANT_PAYMENT,
+    title: "Payment",
+    icon: ReceiptText,
+    items: []
   },
   {
-    link: Routes.TENANT_EQUITY,
-    name: "Equity",
-    Icon: BadgeDollarSign,
+    url: Routes.TENANT_EQUITY,
+    title: "Equity",
+    icon: BadgeDollarSign,
+    items: []
   },
   {
-    link: Routes.TENANT_MESSAGING_CENTER,
-    name: "Chat",
-    Icon: ChatBubbleOvalLeftEllipsisIcon,
+    url: Routes.TENANT_MESSAGING_CENTER,
+    title: "Chat",
+    icon: ChatBubbleOvalLeftEllipsisIcon,
+    items: []
   },
 ];

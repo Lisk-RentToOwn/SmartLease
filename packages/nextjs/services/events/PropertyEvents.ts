@@ -133,28 +133,43 @@ async getEvents(
     /* ------------------------- */
 
     async getLandlordProperties(landlordAddress: string): Promise<PropertyEvent[]> {
-        const { events } = await this.getEvents(
-        "RentToOwn",
-        "PropertyCreated",
-        { landlord: landlordAddress }
-        );
-        return events;
+        const { events: allProperties } = await this.getEvents(
+            "RentToOwn",
+            "PropertyCreated",
+            {}, // No filters here
+            0,
+            "latest",
+            1000 // High limit to get all
+          );
+  
+          // Then filter client-side
+          const landlordProps = allProperties.filter(
+            p => p.args.landlord.toLowerCase() === landlordAddress.toLowerCase()
+          );
+        return landlordProps;
     }
 
-    async getTenantAssignments(landlordAddress: string): Promise<{propertyId: number, tenants: string[]}[]> {
+    async getTenantAssignments(landlordAddress: string): Promise<{propertyId: number, tenants: string[], propertyName: string}[]> {
         const createdEvents = await this.getLandlordProperties(landlordAddress);
+        console.log(createdEvents)
         const { events: occupiedEvents } = await this.getEvents("RentToOwn", "PropertyOccupied");
-        
+      
         return createdEvents.map(propEvent => {
-        const propertyId = propEvent.args.propertyId;
-        const tenants = occupiedEvents
-            .filter(e => e.args.propertyId === propertyId)
-            .map(e => e.args.tenant);
-            
-        return {
+          const propertyId = Number(propEvent.args.propertyId?.toString?.() ?? propEvent.args[0]);
+          const propertyName = propEvent.args.name?.toString?.() ?? propEvent.args[5];
+      
+          const tenants = occupiedEvents
+            .filter(e => {
+              const pid = Number(e.args.propertyId?.toString?.() ?? e.args[0]);
+              return pid === propertyId;
+            })
+            .map(e => e.args.tenant?.toLowerCase?.() ?? e.args[1]?.toLowerCase?.());
+      
+          return {
             propertyId,
-            tenants: [...new Set(tenants)]
-        };
+            tenants: [...new Set(tenants)],
+            propertyName
+          };
         });
     }
 
@@ -192,58 +207,78 @@ async getEvents(
         return events;
       }
       
-
-    async getRentAnalysis(landlordAddress: string, year?: number): Promise<{
+      async getRentAnalysis(landlordAddress: string, year?: number): Promise<{
         month: string;
         collected: number;
         expected: number;
-    }[]> {
+      }[]> {
         const currentYear = year || new Date().getFullYear();
         const properties = await this.getLandlordProperties(landlordAddress);
-        
+        const tenantAssignments = await this.getTenantAssignments(landlordAddress);
+
+        // console.log("🔍 All assignments:", tenantAssignments)
+      
         const { events: allRentEvents } = await this.getEvents(
-            "RentToOwn",
-            "RentPaid",
-            {},
-            0,
-            "latest",
-            10000
+          "RentToOwn",
+          "RentPaid",
+          {},
+          0,
+          "latest",
+          10000
         );
-        
+      
         const monthlyData = Array(12).fill(0).map((_, i) => {
-            const month = String(i + 1).padStart(2, '0');
-            return {
-                month: `${currentYear}-${month}`,
-                collected: 0,
-                expected: 0
-            };
+          const month = String(i + 1).padStart(2, '0');
+          return {
+            month: `${currentYear}-${month}`,
+            collected: 0,
+            expected: 0
+          };
         });
-        
-      // Calculate collected rent
+      
+        // ✅ COLLECTED RENT
         allRentEvents.forEach(event => {
-            const date = new Date((event.timestamp || 0) * 1000);
-            if (date.getFullYear() === currentYear) {
-                const month = date.getMonth();
-                monthlyData[month].collected += Number(ethers.formatUnits(event.args.amount, 18));
-            }
+          const date = new Date((event.timestamp || 0) * 1000);
+          if (date.getFullYear() === currentYear) {
+            const month = date.getMonth();
+            monthlyData[month].collected += Number(ethers.formatUnits(event.args.amount, 18));
+          }
         });
-        
-        // Calculate expected rent (from property values)
-        properties.forEach(property => {
-            const startDate = new Date((property.timestamp || 0) * 1000);
-            const monthlyRent = Number(ethers.formatUnits(property.args.value, 18)) / 12;
-            
-            for (let month = 0; month < 12; month++) {
-                if (startDate.getFullYear() <= currentYear) {
-                    monthlyData[month].expected += monthlyRent;
-                }
-            }
-        });
+      
+        // ✅ EXPECTED RENT
+        for (const property of properties) {
+            const tenantsForProperty = tenantAssignments.find(a =>
+                a.propertyId.toString() === property.args.propertyId.toString()
+            );
+            console.log(tenantsForProperty?.tenants)
+      
+          if (!tenantsForProperty || tenantsForProperty.tenants.length === 0) {
+            continue; // Skip unoccupied property
+          }
 
+          
+          const startDate = new Date((property.timestamp || 0) * 1000);
+          const duration = Number(property.args.duration);
+          const value = Number(ethers.formatUnits(property.args.value, 18));
+          const monthlyRent = value / duration;
+          console.log(monthlyRent)
+
+          const startMonth = startDate.getMonth();
+          const startYear = startDate.getFullYear();
+      
+          for (let i = 0; i < duration; i++) {
+            const rentDate = new Date(startDate);
+            rentDate.setMonth(startMonth + i);
+      
+            if (rentDate.getFullYear() !== currentYear) continue;
+      
+            const monthIndex = rentDate.getMonth();
+            monthlyData[monthIndex].expected += monthlyRent;
+          }
+        }
+      
         return monthlyData;
-    }
-
-
+      }
     /* ------------------------- */
     /* PROPERTY TOKEN SPECIFIC   */
     /* ------------------------- */
@@ -254,7 +289,7 @@ async getEvents(
             "PropertyTokenTransferred",
             { tokenId }
         );
-        
+        console.log(events, "PropertyToken")
         const holders = new Map<string, number>();
         
         events.forEach(event => {

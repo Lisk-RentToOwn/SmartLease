@@ -11,7 +11,7 @@ type LandlordDashboardCardProps = {
 const LandlordDashboardCard = ({amount, currency, title, extraText, icon}: LandlordDashboardCardProps) => {
     return (
         <>
-            <div className="rounded-xl p-8 py-10 bg-white shadow-lg flex justify-between">
+            <div className="rounded-xl p-8 py-10 bg-white shadow-md flex justify-between">
                 <div className="">
                     <p className="text-gray-500 font-medium text-xl">{title}</p>
                     

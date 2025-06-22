@@ -65,6 +65,23 @@ export function useWithrawRent() {
   });
 }
 
+export function useDeactivateProperty() {
+  return useContractWrite({
+    ...genericContractRequestRentToOwn,
+    functionName: "deactivateProperty",
+    // args: [],
+  });
+}
+
+export function usePropertyStatus(propertyId: number) {
+  return useContractRead({
+    ...genericContractRequestRentToOwn,
+    functionName: "getPropertyStatus",
+    args: [propertyId],
+  });
+}
+
+
 // getEscrow Balance
 export function useGetEscrowBalance(propertyId: number) {
   return useContractRead({

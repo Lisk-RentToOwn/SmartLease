@@ -26,6 +26,7 @@ export type PropertyType = {
 
 export const PropertyCard = React.memo(function PropertyCard({ data}:{data :PropertyType}) {
     const rentAmountHumanReadable = formatUnits(data.value/data.duration, 18);
+    console.log(data.value/data.duration)
 
     const {
         error,
@@ -37,7 +38,7 @@ export const PropertyCard = React.memo(function PropertyCard({ data}:{data :Prop
         paymentTokenAddress: LiskSepoliaAddress,
         propertyId: Number(data.propertyId),
         rentContractAddress: RenToOwnAddress,
-        rentFiatAmount: +rentAmountHumanReadable,
+        rentFiatAmount: rentAmountHumanReadable,
         tokenDecimals: 18
     });
 

@@ -223,7 +223,7 @@ const calculateEquity = () => {
 
 
   return (
-    <main className="bg-gray-100 pb-16">
+    <main className="pb-16">
         <div className="content-container bg-white mt-16 py-10 rounded-lg">
             <p className="text-slate-700 font-semibold text-2xl mb-5">Create Property</p>
             <Form {...form}>

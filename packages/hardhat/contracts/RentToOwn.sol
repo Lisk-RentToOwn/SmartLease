@@ -8,6 +8,7 @@
 
     contract RentToOwn is Ownable {
         enum PaymentType { Fixed, Flexible }
+        enum PropertyStatus { Active, Inactive } // added by joe for deleteing a property  
 
         struct Tenant {
             uint256 totalPaid;
@@ -36,6 +37,7 @@
             string zipCode;
             string currency;
 
+            PropertyStatus status; // added by joe for deleteing a property  
             mapping(address => Tenant) tenants;
         }
 
@@ -65,6 +67,7 @@
         event PropertyOccupied(uint256 indexed propertyId, address indexed tenant);
         event LandlordWithdrawal(address indexed landlord, uint256 indexed propertyId, uint256 amount);
         event TokensTransferred(uint256 indexed propertyId, address indexed from, address indexed to, uint256 tokenId, uint256 amount); /// NEW EVENT
+        event PropertyDeactivated(uint256 indexed propertyId);
 
 
     constructor(address _liskToken, address _propertyToken) Ownable(msg.sender) {
@@ -101,6 +104,7 @@
             prop.state = state;
             prop.zipCode = zipCode;
             prop.currency = currency;
+            prop.status = PropertyStatus.Active; // added by joe for deleteing a property  
             
             // /// NEW: Uncommented
             uint256 tokenId = propertyToken.mintToLandlord(msg.sender, image); // mint 100 tokens - uncomment when Token contract is available
@@ -132,10 +136,22 @@
             nextPropertyId++; 
         }
 
+        // added by joe for deleteing a property 
+        function deactivateProperty(uint256 propertyId) external {
+            Property storage prop = properties[propertyId];
+            require(msg.sender == prop.landlord, "Only landlord can deactivate");
+            require(!prop.isOccupied, "Cannot deactivate: already occupied");
+            require(prop.status == PropertyStatus.Active, "Already inactive");
+
+            prop.status = PropertyStatus.Inactive;
+            emit PropertyDeactivated(propertyId);
+        }
+
         function payRent(uint256 propertyId, uint256 amount) external {
             Property storage prop = properties[propertyId];
             require(prop.landlord != address(0), "Invalid property");
             require(amount > 0, "Zero amount");
+            require(prop.status == PropertyStatus.Active, "Property is inactive");
 
             uint256 monthlyRent = prop.value / prop.duration;
             require(liskToken.transferFrom(msg.sender, address(this), amount), "Transfer Failed");
@@ -157,6 +173,13 @@
                     emit PropertyOccupied(propertyId, msg.sender);
                     emit RentPaid(propertyId, msg.sender, prop.escrowBalance);
                     emit EquityUpdated(propertyId, msg.sender, tenant.equityPercentage);
+
+                    // ✅ NEW: Transfer tokens for initial equity
+                    uint256 tokensToTransfer = (tenant.equityPercentage * 100) / 1e4;
+                    if (tokensToTransfer > 0) {
+                        propertyToken.transferFraction(prop.landlord, msg.sender, prop.tokenId, tokensToTransfer);
+                        emit TokensTransferred(propertyId, prop.landlord, msg.sender, prop.tokenId, tokensToTransfer);
+                    }
 
                     prop.escrowBalance = 0;
                 } else {
@@ -206,6 +229,10 @@
             require(liskToken.transfer(msg.sender, amount), "Withdraw Failed");
 
             emit LandlordWithdrawal(msg.sender, propertyId, amount);
+        }
+
+        function getPropertyStatus(uint256 propertyId) external view returns (PropertyStatus) {
+            return properties[propertyId].status;
         }
 
         function getTenantEquity(uint256 propertyId, address tenantAddr) external view returns (uint256) {

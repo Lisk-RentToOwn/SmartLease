@@ -44,7 +44,7 @@ export const XmtpProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (err) {
         console.error('❌ Failed to initialize XMTP:', err);
         // Optional: reset local identity cache if corrupted
-        // indexedDB.deleteDatabase('xmtp'); // advanced use
+        indexedDB.deleteDatabase('xmtp'); // advanced use
       }
     };
 

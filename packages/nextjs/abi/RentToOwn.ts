@@ -193,6 +193,19 @@ export const RentToOwnABI = [
         "internalType": "uint256",
         "name": "propertyId",
         "type": "uint256"
+      }
+    ],
+    "name": "PropertyDeactivated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "propertyId",
+        "type": "uint256"
       },
       {
         "indexed": true,
@@ -320,6 +333,19 @@ export const RentToOwnABI = [
       }
     ],
     "name": "createProperty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "propertyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "deactivateProperty",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -465,6 +491,25 @@ export const RentToOwnABI = [
         "internalType": "string",
         "name": "currency",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "propertyId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPropertyStatus",
+    "outputs": [
+      {
+        "internalType": "enum RentToOwn.PropertyStatus",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
