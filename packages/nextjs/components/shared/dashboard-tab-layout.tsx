@@ -39,27 +39,6 @@ export default DashboardTabLayout;
 const TabItem = ({ link, name, Icon }: TabType) => {
   const path = usePathname();
 
-  // ❌ Duplicate definition of TabItem – commenting out this block
-  // const TabItem = ({ link, name, Icon }: TabType) => {
-  //   const path = usePathname();
-
-  //   return (
-  //     <>
-  //       <Link href={link} className="">
-  //         <div
-  //           className={cn(
-  //             "font-medium flex items-center space-x-3 text-slate-700",
-  //             { "text-primary": path === link }
-  //           )}
-  //         >
-  //           {Icon && <Icon className="" />}
-  //           <p className="font-medium text-lg font-circular">{name}</p>
-  //         </div>
-  //       </Link>
-  //     </>
-  //   );
-  // };
-
   return (
     <Link href={link} className="">
       <div

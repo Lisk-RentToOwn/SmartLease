@@ -1,4 +1,5 @@
 import { RentToOwnABI } from "@/abi/RentToOwn";
+import { LiskSepoliaAddress } from "@/constants/contract-address";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -6,7 +7,7 @@ import { parseUnits } from "viem";
 import { erc20ABI, useAccount, useContractWrite, useWaitForTransaction, useContractRead } from "wagmi";
 
 type UseSmartRentPaymentProps = {
-  rentFiatAmount: number;
+  rentFiatAmount: string;
   propertyId: number;
   paymentTokenAddress: `0x${string}`;
   rentContractAddress: `0x${string}`;
@@ -52,6 +53,14 @@ export const useSmartRentPayment = ({
     abi: erc20ABI,
     functionName: "approve",
     args: [rentContractAddress, convertedAmount || BigInt(0)],
+  });
+
+  const { data: balance } = useContractRead({
+    address: LiskSepoliaAddress,
+    abi: erc20ABI,
+    functionName: "balanceOf",
+    args: [address!],
+    enabled: !!address,
   });
 
   // 4. Payment transaction
@@ -111,10 +120,13 @@ export const useSmartRentPayment = ({
       return;
     }
 
+    if (balance !== undefined && balance < convertedAmount) {
+      toast.error("Insufficient token balance");
+      return;
+    }
+
     // Check if approval is needed
     if (currentAllowance && currentAllowance >= convertedAmount) {
-      console.log(currentAllowance, "currentAllowance")
-      console.log(convertedAmount, "convertedAmount")
       // Direct payment if already approved
       payRent();
     } else {

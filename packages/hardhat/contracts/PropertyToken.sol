@@ -59,7 +59,7 @@ contract PropertyToken is ERC1155, Ownable {
     /// NEW FUNCTION:
     // Function specifically for RentToOwn contract to mint tokens
     function mintToLandlord(address landlord, string memory uri) external onlyAuthorized returns (uint256) {
-        uint256 tokenId = nextTokenId;
+        uint256 tokenId = nextTokenId + 1;
         landlordOf[tokenId] = landlord;
         tokenURIs[tokenId] = uri; // Can be set later
 

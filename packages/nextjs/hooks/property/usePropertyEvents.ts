@@ -7,6 +7,8 @@ import { PropertyTokenABI } from "@/abi/PropertyToken";
 import { IdentityRegistryABI } from "@/abi/IdentityRegistery";
 import { ethers } from "ethers";
 import { formatRentData } from "@/utils/formatter";
+import { useAccount } from "wagmi";
+import { useGetTenantEquity } from "@/services/request/contract/contract-request";
 
 export const eventService = new PropertyEventService(
   RenToOwnAddress,
@@ -155,8 +157,9 @@ export function useLandlordProperties(landlordAddress?: string) {
 // Purpose: Show tenant assignments per property
 // Best for: Landlord tenant management
 export function useTenantAssignment(landlordAddress: string) {
-    const [assignments, setAssignments] = useState<{propertyId: number, tenants: string[]}[]>([]);
+    const [assignments, setAssignments] = useState<{propertyId: number, tenants: string[], propertyName: string}[]>([]);
     const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
         const load = async () => {
@@ -237,6 +240,86 @@ export function useTokenHolders(tokenId?: number) {
     }, [tokenId]);
 
     return { holders, loading };
+}
+
+export type TenantRow = {
+  tenant: string;
+  tokenId: number;
+  tokenUri: string;
+  equity: number;
+  token: number;
+  property: {
+    name: string;
+    price: string;
+    imgUrl: string;
+    currency: string;
+  };
+};
+
+export const rentToOwnContract = new ethers.Contract(
+    RenToOwnAddress,
+    RentToOwnABI,
+    new ethers.JsonRpcProvider('https://rpc.sepolia-api.lisk.com') // or use `getPublicClient().provider`
+);
+
+export function useTenantEquityTable() {
+  const { address } = useAccount();
+  const [rows, setRows] = useState<TenantRow[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!address) return;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const properties = await eventService.getLandlordProperties(address); // or your wrapped call
+        const allRows: TenantRow[] = [];
+
+        for (const prop of properties) {
+          const tokenId = prop.args.tokenId;
+          
+          // const tokenUri = await tokenContract.uri(tokenId);
+          const name = prop.args.name || "Unnamed Property";
+          const price = ethers.formatUnits(prop.args.value, 18);
+          const imgUrl = prop.args.image || "/placeholder.jpg";
+          const tokenUri = ""
+          const propertyId = prop.args.propertyId;
+
+          const holders = await eventService.getTokenHolders(Number(tokenId));
+          // console.log(tokenId, "holder")
+          for (const holder of holders) {
+            const equityBN = rentToOwnContract.getTenantEquity(propertyId, holder.address) 
+            const equity = Number(equityBN);
+
+            allRows.push({
+              tenant: holder.address,
+              token: holder.amount,
+              equity,
+              tokenId,
+              tokenUri,
+              property: {
+                name,
+                price,
+                imgUrl,
+                currency: "$", // modify as needed
+              },
+            });
+          }
+        }
+
+        setRows(allRows);
+      } catch (e) {
+        console.error("Failed to load equity table:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [address]);
+
+  return { data: rows, loading };
 }
 
 // Purpose: Percentage ownership visualization
@@ -561,93 +644,106 @@ export function useTenantDashboard(tenantAddress: string) {
 
 // Browse public properties
 export function useAvailableProperties({
-    itemsPerPage = 12,
-    liveUpdates = true
+  itemsPerPage = 12,
+  liveUpdates = true,
 }: {
-    itemsPerPage?: number;
-    liveUpdates?: boolean;
+  itemsPerPage?: number;
+  liveUpdates?: boolean;
 } = {}) {
-    const [page, setPage] = useState(1);
-    const [allProperties, setAllProperties] = useState<PropertyEvent[]>([]);
-    const [occupiedIds, setOccupiedIds] = useState<Set<number>>(new Set());
-    const [loading, setLoading] = useState(true);
-    const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [allProperties, setAllProperties] = useState<PropertyEvent[]>([]);
+  const [occupiedIds, setOccupiedIds] = useState<Set<number>>(new Set());
+  const [deactivatedIds, setDeactivatedIds] = useState<Set<number>>(new Set());
+  const [loading, setLoading] = useState(true);
 
-    // Fetch initial data
-    useEffect(() => {
-        const fetchInitialData = async () => {
-            setLoading(true);
-        
-        try {
-            const [{ events: properties }, { events: occupied }] = await Promise.all([
-                eventService.getEvents("RentToOwn", "PropertyCreated", {}, 0, "latest", 5000),
-                eventService.getEvents("RentToOwn", "PropertyOccupied", {}, 0, "latest", 5000),
-            ]);
+  // Fetch initial events (Created, Occupied, Deactivated)
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setLoading(true);
+      try {
+        const [
+          { events: properties },
+          { events: occupied },
+          { events: deactivated },
+        ] = await Promise.all([
+          eventService.getEvents("RentToOwn", "PropertyCreated", {}, 0, "latest", 5000),
+          eventService.getEvents("RentToOwn", "PropertyOccupied", {}, 0, "latest", 5000),
+          eventService.getEvents("RentToOwn", "PropertyDeactivated", {}, 0, "latest", 5000),
+        ]);
 
-            setAllProperties(properties);
-            setOccupiedIds(new Set(occupied.map(e => e.args.propertyId)));
-            setTotal(properties.length);
-        } catch (error) {
-            console.error("Initial load failed:", error);
-        } finally {
-            setLoading(false);
-        }
+        setAllProperties(properties);
+        setOccupiedIds(new Set(occupied.map(e => e.args.propertyId)));
+        setDeactivatedIds(new Set(deactivated.map(e => e.args.propertyId)));
+      } catch (error) {
+        console.error("Failed to fetch property events:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchInitialData();
-    }, []);
+  }, []);
 
-    // Set up live listeners
-    useEffect(() => {
-        if (!liveUpdates) return;
+  // Setup live event listeners
+  useEffect(() => {
+    if (!liveUpdates) return;
 
-        const unsubscribeCreated = eventService.onEvent(
-            "RentToOwn",
-            "PropertyCreated",
-            (event) => {
-            setAllProperties(prev => [...prev, event]);
-            setTotal(prev => prev + 1);
-            }
-        );
-    
-        const unsubscribeOccupied = eventService.onEvent(
-                "RentToOwn",
-                "PropertyOccupied",
-                (event) => {
-                setOccupiedIds(prev => new Set(prev.add(event.args.propertyId)));
-                }
-        );
+    const unsubscribeCreated = eventService.onEvent(
+      "RentToOwn",
+      "PropertyCreated",
+      (event) => {
+        setAllProperties((prev) => [...prev, event]);
+      }
+    );
 
-        return () => {
-            unsubscribeCreated();
-            unsubscribeOccupied();
-        };
-    }, [liveUpdates]);
+    const unsubscribeOccupied = eventService.onEvent(
+      "RentToOwn",
+      "PropertyOccupied",
+      (event) => {
+        setOccupiedIds((prev) => new Set(prev.add(event.args.propertyId)));
+      }
+    );
 
-    // Calculate available properties
-    const availableProperties = useMemo(() => {
-        return allProperties.filter(
-            property => !occupiedIds.has(property.args.propertyId)
-        );
-    }, [allProperties, occupiedIds]);
+    const unsubscribeDeactivated = eventService.onEvent(
+      "RentToOwn",
+      "PropertyDeactivated",
+      (event) => {
+        setDeactivatedIds((prev) => new Set(prev.add(event.args.propertyId)));
+      }
+    );
 
-    // Paginate results
-    const paginatedResults = useMemo(() => {
-        const start = (page - 1) * itemsPerPage;
-        return availableProperties.slice(start, start + itemsPerPage);
-    }, [availableProperties, page, itemsPerPage]);
-
-    return {
-        properties: paginatedResults,
-        loading,
-        page,
-        setPage,
-        totalPages: Math.ceil(availableProperties.length / itemsPerPage),
-        totalProperties: availableProperties.length,
-        refresh: () => setPage(1) // Reset to first page
+    return () => {
+      unsubscribeCreated();
+      unsubscribeOccupied();
+      unsubscribeDeactivated();
     };
-}
+  }, [liveUpdates]);
 
+  // Filter only available properties
+  const availableProperties = useMemo(() => {
+    return allProperties.filter(
+      (property) =>
+        !occupiedIds.has(property.args.propertyId) &&
+        !deactivatedIds.has(property.args.propertyId)
+    );
+  }, [allProperties, occupiedIds, deactivatedIds]);
+
+  // Pagination
+  const paginatedResults = useMemo(() => {
+    const start = (page - 1) * itemsPerPage;
+    return availableProperties.slice(start, start + itemsPerPage);
+  }, [availableProperties, page, itemsPerPage]);
+
+  return {
+    properties: paginatedResults,
+    loading,
+    page,
+    setPage,
+    totalPages: Math.ceil(availableProperties.length / itemsPerPage),
+    totalProperties: availableProperties.length,
+    refresh: () => setPage(1), // Reset to first page
+  };
+}
 export async function verifyLandlordProperties(landlordAddress: string) {
     try {
       // 1. Get all PropertyCreated events

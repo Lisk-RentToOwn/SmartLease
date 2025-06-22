@@ -13,17 +13,37 @@ import {
   lightTheme,
 } from "@rainbow-me/rainbowkit";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Toaster } from "sonner";
 import { WagmiConfig } from "wagmi";
+import GenericLayout from "./shared/layout/generic-layout";
+import { usePathname } from "next/navigation";
+import { LANDLORDNAV, TENANTNAV } from "@/constants/dashboard-nav";
+import { useNetworkStatusToast } from "@/hooks/useNetworkConnection";
+
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+  const path = usePathname();
+  useNetworkStatusToast()
+
+  const getHeaderType = ( ): ReactNode => {
+    //@ts-ignore
+    if (path.startsWith("/tenant"))
+      return <GenericLayout children={children} sideMenu={TENANTNAV}/>;
+    //@ts-ignore
+    if (path.startsWith("/landlord"))
+      return <GenericLayout children={children} sideMenu={LANDLORDNAV}/>
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="relative flex flex-col flex-1">{children}</main>
+        </div>
+    );
+  };
+
   return (
     <>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="relative flex flex-col flex-1">{children}</main>
-      </div>
+      {getHeaderType()}
       <Toaster />
     </>
   );
