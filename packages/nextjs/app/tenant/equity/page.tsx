@@ -1,4 +1,14 @@
-'use client'
+"use client";
+
+import { usePropertyInfo } from "@/hooks/property/propertyInfo";
+import { useUserSession } from "@/hooks/property/useTenant";
+import { useTenantEquity } from "@/hooks/property/useTenant";
+import { useOwnershipDate } from "@/hooks/property/useTenant";
+import { useEquityGrowth } from "@/hooks/property/useTenant";
+import { useTenantTokenStats } from "@/hooks/property/useTenant";
+import { calculateNextPayment } from "@/hooks/property/useTenant";
+import { usePropertyEvent } from "@/hooks/property/useTenant";
+import { useTenantPayments } from "@/hooks/property/useTenant";
 import {
   Bell,
   PieChart,
@@ -16,6 +26,7 @@ import {
   History,
   Shield,
 } from "lucide-react";
+import { useAccount } from "wagmi";
 import ChartDemo from "~~/components/tenants/ChartDemo";
 import MilestoneProgress from "~~/components/tenants/MilestoneDemo";
 import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
@@ -60,8 +71,28 @@ const milestones = [
 const currentMilestone = 2;
 
 export default function EquityGrowthPage() {
+  const { address } = useAccount();
+  const { propertyId } = useUserSession(address);
+  const { propertyInfo } = usePropertyInfo(propertyId ?? undefined);
+  const { data } = useTenantEquity(address, propertyId ?? undefined);
+  const ownershipDate = useOwnershipDate(address, propertyId ?? undefined);
+  const { growth } = useEquityGrowth(propertyId ?? undefined);
+  const { stats, loading, error } = useTenantTokenStats(
+    address,
+    propertyId ?? undefined
+  );
+  const { info } = usePropertyEvent(propertyId ?? undefined);
+  const { paymentdata } = useTenantPayments(address);
+
+  let nextPayment;
+  if (info) {
+    nextPayment = calculateNextPayment(paymentdata, info);
+  }
+
+  const remainingEquity = !data.equity ? 0 : 100 - data.equity;
+
   return (
-    <div className="pt-4 app-container">/
+    <div className="pt-4 app-container">
       <header className="flex-jb-ic border-b pb-8">
         <div className="flex gap-2 items-center">
           <Home className="notfi-icon !rounded-sm bg-emerald-400 text-white" />
@@ -69,8 +100,8 @@ export default function EquityGrowthPage() {
         </div>
       </header>
 
-      <main className=" mt-10 space-y-6">
-        <section className="grid grid-cols-4 gap-7">
+      <main className=" mt-10 space-y-6 ">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-7">
           <Card>
             <CardHeader className="card-hdr">
               <CardTitle className="text-gray card-titl">
@@ -79,8 +110,10 @@ export default function EquityGrowthPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="value ">24.8%</p>
-              <p className="text-gray">+1.2% from last month</p>
+              <p className="value ">{data.equity}%</p>
+              <p className="text-gray">
+                {growth ? `${growth}% from last month` : "No equity growth yet"}
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -91,8 +124,8 @@ export default function EquityGrowthPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="value ">248</p>
-              <p className="text-gray">of 1,00 total tokens</p>
+              <p className="value ">{stats ? stats.currentTokens : 0}</p>
+              <p className="text-gray">of 100 total tokens</p>
             </CardContent>
           </Card>
           <Card>
@@ -103,8 +136,22 @@ export default function EquityGrowthPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="value ">2029</p>
-              <p className="text-gray">Est.June 2029 (5.2 years)</p>
+              <p className="value ">
+                {ownershipDate
+                  ? ownershipDate.toLocaleDateString("en-US", {
+                      year: "numeric",
+                    })
+                  : "N/A"}
+              </p>
+              <p className="text-gray">
+                Est.
+                {ownershipDate
+                  ? ownershipDate.toLocaleDateString("en-US", {
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : " n/a"}
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -115,7 +162,11 @@ export default function EquityGrowthPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="value ">$74,400</p>
+              <p className="value ">
+                {propertyInfo
+                  ? propertyInfo.currency + propertyInfo.fullPrice
+                  : 0}
+              </p>
               <p className="text-gray">Based on current market value</p>
             </CardContent>
           </Card>
@@ -145,13 +196,28 @@ export default function EquityGrowthPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <p className="value flex items-center gap-2">
-                  186 <span className="text-gray">tokens (18.6%)</span>
+                  {stats ? stats.unlocked : 0}{" "}
+                  <span className="text-gray">
+                    tokens ({data ? data.equity : 0}%)
+                  </span>
                 </p>
-                <ProgressDemo value={75} className="progress-green-fill" />
+                <ProgressDemo
+                  value={data.equity || 0}
+                  className="progress-green-fill"
+                />
                 <div className="flex-jb-ic">
-                  <p className=" text-xs">Last unlocked: May 15, 2023</p>
+                  <p className=" text-xs">
+                    Last unlocked:{" "}
+                    {nextPayment
+                      ? nextPayment.lastPayment.toLocaleDateString("en-us", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "00/00/0000"}
+                  </p>
                   <p className="text-xs text-emerald-400">
-                    75% of your holdings
+                    {data ? data.equity : 0}% of your holdings
                   </p>
                 </div>
               </CardContent>
@@ -164,13 +230,28 @@ export default function EquityGrowthPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <p className="value flex items-center gap-2">
-                  62 <span className="text-gray">tokens (6.2%)</span>
+                  {stats ? stats.locked : 0}
+                  <span className="text-gray">
+                    tokens ({remainingEquity}% )
+                  </span>
                 </p>
-                <ProgressDemo value={25} className="progress-red-fill" />
+                <ProgressDemo
+                  value={remainingEquity}
+                  className="progress-red-fill"
+                />
                 <div className="flex-jb-ic">
-                  <p className=" text-xs">Next unlock: June 15, 2023</p>
+                  <p className=" text-xs">
+                    Next unlock:{" "}
+                    {nextPayment
+                      ? nextPayment.dueDate.toLocaleDateString("en-us", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "00/00/0000"}
+                  </p>
                   <p className="text-xs text-emerald-400">
-                    25% of your holdings
+                    {remainingEquity}% of your holdings
                   </p>
                 </div>
               </CardContent>

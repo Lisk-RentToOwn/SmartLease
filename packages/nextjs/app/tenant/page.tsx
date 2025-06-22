@@ -1,4 +1,13 @@
-'use client'
+"use client";
+
+import { Routes } from "../routes";
+import { usePropertyInfo } from "@/hooks/property/propertyInfo";
+import { usePropertyEvent } from "@/hooks/property/useTenant";
+import { useUserSession } from "@/hooks/property/useTenant";
+import { useTenantEquity } from "@/hooks/property/useTenant";
+import { calculateNextPayment } from "@/hooks/property/useTenant";
+import { useTenantPayments } from "@/hooks/property/useTenant";
+import { useOwnershipDate } from "@/hooks/property/useTenant";
 import {
   Bell,
   Wallet,
@@ -11,8 +20,11 @@ import {
   Medal,
   CalendarRange,
   EllipsisVertical,
+  Car,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
 import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
 import { Badge } from "~~/components/ui/badge";
 import { Button } from "~~/components/ui/button";
@@ -25,74 +37,132 @@ import {
 } from "~~/components/ui/card";
 import { Switch } from "~~/components/ui/switch";
 
-
 export default function TenantDashboard() {
+  const { address } = useAccount();
+  const { paymentdata } = useTenantPayments(address);
+  const { propertyId, active } = useUserSession(address);
+  const { info, loading, error } = usePropertyEvent(propertyId ?? undefined);
+  const { data } = useTenantEquity(address, propertyId ?? undefined);
+  const ownershipDate = useOwnershipDate(address, propertyId ?? undefined);
+
+  let nextPayment;
+  if (info) {
+    nextPayment = calculateNextPayment(paymentdata, info);
+  }
+
+  const obj = { ...(info?.args || {}) };
+
+  const fullPrice = Number(obj[3]) || 0;
+  const term = Number(obj[4]);
+
+  const propertyInfo = {
+    tokenId: Number(obj[0]) || 0,
+    fullPrice,
+    monthlyPrice: Intl.NumberFormat("en-us").format(fullPrice / term || "0.00"),
+    term,
+    name: obj[5] || 0,
+    image: obj[6],
+    town: obj[7],
+    city: obj[8],
+    currency: obj[11],
+  };
+  console.log(propertyInfo, obj);
+
+  const router = useRouter();
+  const handleBrowseClick = () => {
+    router.push(Routes.BROWSE_PROPERTIES);
+  };
+
   return (
     <div className="bg-gray-100">
       <div className="app-container mt-16 pb-20">
         <header className="flex justify-between mb-5 border-b">
-          <h1 className="text-black font-semibold text-3xl">Tenant Dashboard</h1>
+          <h1 className="text-black font-semibold text-3xl">
+            Tenant Dashboard
+          </h1>
         </header>
 
         <main className="space-y-6">
-          <div className="grid grid-cols-[2fr_1fr] gap-5">
+          <div className="grid lg:grid-cols-[2fr_1fr] gap-5">
             <Card className="">
               <CardHeader className="flex flex-row justify-between">
                 <div>
-                  <CardTitle className="mb-1 text-xl">Property Summary</CardTitle>
+                  <CardTitle className="mb-1 text-xl">
+                    Property Summary
+                  </CardTitle>
                   <CardDescription className="text-[0.8rem]">
-                    Token ID: #1234
+                    Token ID: {propertyInfo.tokenId || "Unavailable"}
                   </CardDescription>
                 </div>
-                <Badge className="border rounded-3xl text-base py-1 bg-blue-500 px-7">
-                  Active
-                </Badge>
+                {!active ? (
+                  <Badge className="h-7  rounded-3xl " variant={"customGray"}>
+                    Inactive
+                  </Badge>
+                ) : (
+                  <Badge className="h-7 bg-blue-500 rounded-3xl ">Active</Badge>
+                )}
               </CardHeader>
-              <CardContent className="flex gap-5 ">
-                <Image
-                  src="/building.png"
-                  alt="Building"
-                  className="w-fit border rounded-xl"
-                  width={150}
-                  height={100}
-                />
-                <div className="flex flex-col gap-10 w-full">
-                  <div className="grid grid-cols-2  gap-20">
-                    <div className="space-y-4">
-                      <p className="text-gray text-base ">
-                        Address <br />
-                        <span className="text-dark text-lg">
-                          123 Main Street, Apt 4B <br /> San Francisco CA 94105
-                        </span>
-                      </p>
-                      <p className="text-gray text-lg">
-                        Equity Earned <br />{" "}
-                        <span className="text-emerald-500  font-semibold">
-                          12.5%
-                        </span>
-                      </p>
+              {!active ? (
+                <CardContent className="flex-ic flex-col gap-2">
+                  <p className="text-center text-gray">
+                    {" "}
+                    You haven't started your rent-to-own journey. Browse
+                    available properties to get started.
+                  </p>
+                  <Button onClick={handleBrowseClick}>View properties</Button>
+                </CardContent>
+              ) : (
+                <CardContent className="flex gap-5 ">
+                  <Image
+                    src={propertyInfo.image}
+                    alt="Building"
+                    className="w-fit border rounded-xl"
+                    width={150}
+                    height={100}
+                  />
+                  <div className="flex flex-col gap-10 w-full">
+                    <div className="grid grid-cols-2  gap-20">
+                      <div className="space-y-4">
+                        <p className="text-gray text-base ">
+                          Address <br />
+                          <span className="text-dark text-lg">
+                            {propertyInfo.town}, {propertyInfo.city}
+                          </span>
+                        </p>
+                        <p className="text-gray text-lg">
+                          Equity Earned <br />{" "}
+                          <span className="text-emerald-500  font-semibold">
+                            12.5%
+                          </span>
+                        </p>
+                      </div>
+                      <div className="space-y-8">
+                        <p className="text-gray">
+                          Monthly Rent <br />{" "}
+                          <span className="text-dark text-xl">
+                            {propertyInfo.currency} {propertyInfo.monthlyPrice}
+                          </span>
+                        </p>
+                        <p className="text-gray">
+                          Next Vesting Date <br />{" "}
+                          <span className="text-dark text-xl">May 1, 2023</span>
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-8">
-                      <p className="text-gray">
-                        Monthly Rent <br />{" "}
-                        <span className="text-dark text-xl">$2,400</span>
-                      </p>
-                      <p className="text-gray">
-                        Next Vesting Date <br />{" "}
-                        <span className="text-dark text-xl">May 1, 2023</span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex justify-between ">
-                      <p className="text-gray text-base">Vesting Progress</p>
-                      <p className="text-dark">12.5% of 100%</p>
-                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between ">
+                        <p className="text-gray text-base">Vesting Progress</p>
+                        <p className="text-dark">12.5% of 100%</p>
+                      </div>
 
-                    <ProgressDemo value={12.5} className="progress-green-fill" />
+                      <ProgressDemo
+                        value={12.5}
+                        className="progress-green-fill"
+                      />
+                    </div>
                   </div>
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
 
             <Card className="flex flex-col items-center ">
@@ -116,7 +186,7 @@ export default function TenantDashboard() {
                     className="radial-progress text-emerald-500 absolute -translate-x-1/2 left-1/2 top-1/2 flex flex-col items-center"
                     style={
                       {
-                        "--value": 12.5,
+                        "--value": data.equity || 0,
                         "--size": "9rem",
                         "--thickness": "0.8rem",
                       } as React.CSSProperties
@@ -124,7 +194,7 @@ export default function TenantDashboard() {
                   >
                     <h1 className="text-darkColor font-bold text-xl leading-none">
                       {" "}
-                      12.5%
+                      {data.equity || 0}%
                     </h1>
                     <p className="text-gray leading-none">Equity Earned</p>
                   </div>
@@ -132,12 +202,30 @@ export default function TenantDashboard() {
                 <div className="mt-[9.5rem] space-y-4">
                   <p className="text-gray text-lg">
                     Next Unlock <br />
-                    <span className="text-dark">+1.5% on May 1, 2023</span>
+                    {!active ? (
+                      <span className="text-dark">Not determined yet</span>
+                    ) : (
+                      <span className="text-dark">
+                        +1.5% on{" "}
+                        {nextPayment?.dueDate.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}{" "}
+                      </span>
+                    )}
                   </p>
                   <p className="text-grayColor text-sm">
                     Full ownership projected by <br />
                     <span className="text-blue-500 text-small font-semibold">
-                      January 2031
+                      {!active ? (
+                        <p>No date has been set</p>
+                      ) : (
+                        ownershipDate?.toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                        })
+                      )}
                     </span>
                   </p>
                 </div>
@@ -145,7 +233,7 @@ export default function TenantDashboard() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-3 gap-5">
+          <div className="grid lg:grid-cols-3 gap-5">
             <Card className="!p-0">
               <CardHeader className="space-y-3 !pb-3 ">
                 <CardTitle className="text-xl">Rent Payment</CardTitle>
@@ -153,27 +241,36 @@ export default function TenantDashboard() {
                   <CalendarRange className="w-3" />
                   <div className=" space-y-1">
                     <p className="leading-none">Rent Due</p>
-                    <p className="leading-none">May 1, 2023 (5 days)</p>
+                    <p className="leading-none">
+                      {nextPayment?.dueDate.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }) || "No date yet"}
+                    </p>
                   </div>
                 </CardDescription>
               </CardHeader>
               <CardContent className="">
                 <p className="text-gray">Amount Due</p>
-                <p className="text-dark mb-2">$2,400.00</p>
+                <p className="text-dark mb-2">
+                  {propertyInfo?.currency || ""}
+                  {propertyInfo?.monthlyPrice ?? "0.00"}
+                </p>
                 <div className="flex justify-between">
                   <div
                     className="flex items-center mb-3
                   "
                   >
                     <span className="text-gray">Gasless Transactions</span>
-                    <Switch checked={true} className="scale-75" />
+                    <Switch className="scale-75" />
                   </div>
                   <div
                     className="flex items-center
                   "
                   >
                     <span className="text-gray">AutoPay</span>
-                    <Switch checked={true} className="scale-75" />
+                    <Switch className="scale-75" />
                   </div>
                 </div>
 
@@ -189,7 +286,7 @@ export default function TenantDashboard() {
                 </div>
                 <CardDescription className="border-0 rounded-sm bg-blue-300/20 flex p-3 gap-2 items-center ">
                   <Medal
-                    className="border-none rounded-full p-2 bg-blue-300/30 w-9 h-9 text-gray-100"
+                    className="border-none rounded-full p-2 bg-blue-300/30 w-8 h-8 text-gray-100"
                     fill="rgb(20, 130, 199)"
                   />
                   <div>

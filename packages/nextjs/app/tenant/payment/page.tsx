@@ -1,5 +1,13 @@
 "use client";
 
+import { usePropertyInfo } from "@/hooks/property/propertyInfo";
+import { usePropertyEvent } from "@/hooks/property/useTenant";
+import { useTenantPayments } from "@/hooks/property/useTenant";
+import { useTenantEquity } from "@/hooks/property/useTenant";
+import { useUserSession } from "@/hooks/property/useTenant";
+import { calculateNextPayment } from "@/hooks/property/useTenant";
+import { getDaysUntilDue } from "@/hooks/property/useTenant";
+import { timeStamp } from "console";
 import {
   UserRound,
   Wallet,
@@ -28,10 +36,6 @@ import {
   CardFooter,
 } from "~~/components/ui/card";
 import { Switch } from "~~/components/ui/switch";
-import {
-  usePayRent,
-  useGetPropertyMetadata,
-} from "~~/services/request/contract/contract-request";
 
 export default function TenantPaymentPage() {
   useEffect(() => {
@@ -39,48 +43,25 @@ export default function TenantPaymentPage() {
   }, []);
 
   const { address } = useAccount();
+  const { propertyId, active } = useUserSession(address);
+  const { data } = useTenantEquity(address, propertyId ?? undefined);
+  const { propertyInfo } = usePropertyInfo(propertyId ?? undefined);
+  const { info } = usePropertyEvent(propertyId ?? undefined);
+  const { paymentdata } = useTenantPayments(address);
 
-  const propertyInfo = {
+  let nextPayment;
+  if (info) {
+    nextPayment = calculateNextPayment(paymentdata, info);
+  }
+
+  const recieptInfo = {
     propertyId: 1,
     amount: 20,
     date: new Date(2023, 5, 1),
     equity: 0.25,
     address: "123 Main Street, Apt 4B San Francisco CA 94105",
   };
-
-  const amtInWei = parseEther(`${propertyInfo.amount}`);
-
   const [autoPayEnable, setAutoPayEnable] = useState(false);
-
-  // const { writeAsync: payRent, isLoading: isPaying } = usePayRent(
-  //   propertyInfo.propertyId,
-  //   amtInWei
-  // );
-
-  const handlePayRent = async () => {
-    // try {
-    //   toast.loading("Processing payment");
-    //   const tx = await payRent();
-
-    //   toast.dismiss();
-    //   toast.success("Payment completed", {
-    //     duration: 500,
-    //     description: "Your rent for June 2023 has been paid",
-    //     action: {
-    //       label: "View on Explorer",
-    //       onClick: () =>
-    //         window.open(
-    //           `https://sepolia-blockscout.lisk.com/address/${tx.hash}`,
-    //           "_blank"
-    //         ),
-    //     },
-    //   });
-    // } catch (error) {
-    //   toast.dismiss();
-    //   console.log("Payment fails:", error);
-    //   toast.error("Payment failed");
-    // }
-  };
 
   return (
     <div className="bg-gray-100">
@@ -94,7 +75,7 @@ export default function TenantPaymentPage() {
           </div>
         </header>
 
-        <main className="space-y-6">
+        <main className="space-y-6 ">
           <section>
             <p className="font-semibold text-2xl">Rent Payments</p>
             <p className="text-gray-bold font-normal text-lg">
@@ -102,7 +83,7 @@ export default function TenantPaymentPage() {
             </p>
           </section>
 
-          <section className="grid grid-cols-12 gap-20">
+          <section className="grid lg:grid-cols-12 gap-20">
             <div className="grid col-span-8 space-y-5">
               <Card className="space-y-3">
                 <CardHeader className="border-b !py-3 bg-blue-200/20">
@@ -111,26 +92,33 @@ export default function TenantPaymentPage() {
                 <CardContent className="flex justify-between">
                   <div>
                     <p className="font-semibold text-[1.2rem] flex items-center gap-1">
-                      ${propertyInfo.amount}
+                      ${propertyInfo.monthlyPrice}
                       <span className=" text-[0.6rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 p-1">
-                        Due in 5 days
+                        {getDaysUntilDue(nextPayment?.dueDate)}
                       </span>
                     </p>
                     <p className="text-gray-bold mt-0.5">
-                      Due on the June 1st, 2023
+                      Due on the{" "}
+                      {active ? (
+                        nextPayment?.dueDate.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      ) : (
+                        <span> N/A</span>
+                      )}
                     </p>
                     <div className="flex items-center gap-1">
                       <PieChartIcon className="w-3 text-emerald-400" />
                       <p className="text-gray">
-                        Earns ${propertyInfo.equity}% equity this month
+                        Earns {data.equity || 0}% equity this month
                       </p>
                     </div>
                   </div>
-                  <Button onClick={handlePayRent}>
+                  <Button>
                     <CreditCard />
-                    <span className="text-xs">
-                      {/* ${isPaying ? "Processing" : "Pay Now"} */}
-                    </span>
+                    <span className="text-xs">${"Pay Now"}</span>
                   </Button>
                 </CardContent>
               </Card>
@@ -165,7 +153,13 @@ export default function TenantPaymentPage() {
 
                 <CardContent className="!pb-1 ">
                   <div className="">
-                    <CalendarDemo />
+                    {address ? (
+                      <CalendarDemo />
+                    ) : (
+                      <p className="text-gray-bold text-center">
+                        Please connect your wallet to view your Calender
+                      </p>
+                    )}
                   </div>
 
                   <div className="border-t pt-3 flex justify-center space-x-3">
@@ -204,15 +198,15 @@ export default function TenantPaymentPage() {
                   <div className="space-y-1">
                     <div className="flex justify-between ">
                       <p className="text-gray">Total Equity Earned</p>
-                      <p className="text-dark">${propertyInfo.equity}</p>
+                      <p className="text-dark">{data.equity || 0}%</p>
                     </div>
                     <ProgressDemo
-                      value={propertyInfo.equity}
+                      value={data.equity || 0}
                       className="progress-green-fill"
                     />
                   </div>
                   <p className="text-gray-bold">
-                    You've earned {propertyInfo.equity} equally in your property
+                    You've earned {data.equity || 0}% equally in your property
                     through on-time
                     <br />
                     rent payments. Keep it up!
