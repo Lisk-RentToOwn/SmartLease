@@ -24,4 +24,7 @@ module.exports = {
       { loader: "@next/font/google", options: { subsets: ["latin"] } },
     ],
   },
+  images: {
+    domains: ["white-fast-tarantula-521.mypinata.cloud"],
+  },
 };

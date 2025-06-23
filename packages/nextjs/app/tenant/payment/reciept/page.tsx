@@ -105,7 +105,7 @@ export default function Reciept({ params }: Props) {
         <Link href="/tenant/payment">Go back</Link>
       </Button>
 
-      <main className=" self-center w-[40%] ">
+      <main className=" self-center w-2/3 lg:w-2/5 ">
         <section className="  flex-ic gap-2 bg-rd-green py-4 px-20 rounded-t-xl">
           <Check className="border rounded-sm p-1 text-white bg-emerald-400" />
           <p className=" text-sm">

@@ -1,5 +1,8 @@
 "use client";
 
+import { usePropertyInfo } from "@/hooks/property/propertyInfo";
+import { useTenantPayments } from "@/hooks/property/useTenant";
+import { useUserSession } from "@/hooks/property/useTenant";
 import {
   ColumnDef,
   flexRender,
@@ -12,6 +15,7 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
+import { useAccount } from "wagmi";
 import { Button } from "~~/components/ui/button";
 import {
   DropdownMenu,
@@ -37,38 +41,6 @@ export type Payment = {
   transaction: string;
 };
 
-// Data to match the table in the image
-const data: Payment[] = [
-  {
-    date: "May 1, 2023",
-    amount: 1850,
-    status: "completed",
-    equityEarned: "+0.25%",
-    transaction: "0x71C9...8F3e",
-  },
-  {
-    date: "Apr 1, 2023",
-    amount: 1850,
-    status: "completed",
-    equityEarned: "+0.25%",
-    transaction: "0x83B2...9D2a",
-  },
-  {
-    date: "Mar 1, 2023",
-    amount: 1850,
-    status: "completed",
-    equityEarned: "+0.25%",
-    transaction: "0x92F5...7C1b",
-  },
-  {
-    date: "Feb 1, 2023",
-    amount: 1850,
-    status: "completed",
-    equityEarned: "+0.25%",
-    transaction: "0x45E8...3F9c",
-  },
-];
-
 // Define the columns to match the table in the image
 export const columns: ColumnDef<Payment>[] = [
   {
@@ -81,11 +53,19 @@ export const columns: ColumnDef<Payment>[] = [
     header: "Amount",
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-      return <div className="text-dark">{formatted}</div>;
+      const formatted = amount.toLocaleString("en-US", {
+        minimumFractionDigits: 6,
+        maximumFractionDigits: 6,
+      });
+
+      const { address } = useAccount();
+      const { propertyId } = useUserSession(address);
+      const { propertyInfo } = usePropertyInfo(propertyId);
+      return (
+        <div className="text-dark">
+          {propertyInfo.currency} {formatted}
+        </div>
+      );
     },
   },
   {
@@ -114,12 +94,35 @@ export const columns: ColumnDef<Payment>[] = [
 ];
 
 export default function DataTableDemo() {
+  const { address } = useAccount();
+  const { propertyId } = useUserSession(address);
+  const {
+    paymentdata: paymentData,
+    loading,
+    error,
+  } = useTenantPayments(address, propertyId ?? undefined);
+
+  const mappedPayments: Payment[] = React.useMemo(() => {
+    return paymentData.map((p) => ({
+      date:
+        p.date?.toLocaleDateString("en-us", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }) ?? "N/A",
+      amount: p.amount,
+      status: "completed",
+      equityEarned: "+0.25%", // static for now
+      transaction: `${p.txHash.slice(0, 6)}....${p.txHash.slice(-4)}`,
+    }));
+  }, [paymentData]);
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
   const table = useReactTable({
-    data,
+    data: mappedPayments,
     columns,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -212,7 +215,7 @@ export default function DataTableDemo() {
                   colSpan={columns.length}
                   className="h-24 text-center text-gray-500"
                 >
-                  No results.
+                  No Payments made yet.
                 </TableCell>
               </TableRow>
             )}
@@ -220,7 +223,8 @@ export default function DataTableDemo() {
         </Table>
       </div>
       <div className="py-3 px-4 text-gray-bold">
-        Showing {table.getRowModel().rows.length} of 12 payments
+        Showing {table.getRowModel().rows.length} of{" "}
+        {table.getPrePaginationRowModel().rows.length} payments
       </div>
     </div>
   );
