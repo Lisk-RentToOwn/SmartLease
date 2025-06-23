@@ -9,4 +9,4 @@ const MessagePage = () => {
     )
 }
 
-export default MessagePage
+export default MessagePage;

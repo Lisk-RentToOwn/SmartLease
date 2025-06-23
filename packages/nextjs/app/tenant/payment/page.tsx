@@ -1,15 +1,20 @@
 "use client";
 
 import {
-  Circle,
-  CreditCard,
-  PieChartIcon,
-  RefreshCw,
-  UserRound
-} from "lucide-react";
+  LiskSepoliaAddress,
+  RenToOwnAddress,
+} from "@/constants/contract-address";
+import { usePropertyInfo } from "@/hooks/property/propertyInfo";
+import { useSmartRentPayment } from "@/hooks/property/use-smartpayment";
+import { calculateNextPayment, getDaysUntilDue, usePropertyEvent, useUserSession } from "@/hooks/property/useTenant";
+import { useTenantPayments } from "@/hooks/property/useTenant";
+import { useTenantEquity } from "@/hooks/property/useTenant";
+import { Circle, CreditCard, Loader, PieChartIcon, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { parseEther } from "viem";
+import { toast } from "sonner";
+import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { CalendarDemo } from "~~/components/tenants/CalenderDemo";
 import DataTableDemo from "~~/components/tenants/DataTableDemo";
@@ -31,48 +36,45 @@ export default function TenantPaymentPage() {
   }, []);
 
   const { address } = useAccount();
+  const { propertyId, active } = useUserSession(address);
+  const { data } = useTenantEquity(address, propertyId ?? undefined);
+  const { propertyInfo } = usePropertyInfo(propertyId ?? undefined);
+  const { info } = usePropertyEvent(propertyId ?? undefined);
+  const { paymentdata } = useTenantPayments(address);
 
-  const propertyInfo = {
+  let nextPayment;
+  if (info) {
+    nextPayment = calculateNextPayment(paymentdata, info);
+  }
+
+  const recieptInfo = {
     propertyId: 1,
     amount: 20,
     date: new Date(2023, 5, 1),
     equity: 0.25,
     address: "123 Main Street, Apt 4B San Francisco CA 94105",
   };
-
-  const amtInWei = parseEther(`${propertyInfo.amount}`);
-
   const [autoPayEnable, setAutoPayEnable] = useState(false);
 
-  // const { writeAsync: payRent, isLoading: isPaying } = usePayRent(
-  //   propertyInfo.propertyId,
-  //   amtInWei
-  // );
+  let rentAmountHumanReadable = "0";
+  if (
+    propertyInfo &&
+    typeof propertyInfo.fullPrice === "number" &&
+    typeof propertyInfo.term === "number" &&
+    propertyInfo.term !== 0
+  ) {
+    // const rawRent = propertyInfo.fullPrice / propertyInfo.duration;
+    // rentAmountHumanReadable = formatUnits(BigInt(Math.floor(rawRent)), 18);
+  }
 
-  const handlePayRent = async () => {
-    // try {
-    //   toast.loading("Processing payment");
-    //   const tx = await payRent();
-
-    //   toast.dismiss();
-    //   toast.success("Payment completed", {
-    //     duration: 500,
-    //     description: "Your rent for June 2023 has been paid",
-    //     action: {
-    //       label: "View on Explorer",
-    //       onClick: () =>
-    //         window.open(
-    //           `https://sepolia-blockscout.lisk.com/address/${tx.hash}`,
-    //           "_blank"
-    //         ),
-    //     },
-    //   });
-    // } catch (error) {
-    //   toast.dismiss();
-    //   console.log("Payment fails:", error);
-    //   toast.error("Payment failed");
-    // }
-  };
+  const { error, executePayment, isApproving, isLoading, isPaying } =
+    useSmartRentPayment({
+      paymentTokenAddress: LiskSepoliaAddress,
+      propertyId: propertyInfo.tokenId,
+      rentContractAddress: RenToOwnAddress,
+      rentFiatAmount: `0`,
+      tokenDecimals: 18,
+    });
 
   return (
     <div className="">
@@ -85,38 +87,58 @@ export default function TenantPaymentPage() {
             </p>
           </section>
 
-          <section className="grid grid-cols-12 gap-20">
+          <section className="grid lg:grid-cols-12 gap-20">
             <div className="grid col-span-8 space-y-5">
               <Card className="space-y-3 border-none">
                 <CardHeader className="border-b !py-3 bg-gradient-web3-blue text-white rounded-tr-xl rounded-tl-lg">
                   <CardTitle className="">Upcoming Rent</CardTitle>
                 </CardHeader>
                 <CardContent className="flex justify-between">
-                  <div className="mt-6">
-                    <p className="font-semibold text-slate-700 text-3xl flex items-center gap-1">
-                      ${propertyInfo.amount}
-                      <span className=" text-[0.9rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 px-4 ml-3">
-                        Due in 5 days
+                  <div>
+                    <p className="font-semibold text-[1.2rem] flex items-center gap-1">
+                      {propertyInfo.currency} {propertyInfo.monthlyPrice}
+                      <span className=" text-[0.6rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 p-1">
+                        {getDaysUntilDue(nextPayment?.dueDate)}
                       </span>
                     </p>
-
-                    <p className="text-gray-bold mt-4">
-                      Due on the June 1st, 2023
+                    <p className="text-gray-bold mt-0.5">
+                      Due on the{" "}
+                      {active ? (
+                        nextPayment?.dueDate.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      ) : (
+                        <span> N/A</span>
+                      )}
                     </p>
                     
                     <div className="flex items-center gap-1">
                       <PieChartIcon className="w-3 text-emerald-400" />
                       <p className="text-gray">
-                        Earns ${propertyInfo.equity}% equity this month
+                        Earns {data.equity || 0}% equity this month
                       </p>
                     </div>
                   </div>
 
-                  <Button onClick={handlePayRent}>
+                  <Button
+                    onClick={executePayment}
+                    disabled={isApproving || isPaying}
+                  >
                     <CreditCard />
-                    <span className="text-xs">
-                      {/* ${isPaying ? "Processing" : "Pay Now"} */}
-                    </span>
+                    {(isApproving || isPaying) && (
+                      <Loader className="h-7 7 animate-spin" />
+                    )}
+                    <p className="">
+                      {isApproving
+                        ? "Approving..."
+                        : isPaying
+                        ? "Processing Payment..."
+                        : !isApproving && isPaying
+                        ? "Approve Tokens"
+                        : "Pay Now"}
+                    </p>
                   </Button>
                 </CardContent>
               </Card>
@@ -151,7 +173,13 @@ export default function TenantPaymentPage() {
 
                 <CardContent className="!pb-1 ">
                   <div className="">
-                    <CalendarDemo />
+                    {address ? (
+                      <CalendarDemo />
+                    ) : (
+                      <p className="text-gray-bold text-center">
+                        Please connect your wallet to view your Calender
+                      </p>
+                    )}
                   </div>
 
                   <div className="border-t pt-3 flex justify-center space-x-3">
@@ -190,16 +218,18 @@ export default function TenantPaymentPage() {
                   <div className="space-y-1">
                     <div className="flex justify-between ">
                       <p className="text-gray">Total Equity Earned</p>
-                      <p className="text-dark">${propertyInfo.equity}</p>
+                      <p className="text-dark">{data.equity || 0}%</p>
                     </div>
                     <ProgressDemo
-                      value={propertyInfo.equity}
+                      value={data.equity || 0}
                       className="progress-green-fill"
                     />
                   </div>
-                  <p className="py-4 text-slate-800">
-                    You've earned {propertyInfo.equity} equally in your property
-                    through on-time rent payments. Keep it up!
+                  <p className="text-gray-bold">
+                    You've earned {data.equity || 0}% equally in your property
+                    through on-time
+                    <br />
+                    rent payments. Keep it up!
                   </p>
                 </CardContent>
               </Card>

@@ -93,9 +93,20 @@ export default function Reciept({ params }: Props) {
   //   }
 
   return (
-    <div className="flex flex-col mt-16">
-      <main className=" self-center w-[40%] ">
-        <section className="  flex-ic gap-2 bg-gradient-web3-blue py-4 px-20 rounded-t-xl">
+    <div className="flex flex-col">
+      <header className="flex-jb-ic px-32 py-5 equity-hd border-b">
+        <div className="flex-ic gap-2">
+          <ReceiptText className="notfi-icon bg-purple-500 !rounded-sm text-white" />
+          Smart Lease
+        </div>
+        <div>Payment Receipt</div>
+      </header>
+      <Button className=" mx-4 my-8 w-[10%]">
+        <Link href="/tenant/payment">Go back</Link>
+      </Button>
+
+      <main className=" self-center w-2/3 lg:w-2/5 ">
+        <section className="  flex-ic gap-2 bg-rd-green py-4 px-20 rounded-t-xl">
           <Check className="border rounded-sm p-1 text-white bg-emerald-400" />
           <p className=" text-sm text-white">
             Thank you for your payment! Your equity has been updated
