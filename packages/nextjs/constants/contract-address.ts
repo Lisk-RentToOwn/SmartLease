@@ -7,9 +7,9 @@
 // export const IdentityProviderContract = "0x46527214308F17de4925Ce0A95d3631d6E15D163"
 
 
-export const RenToOwnAddress = "0x6e1fA5f6808FEcBC2FeB0151b8b9cdD2A647F87f"
-export const PropertyTokenContract = "0xe047b451bEF7A6a15Ed4E00fa17544699521C1bA"
-export const IdentityProviderContract = "0xd7156063A73EA1207f4128441395C8AB5037dbD7"
+export const RenToOwnAddress = "0x9A3726803e9b797B48Cd9aA0BF9A235dDe30f3cF"
+export const PropertyTokenContract = "0x0AD27AC88A712c57a583d87c709c3dAEb2CEDf75"
+export const IdentityProviderContract = "0x5B8ABfdc8ee0Ae3f35e57d67acbb6A686eA25CA6"
 export const LiskSepoliaAddress = "0x8a21CF9Ba08Ae709D64Cb25AfAA951183EC9FF6D"
 
 

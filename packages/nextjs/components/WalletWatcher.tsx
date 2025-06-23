@@ -25,6 +25,7 @@ export function WalletWatcher() {
   const role = typeof window !== 'undefined' ? getUserRole() : undefined;
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const { writeAsync: setRole , isLoading: isLoading } = useSetUserRole();
+  const [tempRole, setTempRole] = useState("")
 
 
   const {
@@ -39,12 +40,14 @@ export function WalletWatcher() {
       const cookieRole = typeof window !== 'undefined' ? getUserRole() : undefined;
       if (cookieRole) {
         // commented out, cause i want the user to remain on any page they are, but the dashboard button takes them where they want to
-        router.push(`/${cookieRole}`);
+        // router.push(`/${cookieRole}`);
+        console.log("No data")
         setHasHandled(true);
         return;
       }
 
       const data = userRole;
+      console.log(userRole, "hello")
       if (getRoleSuccess && userRole !== undefined && userRole !== 0) {
         setUserRole(roleEnumToString(data as RoleEnum));
         // router.push(`/${result.role}`);
@@ -131,37 +134,37 @@ export function WalletWatcher() {
   return (
     <>
       <Dialog open={showRoleModal} onOpenChange={setShowRoleModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
           <DialogHeader>
-            <DialogTitle className='text-xl mb-3'>Please select your role to proceed</DialogTitle>
+            <DialogTitle className='text-2xl text-slate-700 mb-3'>Please select your role to proceed</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="flex gap-4">
-              <div className='w-1/2 border relative flex flex-col items-center gap-y-2 border-gray-300 hover:border-primary cursor-pointer rounded-lg py-5'  onClick={() => handleSelectRole('landlord')}>
+              <div className='w-1/2 border relative flex flex-col bg-gradient-to-r from-purple-500 to-blue-500 text-white mb-6 group-hover:scale-110 shadow-lg transition-transform duration-300 items-center gap-y-2  cursor-pointer rounded-lg py-5'  onClick={() => {setTempRole("landlord");handleSelectRole('landlord')}}>
                   <img width="96" height="96" src="https://img.icons8.com/color/96/equal-housing-opportunity.png" alt="equal-housing-opportunity"/>
 
-                  <p className="font-medium text-blue-600">
+                  <p className="font-medium text-white">
                     Landlord
                   </p>
 
-                  { isLoading &&
-                    <div className='absolute top-0 left-0 w-full h-full bg-black/10'>
-                        <Loader className='h10 w-10'/>
+                  { (isLoading && tempRole === "landlord") &&
+                    <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black/10'>
+                        <Loader className='h-10 w-10 animate-spin'/>
                     </div> 
                   }
               </div>
 
-              <div className='w-1/2 border flex flex-col relative items-center gap-y-2 border-gray-300 hover:border-primary cursor-pointer rounded-lg py-5'  onClick={() => handleSelectRole('tenant')}>
+              <div className='w-1/2 border flex shadow-xl flex-col relative items-center bg-gradient-to-r from-blue-500 to-cyan-500 text-white mb-6 group-hover:scale-110 transition-transform duration-300 gap-y-2 cursor-pointer rounded-lg py-5'  onClick={() => {setTempRole("tenant");handleSelectRole('tenant')}}>
                   <img width="96" height="96" src="/tenant.png" alt="equal-housing-opportunity"/>
 
-                  <p className="font-medium text-blue-600">
+                  <p className="font-medium text-white">
                     Tenant
                   </p>
 
-                  { isLoading &&
-                    <div className='absolute top-0 left-0 w-full h-full bg-black/10'>
-                        <Loader className='h10 w-10'/>
+                  { (isLoading && tempRole === "tenant") &&
+                    <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black/10'>
+                        <Loader className='h-10 w-10 animate-spin'/>
                     </div> 
                   }
               </div>             

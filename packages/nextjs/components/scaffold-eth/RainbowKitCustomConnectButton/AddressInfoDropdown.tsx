@@ -1,36 +1,31 @@
-import { useRef, useState } from "react";
-import { NetworkOptions } from "./NetworkOptions";
-import { getAddress } from "viem";
-import { Address, useDisconnect } from "wagmi";
-import {
-  ArrowLeftOnRectangleIcon,
-  ArrowTopRightOnSquareIcon,
-  ArrowsRightLeftIcon,
-  CheckCircleIcon,
-  ChevronDownIcon,
-  DocumentDuplicateIcon,
-  QrCodeIcon,
-} from "@heroicons/react/24/outline";
-import { Balance, BlockieAvatar, isENS } from "@/components/scaffold-eth";
+import { Balance, isENS } from "@/components/scaffold-eth";
 import { useOutsideClick } from "@/hooks/scaffold-eth";
 import { getTargetNetworks } from "@/utils/scaffold-eth";
-
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+    ArrowLeftOnRectangleIcon,
+    ArrowTopRightOnSquareIcon,
+    CheckCircleIcon,
+    ChevronDownIcon,
+    DocumentDuplicateIcon,
+    QrCodeIcon
+} from "@heroicons/react/24/outline";
+import { useRef, useState } from "react";
+import { getAddress } from "viem";
+import { Address, useDisconnect } from "wagmi";
+
+import { Routes } from "@/app/routes";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { AddressQRCodeModal } from "./AddressQRCodeModal";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { clearUserRole, setUserRole } from "@/lib/cookies";
 import { LucideWallet } from "lucide-react";
-import { setUserRole } from "@/lib/cookies";
+import { useRouter } from "next/navigation";
+import { AddressQRCodeModal } from "./AddressQRCodeModal";
 
 const allowedNetworks = getTargetNetworks();
 
@@ -57,6 +52,7 @@ export const AddressInfoDropdown = ({
 }: AddressInfoDropdownProps) => {
   const { disconnect } = useDisconnect();
   const checkSumAddress = getAddress(address);
+  const router = useRouter()
 
   const [addressCopied, setAddressCopied] = useState(false);
 
@@ -81,8 +77,8 @@ export const AddressInfoDropdown = ({
     <>
 
         <DropdownMenu>
-            <DropdownMenuTrigger>
-                <Button tabIndex={0} className="py-6 rounded-lg bg-gradient-web3-blue">
+            <DropdownMenuTrigger className="w-full ">
+                <Button tabIndex={0} className="py-6 w-full rounded-lg bg-gradient-web3-blue">
                     <LucideWallet size={23} className="text-white"/>
                     <span className="ml-2 mr-1 text-base">
                         {isENS(displayName) ? displayName : checkSumAddress?.slice(0, 6) + "..." + checkSumAddress?.slice(-4)}
@@ -158,7 +154,11 @@ export const AddressInfoDropdown = ({
                         className="menu-item text-error btn-sm !rounded-xl flex gap-3 py-3"
                         type="button"
                         //@ts-ignore
-                        onClick={() => {disconnect(); setUserRole(undefined)}}
+                        onClick={() => {
+                            disconnect(); 
+                            clearUserRole()
+                            router.push(Routes.HOME)
+                        }}
                         >
                         <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
                         </button>

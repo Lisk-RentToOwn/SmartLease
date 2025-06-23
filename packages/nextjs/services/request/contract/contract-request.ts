@@ -65,6 +65,23 @@ export function useWithrawRent() {
   });
 }
 
+export function useDeactivateProperty() {
+  return useContractWrite({
+    ...genericContractRequestRentToOwn,
+    functionName: "deactivateProperty",
+    // args: [],
+  });
+}
+
+export function usePropertyStatus(propertyId: number) {
+  return useContractRead({
+    ...genericContractRequestRentToOwn,
+    functionName: "getPropertyStatus",
+    args: [propertyId],
+  });
+}
+
+
 // getEscrow Balance
 export function useGetEscrowBalance(propertyId: number) {
   return useContractRead({
@@ -158,12 +175,12 @@ export function useSetUserRole(
 }
 
 export function useGetUserRole(user: Address) {
-  // console.log(genericContractRequestIdentityProvider.abi)
+  console.log(user)
   return useContractRead({
     ...genericContractRequestIdentityProvider,
     functionName: "getUserRole",
     args: [user],
-    // watch: true,
+    watch: true,
     enabled: !!user,
   });
 }

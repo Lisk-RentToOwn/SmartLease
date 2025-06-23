@@ -1,21 +1,14 @@
-import { IdentityRegistryABI } from "@/abi/IdentityRegistery";
-import { PropertyTokenABI } from "@/abi/PropertyToken";
-import { RentToOwnABI } from "@/abi/RentToOwn";
-import {
-  IdentityProviderContract,
-  PropertyTokenContract,
-  RenToOwnAddress,
-} from "@/constants/contract-address";
-// import { PropertyEventService } from "./propertyEvents";
-import {
-  ContractName,
-  PropertyEvent,
-  PropertyEventService,
-} from "@/services/events/PropertyEvents";
-import { formatRentData } from "@/utils/formatter";
-import { ethers } from "ethers";
 import { useEffect, useMemo, useState } from "react";
+// import { PropertyEventService } from "./propertyEvents";
+import { ContractName, PropertyEvent, PropertyEventService } from "@/services/events/PropertyEvents";
+import { IdentityProviderContract, PropertyTokenContract, RenToOwnAddress } from "@/constants/contract-address";
+import { RentToOwnABI } from "@/abi/RentToOwn";
+import { PropertyTokenABI } from "@/abi/PropertyToken";
+import { IdentityRegistryABI } from "@/abi/IdentityRegistery";
+import { ethers } from "ethers";
+import { formatRentData } from "@/utils/formatter";
 import { useAccount } from "wagmi";
+import { useGetTenantEquity } from "@/services/request/contract/contract-request";
 
 export const eventService = new PropertyEventService(
   RenToOwnAddress,
@@ -27,12 +20,12 @@ export const eventService = new PropertyEventService(
 );
 
 export type FormattedRentData = {
-  month: string;
-  monthName: string;
-  year: number;
-  collected: number;
-  expected: number;
-};
+    month: string;
+    monthName: string;
+    year: number;
+    collected: number;
+    expected: number;
+  };
 
 /* ------------------------- */
 /* CORE HOOKS               */
@@ -42,62 +35,62 @@ export type FormattedRentData = {
 // Purpose: Generic event fetcher for any contract/event
 // Best for: Custom event queries with pagination
 export function useContractEvents(
-  contractName: ContractName,
-  eventName: string,
-  filters = {},
-  pageSize = 10
+    contractName: ContractName,
+    eventName: string,
+    filters = {},
+    pageSize = 10
 ) {
-  const [page, setPage] = useState(1);
-  const [data, setData] = useState<{ events: PropertyEvent[]; total: number }>({
-    events: [],
-    total: 0,
-  });
-  const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [data, setData] = useState<{ events: PropertyEvent[]; total: number }>({
+        events: [],
+        total: 0,
+    });
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
-      const result = await eventService.getEvents(
-        contractName,
-        eventName,
-        filters,
-        0,
-        "latest",
-        pageSize,
-        page
-      );
-      setData(result);
-      setLoading(false);
-    };
-    fetch();
-  }, [contractName, eventName, JSON.stringify(filters), page, pageSize]);
+    useEffect(() => {
+        const fetch = async () => {
+        setLoading(true);
+        const result = await eventService.getEvents(
+            contractName,
+            eventName,
+            filters,
+            0,
+            "latest",
+            pageSize,
+            page
+        );
+        setData(result);
+        setLoading(false);
+        };
+        fetch();
+    }, [contractName, eventName, JSON.stringify(filters), page, pageSize]);
 
-  return { ...data, loading, page, setPage };
+    return { ...data, loading, page, setPage };
 }
 
 // Purpose: Real-time event listening
 // Best for: Notifications, live updates
 export function useLiveEvents(
-  contractName: ContractName,
-  eventName: string,
-  filters = {}
+    contractName: ContractName,
+    eventName: string,
+    filters = {}
 ) {
-  const [events, setEvents] = useState<PropertyEvent[]>([]);
+    const [events, setEvents] = useState<PropertyEvent[]>([]);
 
-  useEffect(() => {
-    const unsubscribe = eventService.onEvent(
-      contractName,
-      eventName,
-      (event) => {
-        setEvents((prev) => [event, ...prev.slice(0, 49)]);
-      },
-      filters
-    );
+    useEffect(() => {
+        const unsubscribe = eventService.onEvent(
+        contractName,
+        eventName,
+        (event) => {
+            setEvents((prev) => [event, ...prev.slice(0, 49)]);
+        },
+        filters
+        );
 
-    return unsubscribe;
-  }, [contractName, eventName, JSON.stringify(filters)]);
+        return unsubscribe;
+    }, [contractName, eventName, JSON.stringify(filters)]);
 
-  return events;
+    return events;
 }
 
 /* ------------------------- */
@@ -107,127 +100,122 @@ export function useLiveEvents(
 // Purpose: List all properties owned by a landlord
 // Best for: Landlord portfolio view
 export function useLandlordProperties(landlordAddress?: string) {
-  const [properties, setProperties] = useState<PropertyEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!landlordAddress) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchProperties = async () => {
-      setLoading(true);
-      try {
-        // First get ALL properties without filtering
-        const { events: allProperties } = await eventService.getEvents(
-          "RentToOwn",
-          "PropertyCreated",
-          {}, // No filters here
-          0,
-          "latest",
-          1000 // High limit to get all
-        );
-
-        // Then filter client-side
-        const landlordProps = allProperties.filter(
-          (p) => p.args.landlord.toLowerCase() === landlordAddress.toLowerCase()
-        );
-
-        setProperties(landlordProps);
-      } catch (error) {
-        console.error("Failed to fetch properties:", error);
-      } finally {
+    const [properties, setProperties] = useState<PropertyEvent[]>([]);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      if (!landlordAddress) {
         setLoading(false);
+        return;
       }
-    };
-
-    fetchProperties();
-
-    // Real-time listener for new properties
-    const unsubscribe = eventService.onEvent(
-      "RentToOwn",
-      "PropertyCreated",
-      (event) => {
-        if (
-          event.args.landlord.toLowerCase() === landlordAddress.toLowerCase()
-        ) {
-          setProperties((prev) => [event, ...prev]);
+  
+      const fetchProperties = async () => {
+        setLoading(true);
+        try {
+          // First get ALL properties without filtering
+          const { events: allProperties } = await eventService.getEvents(
+            "RentToOwn",
+            "PropertyCreated",
+            {}, // No filters here
+            0,
+            "latest",
+            1000 // High limit to get all
+          );
+  
+          // Then filter client-side
+          const landlordProps = allProperties.filter(
+            p => p.args.landlord.toLowerCase() === landlordAddress.toLowerCase()
+          );
+  
+          setProperties(landlordProps);
+        } catch (error) {
+          console.error("Failed to fetch properties:", error);
+        } finally {
+          setLoading(false);
         }
-      }
-    );
-
-    return unsubscribe;
-  }, [landlordAddress]);
-
-  return { properties, loading };
-}
+      };
+  
+      fetchProperties();
+  
+      // Real-time listener for new properties
+      const unsubscribe = eventService.onEvent(
+        "RentToOwn",
+        "PropertyCreated",
+        (event) => {
+          if (event.args.landlord.toLowerCase() === landlordAddress.toLowerCase()) {
+            setProperties(prev => [event, ...prev]);
+          }
+        }
+      );
+  
+      return unsubscribe;
+    }, [landlordAddress]);
+  
+    return { properties, loading };
+  }
 
 // Purpose: Show tenant assignments per property
 // Best for: Landlord tenant management
 export function useTenantAssignment(landlordAddress: string) {
-  const [assignments, setAssignments] = useState<
-    { propertyId: number; tenants: string[] }[]
-  >([]);
-  const [loading, setLoading] = useState(false);
+    const [assignments, setAssignments] = useState<{propertyId: number, tenants: string[], propertyName: string}[]>([]);
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const data = await eventService.getTenantAssignments(landlordAddress);
-      setAssignments(data);
-      setLoading(false);
-    };
-    load();
-  }, [landlordAddress]);
 
-  return { assignments, loading };
+    useEffect(() => {
+        const load = async () => {
+            setLoading(true);
+            const data = await eventService.getTenantAssignments(landlordAddress);
+            setAssignments(data);
+            setLoading(false);
+        };
+        load();
+    }, [landlordAddress]);
+
+    return { assignments, loading };
 }
 
 // Purpose: Monthly rent collection vs expected
 // Best for: Revenue dashboards
 export function useRentAnalysis(landlordAddress?: string, year?: number) {
-  const [rawData, setRawData] = useState<
-    { month: string; collected: number; expected: number }[]
-  >([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Formatted version of the data
-  const formattedData = useMemo(() => {
-    return formatRentData(rawData);
-  }, [rawData]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!landlordAddress) {
-        setError("Connect your wallet to view data");
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const analysis = await eventService.getRentAnalysis(
-          landlordAddress,
-          year || new Date().getFullYear()
-        );
-        setRawData(analysis);
-      } catch (e) {
-        setError("Failed to load rent data");
-      } finally {
-        setLoading(false);
-      }
+    const [rawData, setRawData] = useState<{month: string, collected: number, expected: number}[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+  
+    // Formatted version of the data
+    const formattedData = useMemo(() => {
+      return formatRentData(rawData);
+    }, [rawData]);
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        if (!landlordAddress) {
+          setError("Connect your wallet to view data");
+          return;
+        }
+  
+        setLoading(true);
+        try {
+          const analysis = await eventService.getRentAnalysis(
+            landlordAddress, 
+            year || new Date().getFullYear()
+          );
+          setRawData(analysis);
+        } catch (e) {
+          setError("Failed to load rent data");
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchData();
+    }, [landlordAddress, year]);
+  
+    return { 
+      data: formattedData, 
+      rawData, // Keep original if needed
+      loading, 
+      error 
     };
-
-    fetchData();
-  }, [landlordAddress, year]);
-
-  return {
-    data: formattedData,
-    rawData, // Keep original if needed
-    loading,
-    error,
-  };
 }
 
 /* ------------------------- */
@@ -237,45 +225,121 @@ export function useRentAnalysis(landlordAddress?: string, year?: number) {
 // Purpose: List token holders for a property
 // Best for: Ownership breakdown
 export function useTokenHolders(tokenId?: number) {
-  const [holders, setHolders] = useState<{ address: string; amount: number }[]>(
-    []
-  );
+    const [holders, setHolders] = useState<{address: string, amount: number}[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (!tokenId) return;
+        const load = async () => {
+            setLoading(true);
+            const data = await eventService.getTokenHolders(tokenId);
+            setHolders(data);
+            setLoading(false);
+        };
+        load();
+    }, [tokenId]);
+
+    return { holders, loading };
+}
+
+export type TenantRow = {
+  tenant: string;
+  tokenId: number;
+  tokenUri: string;
+  equity: number;
+  token: number;
+  property: {
+    name: string;
+    price: string;
+    imgUrl: string;
+    currency: string;
+  };
+};
+
+export const rentToOwnContract = new ethers.Contract(
+    RenToOwnAddress,
+    RentToOwnABI,
+    new ethers.JsonRpcProvider('https://rpc.sepolia-api.lisk.com') // or use `getPublicClient().provider`
+);
+
+export function useTenantEquityTable() {
+  const { address } = useAccount();
+  const [rows, setRows] = useState<TenantRow[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!tokenId) return;
+    if (!address) return;
+
     const load = async () => {
       setLoading(true);
-      const data = await eventService.getTokenHolders(tokenId);
-      setHolders(data);
-      setLoading(false);
-    };
-    load();
-  }, [tokenId]);
+      try {
+        const properties = await eventService.getLandlordProperties(address); // or your wrapped call
+        const allRows: TenantRow[] = [];
 
-  return { holders, loading };
+        for (const prop of properties) {
+          const tokenId = prop.args.tokenId;
+          
+          // const tokenUri = await tokenContract.uri(tokenId);
+          const name = prop.args.name || "Unnamed Property";
+          const price = ethers.formatUnits(prop.args.value, 18);
+          const imgUrl = prop.args.image || "/placeholder.jpg";
+          const tokenUri = ""
+          const propertyId = prop.args.propertyId;
+
+          const holders = await eventService.getTokenHolders(Number(tokenId));
+          // console.log(tokenId, "holder")
+          for (const holder of holders) {
+            const equityBN = rentToOwnContract.getTenantEquity(propertyId, holder.address) 
+            const equity = Number(equityBN);
+
+            allRows.push({
+              tenant: holder.address,
+              token: holder.amount,
+              equity,
+              tokenId,
+              tokenUri,
+              property: {
+                name,
+                price,
+                imgUrl,
+                currency: "$", // modify as needed
+              },
+            });
+          }
+        }
+
+        setRows(allRows);
+      } catch (e) {
+        console.error("Failed to load equity table:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [address]);
+
+  return { data: rows, loading };
 }
 
 // Purpose: Percentage ownership visualization
 // Best for: Pie charts
 export function useTokenDistribution(tokenId?: number) {
-  const [distribution, setDistribution] = useState<
-    { holder: string; percentage: number }[]
-  >([]);
-  const [loading, setLoading] = useState(false);
+    const [distribution, setDistribution] = useState<{holder: string, percentage: number}[]>([]);
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!tokenId) return;
-    const load = async () => {
-      setLoading(true);
-      const data = await eventService.getTokenDistribution(tokenId);
-      setDistribution(data);
-      setLoading(false);
-    };
-    load();
-  }, [tokenId]);
+    useEffect(() => {
+        if (!tokenId) return;
+        const load = async () => {
+            setLoading(true);
+            const data = await eventService.getTokenDistribution(tokenId);
+            setDistribution(data);
+            setLoading(false);
+        };
+        load();
+    }, [tokenId]);
 
-  return { distribution, loading };
+    return { distribution, loading };
 }
 
 /* ------------------------- */
@@ -285,21 +349,21 @@ export function useTokenDistribution(tokenId?: number) {
 // Purpose: Check user permissions
 // Best for: Role-based UI
 export function useUserRoles(userAddress?: string) {
-  const [roles, setRoles] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+    const [roles, setRoles] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!userAddress) return;
-    const load = async () => {
-      setLoading(true);
-      const data = await eventService.getUserRoles(userAddress);
-      setRoles(data);
-      setLoading(false);
-    };
-    load();
-  }, [userAddress]);
+    useEffect(() => {
+        if (!userAddress) return;
+        const load = async () => {
+            setLoading(true);
+            const data = await eventService.getUserRoles(userAddress);
+            setRoles(data);
+            setLoading(false);
+        };
+        load();
+    }, [userAddress]);
 
-  return { roles, loading };
+    return { roles, loading };
 }
 
 /* ------------------------- */
@@ -309,54 +373,48 @@ export function useUserRoles(userAddress?: string) {
 // Purpose: All stats for a single property
 // Best for: Property detail pages
 export function usePropertyTimeline(propertyId?: number) {
-  // const [timeline, setTimeline] = useState<PropertyEvent[]>([]);
-  const [timeline, setTimeline] = useState<Record<string, PropertyEvent[]>>({});
-  const [loading, setLoading] = useState(false);
+    // const [timeline, setTimeline] = useState<PropertyEvent[]>([]);
+    const [timeline, setTimeline] = useState<Record<string, PropertyEvent[]>>({});
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (!propertyId) return;
-    const load = async () => {
-      setLoading(true);
-      const data = await eventService.getPropertyTimeline(propertyId);
-      setTimeline(data);
-      setLoading(false);
-    };
-    load();
-  }, [propertyId]);
+    useEffect(() => {
+        if (!propertyId) return;
+        const load = async () => {
+            setLoading(true);
+            const data = await eventService.getPropertyTimeline(propertyId);
+            setTimeline(data);
+            setLoading(false);
+        };
+        load();
+    }, [propertyId]);
 
-  return { timeline, loading };
+    return { timeline, loading };
 }
 
 // Purpose: Monthly equity growth tracking
 // Best for: Tenant equity progress
-export function useEquityDistribution(
-  propertyId?: number,
-  year: number = new Date().getFullYear()
-) {
-  const [data, setData] = useState<{ month: string; equity: number }[]>([]);
+export function useEquityDistribution(propertyId?: number, year: number = new Date().getFullYear()) {
+  const [data, setData] = useState<{ month: string, equity: number }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!propertyId) return;
+      if (!propertyId) return;
 
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const distribution = await eventService.getEquityDistribution(
-          propertyId,
-          year
-        );
-        setData(distribution);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const load = async () => {
+          try {
+              setLoading(true);
+              setError(null);
+              const distribution = await eventService.getEquityDistribution(propertyId, year);
+              setData(distribution);
+          } catch (err) {
+              setError(err as Error);
+          } finally {
+              setLoading(false);
+          }
+      };
 
-    load();
+      load();
   }, [propertyId, year]);
 
   return { data, loading, error };
@@ -369,37 +427,37 @@ export function useEquityDistribution(
 // Tables with server-side style pagination
 // Memory-efficient data loading
 export function usePaginatedEvents(
-  contractName: ContractName,
-  eventName: string,
-  filters = {},
-  pageSize = 10
+    contractName: ContractName,
+    eventName: string,
+    filters = {},
+    pageSize = 10
 ) {
-  const [page, setPage] = useState(1);
-  const [data, setData] = useState<{ events: PropertyEvent[]; total: number }>({
-    events: [],
-    total: 0,
-  });
-  const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [data, setData] = useState<{ events: PropertyEvent[]; total: number }>({
+        events: [],
+        total: 0,
+    });
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
-      const result = await eventService.getEvents(
-        contractName,
-        eventName,
-        filters,
-        0,
-        "latest",
-        pageSize,
-        page
-      );
-      setData(result);
-      setLoading(false);
-    };
-    fetch();
-  }, [contractName, eventName, JSON.stringify(filters), page, pageSize]);
+    useEffect(() => {
+        const fetch = async () => {
+            setLoading(true);
+            const result = await eventService.getEvents(
+                contractName,
+                eventName,
+                filters,
+                0,
+                "latest",
+                pageSize,
+                page
+            );
+            setData(result);
+            setLoading(false);
+        };
+        fetch();
+    }, [contractName, eventName, JSON.stringify(filters), page, pageSize]);
 
-  return { ...data, loading, page, setPage };
+    return { ...data, loading, page, setPage };
 }
 // Purpose: All stats for a single property
 // Best for: Property detail pages
@@ -412,23 +470,22 @@ export function usePropertyStats(propertyId?: number) {
   const allEvents = Object.values(timeline).flat();
 
   // Get property creation details
-  const createdEvent = allEvents.find(
-    (e) => e.type === "PropertyCreated" && e.contract === "RentToOwn"
+  const createdEvent = allEvents.find(e => 
+    e.type === "PropertyCreated" && e.contract === "RentToOwn"
   );
 
   // Filter relevant events
-  const rentPayments = allEvents.filter(
-    (e) => e.type === "RentPaid" && e.contract === "RentToOwn"
+  const rentPayments = allEvents.filter(e => 
+    e.type === "RentPaid" && e.contract === "RentToOwn"
   );
-  const equityUpdates = allEvents.filter(
-    (e) => e.type === "EquityUpdated" && e.contract === "RentToOwn"
+  const equityUpdates = allEvents.filter(e => 
+    e.type === "EquityUpdated" && e.contract === "RentToOwn"
   );
-  const tokenTransfers = allEvents.filter(
-    (e) =>
-      e.type === "PropertyTokenTransferred" && e.contract === "PropertyToken"
+  const tokenTransfers = allEvents.filter(e => 
+    e.type === "PropertyTokenTransferred" && e.contract === "PropertyToken"
   );
-  const occupancyHistory = allEvents.filter(
-    (e) => e.type === "PropertyOccupied" && e.contract === "RentToOwn"
+  const occupancyHistory = allEvents.filter(e =>
+    e.type === "PropertyOccupied" && e.contract === "RentToOwn"
   );
 
   // Calculate statistics
@@ -448,12 +505,12 @@ export function usePropertyStats(propertyId?: number) {
     paymentHistory: rentPayments,
     equityHistory: equityUpdates,
     equityDistribution: equityData,
-    tokenDistribution: holders.map((h) => ({
+    tokenDistribution: holders.map(h => ({
       holder: h.address,
-      percentage: totalTokens > 0 ? (h.amount / totalTokens) * 100 : 0,
+      percentage: totalTokens > 0 ? (h.amount / totalTokens) * 100 : 0
     })),
     occupancyHistory,
-    tokenTransfers,
+    tokenTransfers
   };
 }
 /* ------------------------- */
@@ -462,154 +519,127 @@ export function usePropertyStats(propertyId?: number) {
 // Purpose: All landlord-facing data
 // Best for: Main landlord view
 export function useLandlordDashboard(landlordAddress?: string) {
-  const { properties, loading: propertiesLoading } =
-    useLandlordProperties(landlordAddress);
-  const [stats, setStats] = useState({
-    totalRentCollected: 0,
-    totalTenants: 0,
-    loading: true,
-  });
-
-  useEffect(() => {
-    if (!landlordAddress || propertiesLoading || properties.length === 0) {
-      setStats((prev) => ({ ...prev, loading: propertiesLoading }));
-      return;
-    }
-
-    const calculateStats = async () => {
-      try {
-        // Get ALL events first (like verifyLandlordProperties)
-        const [{ events: allOccupancies }, { events: allPayments }] =
-          await Promise.all([
-            eventService.getEvents(
-              "RentToOwn",
-              "PropertyOccupied",
-              {},
-              0,
-              "latest",
-              1000
-            ),
-            eventService.getEvents(
-              "RentToOwn",
-              "RentPaid",
-              {},
-              0,
-              "latest",
-              1000
-            ),
+    const { properties, loading: propertiesLoading } = useLandlordProperties(landlordAddress);
+    const [stats, setStats] = useState({
+      totalRentCollected: 0,
+      totalTenants: 0,
+      loading: true
+    });
+  
+    useEffect(() => {
+      if (!landlordAddress || propertiesLoading || properties.length === 0) {
+        setStats(prev => ({ ...prev, loading: propertiesLoading }));
+        return;
+      }
+  
+      const calculateStats = async () => {
+        try {
+          // Get ALL events first (like verifyLandlordProperties)
+          const [{ events: allOccupancies }, { events: allPayments }] = await Promise.all([
+            eventService.getEvents("RentToOwn", "PropertyOccupied", {}, 0, "latest", 1000),
+            eventService.getEvents("RentToOwn", "RentPaid", {}, 0, "latest", 1000)
           ]);
-
-        const propertyIds = properties.map((p) => p.args.propertyId);
-        const currentMonth = new Date().toISOString().slice(0, 7);
-
-        // Calculate tenants
-        const tenants = new Set(
-          allOccupancies
-            .filter((o) => propertyIds.includes(o.args.propertyId))
-            .map((o) => o.args.tenant)
-        );
-
-        // Calculate current month rent
-        const monthlyRent = allPayments
-          .filter(
-            (p) =>
+  
+          const propertyIds = properties.map(p => p.args.propertyId);
+          const currentMonth = new Date().toISOString().slice(0, 7);
+  
+          // Calculate tenants
+          const tenants = new Set(
+            allOccupancies
+              .filter(o => propertyIds.includes(o.args.propertyId))
+              .map(o => o.args.tenant)
+          );
+  
+          // Calculate current month rent
+          const monthlyRent = allPayments
+            .filter(p => 
               propertyIds.includes(p.args.propertyId) &&
               //@ts-ignore
-              new Date(p.timestamp * 1000).toISOString().slice(0, 7) ===
-                currentMonth
-          )
-          .reduce(
-            (sum, p) => sum + Number(ethers.formatUnits(p.args.amount, 18)),
-            0
-          );
-
-        setStats({
-          totalRentCollected: monthlyRent,
-          totalTenants: tenants.size,
-          loading: false,
-        });
-      } catch (error) {
-        console.error("Failed to calculate stats:", error);
-        setStats((prev) => ({ ...prev, loading: false }));
-      }
+              new Date(p.timestamp * 1000).toISOString().slice(0, 7) === currentMonth
+            )
+            .reduce((sum, p) => sum + Number(ethers.formatUnits(p.args.amount, 18)), 0);
+  
+          setStats({
+            totalRentCollected: monthlyRent,
+            totalTenants: tenants.size,
+            loading: false
+          });
+  
+        } catch (error) {
+          console.error("Failed to calculate stats:", error);
+          setStats(prev => ({ ...prev, loading: false }));
+        }
+      };
+  
+      calculateStats();
+  
+      // Real-time listeners
+      const unsubscribes = [
+        eventService.onEvent("RentToOwn", "RentPaid", (event) => {
+            //@ts-ignore
+          const eventMonth = new Date(event.timestamp * 1000).toISOString().slice(0, 7);
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          if (eventMonth === currentMonth && properties.some(p => p.args.propertyId === event.args.propertyId)) {
+            setStats(prev => ({
+              ...prev,
+              totalRentCollected: prev.totalRentCollected + Number(ethers.formatUnits(event.args.amount, 18))
+            }));
+          }
+        }),
+        eventService.onEvent("RentToOwn", "PropertyOccupied", (event) => {
+          if (properties.some(p => p.args.propertyId === event.args.propertyId)) {
+            setStats(prev => ({
+              ...prev,
+              totalTenants: prev.totalTenants + 1
+            }));
+          }
+        })
+      ];
+  
+      return () => unsubscribes.forEach(unsub => unsub());
+    }, [landlordAddress, properties, propertiesLoading]);
+  
+    return {
+      totalProperties: properties.length,
+      recentProperties: properties.slice(0, 3),
+      ...stats,
+      loading: propertiesLoading || stats.loading
     };
-
-    calculateStats();
-
-    // Real-time listeners
-    const unsubscribes = [
-      eventService.onEvent("RentToOwn", "RentPaid", (event) => {
-        //@ts-ignore
-        const eventMonth = new Date(event.timestamp * 1000)
-          .toISOString()
-          .slice(0, 7);
-        const currentMonth = new Date().toISOString().slice(0, 7);
-        if (
-          eventMonth === currentMonth &&
-          properties.some((p) => p.args.propertyId === event.args.propertyId)
-        ) {
-          setStats((prev) => ({
-            ...prev,
-            totalRentCollected:
-              prev.totalRentCollected +
-              Number(ethers.formatUnits(event.args.amount, 18)),
-          }));
-        }
-      }),
-      eventService.onEvent("RentToOwn", "PropertyOccupied", (event) => {
-        if (
-          properties.some((p) => p.args.propertyId === event.args.propertyId)
-        ) {
-          setStats((prev) => ({
-            ...prev,
-            totalTenants: prev.totalTenants + 1,
-          }));
-        }
-      }),
-    ];
-
-    return () => unsubscribes.forEach((unsub) => unsub());
-  }, [landlordAddress, properties, propertiesLoading]);
-
-  return {
-    totalProperties: properties.length,
-    recentProperties: properties.slice(0, 3),
-    ...stats,
-    loading: propertiesLoading || stats.loading,
-  };
-}
+  }
 // Purpose: All tenant-facing data
 // Best for: Tenant portal
 export function useTenantDashboard(tenantAddress: string) {
-  const { events: rentedProperties } = useContractEvents(
-    "RentToOwn",
-    "PropertyOccupied",
-    { tenant: tenantAddress }
-  );
+    const { events: rentedProperties } = useContractEvents(
+        "RentToOwn",
+        "PropertyOccupied",
+        { tenant: tenantAddress }
+    );
+    
+    const { events: rentPayments } = useContractEvents(
+        "RentToOwn",
+        "RentPaid",
+        { tenant: tenantAddress }
+    );
+    
+    const { events: equityUpdates } = useContractEvents(
+        "RentToOwn",
+        "EquityUpdated",
+        { tenant: tenantAddress }
+    );
+    
+    const { roles } = useUserRoles(tenantAddress);
 
-  const { events: rentPayments } = useContractEvents("RentToOwn", "RentPaid", {
-    tenant: tenantAddress,
-  });
-
-  const { events: equityUpdates } = useContractEvents(
-    "RentToOwn",
-    "EquityUpdated",
-    { tenant: tenantAddress }
-  );
-
-  const { roles } = useUserRoles(tenantAddress);
-
-  return {
-    roles,
-    rentedProperties: rentedProperties.map((e) => e.args.propertyId),
-    rentPayments,
-    equityUpdates,
-    totalRentPaid: rentPayments.reduce(
-      (sum, e) => sum + Number(ethers.formatUnits(e.args.amount, 18)),
-      0
-    ),
-    currentEquity: equityUpdates.at(-1)?.args.newEquity || 0,
-  };
+    return {
+        roles,
+        rentedProperties: rentedProperties.map(e => e.args.propertyId),
+        rentPayments,
+        equityUpdates,
+        totalRentPaid: rentPayments.reduce(
+            (sum, e) => sum + Number(ethers.formatUnits(e.args.amount, 18)),
+            0
+        ),
+        currentEquity: equityUpdates.at(-1)?.args.newEquity || 0
+    };
 }
 
 // Browse public properties
@@ -623,40 +653,29 @@ export function useAvailableProperties({
   const [page, setPage] = useState(1);
   const [allProperties, setAllProperties] = useState<PropertyEvent[]>([]);
   const [occupiedIds, setOccupiedIds] = useState<Set<number>>(new Set());
+  const [deactivatedIds, setDeactivatedIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
 
-  // Fetch initial data
+  // Fetch initial events (Created, Occupied, Deactivated)
   useEffect(() => {
     const fetchInitialData = async () => {
       setLoading(true);
-
       try {
-        const [{ events: properties }, { events: occupied }] =
-          await Promise.all([
-            eventService.getEvents(
-              "RentToOwn",
-              "PropertyCreated",
-              {},
-              0,
-              "latest",
-              5000
-            ),
-            eventService.getEvents(
-              "RentToOwn",
-              "PropertyOccupied",
-              {},
-              0,
-              "latest",
-              5000
-            ),
-          ]);
+        const [
+          { events: properties },
+          { events: occupied },
+          { events: deactivated },
+        ] = await Promise.all([
+          eventService.getEvents("RentToOwn", "PropertyCreated", {}, 0, "latest", 5000),
+          eventService.getEvents("RentToOwn", "PropertyOccupied", {}, 0, "latest", 5000),
+          eventService.getEvents("RentToOwn", "PropertyDeactivated", {}, 0, "latest", 5000),
+        ]);
 
         setAllProperties(properties);
-        setOccupiedIds(new Set(occupied.map((e) => e.args.propertyId)));
-        setTotal(properties.length);
+        setOccupiedIds(new Set(occupied.map(e => e.args.propertyId)));
+        setDeactivatedIds(new Set(deactivated.map(e => e.args.propertyId)));
       } catch (error) {
-        console.error("Initial load failed:", error);
+        console.error("Failed to fetch property events:", error);
       } finally {
         setLoading(false);
       }
@@ -665,7 +684,7 @@ export function useAvailableProperties({
     fetchInitialData();
   }, []);
 
-  // Set up live listeners
+  // Setup live event listeners
   useEffect(() => {
     if (!liveUpdates) return;
 
@@ -674,7 +693,6 @@ export function useAvailableProperties({
       "PropertyCreated",
       (event) => {
         setAllProperties((prev) => [...prev, event]);
-        setTotal((prev) => prev + 1);
       }
     );
 
@@ -686,20 +704,31 @@ export function useAvailableProperties({
       }
     );
 
+    const unsubscribeDeactivated = eventService.onEvent(
+      "RentToOwn",
+      "PropertyDeactivated",
+      (event) => {
+        setDeactivatedIds((prev) => new Set(prev.add(event.args.propertyId)));
+      }
+    );
+
     return () => {
       unsubscribeCreated();
       unsubscribeOccupied();
+      unsubscribeDeactivated();
     };
   }, [liveUpdates]);
 
-  // Calculate available properties
+  // Filter only available properties
   const availableProperties = useMemo(() => {
     return allProperties.filter(
-      (property) => !occupiedIds.has(property.args.propertyId)
+      (property) =>
+        !occupiedIds.has(property.args.propertyId) &&
+        !deactivatedIds.has(property.args.propertyId)
     );
-  }, [allProperties, occupiedIds]);
+  }, [allProperties, occupiedIds, deactivatedIds]);
 
-  // Paginate results
+  // Pagination
   const paginatedResults = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return availableProperties.slice(start, start + itemsPerPage);
@@ -715,84 +744,81 @@ export function useAvailableProperties({
     refresh: () => setPage(1), // Reset to first page
   };
 }
-
 export async function verifyLandlordProperties(landlordAddress: string) {
-  try {
-    // 1. Get all PropertyCreated events
-    const { events: allProperties } = await eventService.getEvents(
-      "RentToOwn",
-      "PropertyCreated",
-      {}, // No filters initially
-      0,
-      "latest",
-      1000
-    );
+    try {
+      // 1. Get all PropertyCreated events
+      const { events: allProperties } = await eventService.getEvents(
+        "RentToOwn",
+        "PropertyCreated",
+        {}, // No filters initially
+        0,
+        "latest",
+        1000
+      );
+  
+      console.log("Total properties on chain:", allProperties.length);
+      
+      // 2. Filter for this landlord
+      const landlordProps = allProperties.filter(
+        p => p.args.landlord.toLowerCase() === landlordAddress.toLowerCase()
+      );
+  
+      console.log("Properties for landlord:", landlordProps.length);
+      console.log("Property IDs:", landlordProps.map(p => p.args.propertyId));
+  
+      // 3. Check PropertyOccupied events
+      const { events: allOccupancies } = await eventService.getEvents(
+        "RentToOwn",
+        "PropertyOccupied",
+        {},
+        0,
+        "latest",
+        1000
+      );
+  
+      const relevantOccupancies = allOccupancies.filter(o =>
+        landlordProps.some(p => p.args.propertyId === o.args.propertyId)
+      );
+  
+      console.log("Relevant occupancies:", relevantOccupancies.length);
+  
+      return {
+        totalProperties: landlordProps.length,
+        propertyIds: landlordProps.map(p => p.args.propertyId),
+        tenants: [...new Set(relevantOccupancies.map(o => o.args.tenant))]
+      };
+    } catch (error) {
+      console.error("Verification failed:", error);
+      return null;
+    }
+}
+  
 
-    console.log("Total properties on chain:", allProperties.length);
-
-    // 2. Filter for this landlord
-    const landlordProps = allProperties.filter(
-      (p) => p.args.landlord.toLowerCase() === landlordAddress.toLowerCase()
-    );
-
-    console.log("Properties for landlord:", landlordProps.length);
-    console.log(
-      "Property IDs:",
-      landlordProps.map((p) => p.args.propertyId)
-    );
-
-    // 3. Check PropertyOccupied events
-    const { events: allOccupancies } = await eventService.getEvents(
-      "RentToOwn",
-      "PropertyOccupied",
-      {},
-      0,
-      "latest",
-      1000
-    );
-
-    const relevantOccupancies = allOccupancies.filter((o) =>
-      landlordProps.some((p) => p.args.propertyId === o.args.propertyId)
-    );
-
-    console.log("Relevant occupancies:", relevantOccupancies.length);
-
-    return {
-      totalProperties: landlordProps.length,
-      propertyIds: landlordProps.map((p) => p.args.propertyId),
-      tenants: [...new Set(relevantOccupancies.map((o) => o.args.tenant))],
-    };
-  } catch (error) {
-    console.error("Verification failed:", error);
-    return null;
+  export function useRentPayments(
+    filters: {
+      landlord?: string;
+      propertyId?: number;
+      tenant?: string;
+    } = {}
+  ) {
+    const [payments, setPayments] = useState<PropertyEvent[]>([]);
+    const [loading, setLoading] = useState(false);
+  
+    useEffect(() => {
+      const fetchPayments = async () => {
+        setLoading(true);
+        try {
+          const payments = await eventService.getRentPaymentHistory(filters);
+          setPayments(payments);
+        } catch (error) {
+          console.error("Failed to fetch payments:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchPayments();
+    }, [JSON.stringify(filters)]); // Re-run when filters change
+  
+    return { payments, loading };
   }
-}
-
-export function useRentPayments(
-  filters: {
-    landlord?: string;
-    propertyId?: number;
-    tenant?: string;
-  } = {}
-) {
-  const [payments, setPayments] = useState<PropertyEvent[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchPayments = async () => {
-      setLoading(true);
-      try {
-        const payments = await eventService.getRentPaymentHistory(filters);
-        setPayments(payments);
-      } catch (error) {
-        console.error("Failed to fetch payments:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPayments();
-  }, [JSON.stringify(filters)]); // Re-run when filters change
-
-  return { payments, loading };
-}

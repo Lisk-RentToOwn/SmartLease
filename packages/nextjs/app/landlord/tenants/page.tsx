@@ -14,10 +14,12 @@ import {
 const LandlordTenantPage = () => {
     return (
         <>
-            <main className="bg-gray-100 min-h-[90vh]">
+            <main className="min-h-[90vh]">
                 <div className="mt-16 app-container">
                     <div className="">
-                        <p className="font-semibold text-2xl text-slate-700">All Tenants</p>
+                        <div className="flex items-center justify-between">
+                            <h1 className="text-4xl pb-8 font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Tenants</h1>
+                        </div>
 
                         <div className="flex items-center space-x-2 mt-2">
                             <p className="text-black ">Manage your tenant details</p>
@@ -25,7 +27,7 @@ const LandlordTenantPage = () => {
                     </div>
 
                     <div className="mt-8">
-                        <div className="flex space-x-3">
+                        {/* <div className="flex space-x-3">
                             <div className="">
                                 <p className="mb-1 font-medium text-gray-600">Properties</p>
 
@@ -60,7 +62,7 @@ const LandlordTenantPage = () => {
                                     </SelectContent>
                                 </Select>
                             </div>
-                        </div>
+                        </div> */}
 
                         <TenantTable/>
                     </div>
