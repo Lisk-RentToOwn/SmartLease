@@ -35,11 +35,19 @@ export function usePaymentCalendar(
   const [calendar, setCalendar] = useState<CalendarMonth[]>([]);
 
   useEffect(() => {
-    if (!tenantAddress || !propertyId) return;
+    if (!tenantAddress || !propertyId) {
+      console.log("⚠️ Missing tenant address or propertyId");
+      return;
+    }
 
     const loadCalendar = async () => {
       try {
-        // 1. Get property with timestamp validation
+        console.log("📆 Generating calendar for:", {
+          tenantAddress,
+          propertyId,
+        });
+
+        // 1. Get property event (e.g., for duration & start date)
         const { events } = await eventService.getEvents(
           "RentToOwn",
           "PropertyCreated",
@@ -48,21 +56,27 @@ export function usePaymentCalendar(
           "latest",
           1
         );
+
         const property = events[0];
         if (!property || !property.timestamp) {
-          console.error("Property missing timestamp");
+          console.error("❌ PropertyCreated event missing or no timestamp.");
           return;
         }
-        const propertyDate = new Date(property.timestamp * 1000);
 
-        // 2. Get payments with safe access
+        const propertyDate = new Date(property.timestamp * 1000);
+        console.log("🏠 Property created on:", propertyDate);
+
+        // 2. Get tenant's payments
         const payments = await eventService.getTenantPaymentHistory(
           tenantAddress,
           propertyId
         );
+        console.log("💰 Payments fetched:", payments.length);
 
-        // 3. Generate calendar with safe date handling
+        // 3. Build calendar
         const duration = property.args.duration;
+        console.log("📅 Duration in months:", duration);
+
         const calendarData = Array.from({ length: duration }, (_, i) => {
           const monthDate = new Date(propertyDate);
           monthDate.setMonth(propertyDate.getMonth() + i);
@@ -78,23 +92,38 @@ export function usePaymentCalendar(
             );
           });
 
+          const status = payment
+            ? "paid"
+            : monthDate < new Date()
+            ? "due"
+            : "future";
+
+          console.log(`📆 Month ${i + 1}:`, {
+            month: monthDate.toLocaleDateString("default", {
+              month: "long",
+              year: "numeric",
+            }),
+            dueDate: monthDate,
+            paymentDate: payment?.timestamp
+              ? new Date(payment.timestamp * 1000)
+              : null,
+            status,
+          });
+
           return {
             month: monthDate.toLocaleString("default", { month: "long" }),
             dueDate: payment?.timestamp
               ? new Date(payment.timestamp * 1000)
               : new Date(monthDate),
-            status: payment
-              ? "paid"
-              : monthDate < new Date()
-              ? "due"
-              : "future",
+            status,
             txHash: payment?.txHash,
           };
         });
 
         setCalendar(calendarData);
+        console.log("✅ Calendar data set:", calendarData);
       } catch (error) {
-        console.error("Failed to generate calendar:", error);
+        console.error("❌ Failed to generate calendar:", error);
       }
     };
 
