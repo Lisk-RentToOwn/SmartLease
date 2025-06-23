@@ -1,6 +1,8 @@
 "use client";
 
+import { usePropertyInfo } from "@/hooks/property/propertyInfo";
 import { useTenantPayments } from "@/hooks/property/useTenant";
+import { useUserSession } from "@/hooks/property/useTenant";
 import {
   ColumnDef,
   flexRender,
@@ -39,8 +41,6 @@ export type Payment = {
   transaction: string;
 };
 
-// Data to match the table in the image
-
 // Define the columns to match the table in the image
 export const columns: ColumnDef<Payment>[] = [
   {
@@ -53,11 +53,19 @@ export const columns: ColumnDef<Payment>[] = [
     header: "Amount",
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-      return <div className="text-dark">{formatted}</div>;
+      const formatted = amount.toLocaleString("en-US", {
+        minimumFractionDigits: 6,
+        maximumFractionDigits: 6,
+      });
+
+      const { address } = useAccount();
+      const { propertyId } = useUserSession(address);
+      const { propertyInfo } = usePropertyInfo(propertyId);
+      return (
+        <div className="text-dark">
+          {propertyInfo.currency} {formatted}
+        </div>
+      );
     },
   },
   {
@@ -87,24 +95,27 @@ export const columns: ColumnDef<Payment>[] = [
 
 export default function DataTableDemo() {
   const { address } = useAccount();
+  const { propertyId } = useUserSession(address);
   const {
     paymentdata: paymentData,
     loading,
     error,
-  } = useTenantPayments(address);
+  } = useTenantPayments(address, propertyId ?? undefined);
 
-  const mappedPayments: Payment[] = paymentData.map((p) => ({
-    date:
-      p.date?.toLocaleDateString("en-us", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }) ?? "N/A",
-    amount: p.amount,
-    status: "completed",
-    equityEarned: "+0.25%", // static for  now
-    transaction: `${p.txHash.slice(0, 6)}....${p.txHash.slice(-4)}`,
-  }));
+  const mappedPayments: Payment[] = React.useMemo(() => {
+    return paymentData.map((p) => ({
+      date:
+        p.date?.toLocaleDateString("en-us", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }) ?? "N/A",
+      amount: p.amount,
+      status: "completed",
+      equityEarned: "+0.25%", // static for now
+      transaction: `${p.txHash.slice(0, 6)}....${p.txHash.slice(-4)}`,
+    }));
+  }, [paymentData]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =

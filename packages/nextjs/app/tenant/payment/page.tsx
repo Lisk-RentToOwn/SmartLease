@@ -1,16 +1,20 @@
 "use client";
 
+import {
+  LiskSepoliaAddress,
+  RenToOwnAddress,
+} from "@/constants/contract-address";
 import { usePropertyInfo } from "@/hooks/property/propertyInfo";
+import { useSmartRentPayment } from "@/hooks/property/use-smartpayment";
 import { usePropertyEvent } from "@/hooks/property/useTenant";
 import { useTenantPayments } from "@/hooks/property/useTenant";
 import { useTenantEquity } from "@/hooks/property/useTenant";
 import { useUserSession } from "@/hooks/property/useTenant";
 import { calculateNextPayment } from "@/hooks/property/useTenant";
 import { getDaysUntilDue } from "@/hooks/property/useTenant";
-import { timeStamp } from "console";
+import { Loader } from "lucide-react";
 import {
   UserRound,
-  Wallet,
   PieChartIcon,
   CreditCard,
   RefreshCw,
@@ -19,8 +23,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { formatEther } from "viem";
-import { parseEther } from "viem";
+import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { CalendarDemo } from "~~/components/tenants/CalenderDemo";
 import DataTableDemo from "~~/components/tenants/DataTableDemo";
@@ -33,7 +36,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "~~/components/ui/card";
 import { Switch } from "~~/components/ui/switch";
 
@@ -62,6 +64,26 @@ export default function TenantPaymentPage() {
     address: "123 Main Street, Apt 4B San Francisco CA 94105",
   };
   const [autoPayEnable, setAutoPayEnable] = useState(false);
+
+  let rentAmountHumanReadable = "0";
+  if (
+    propertyInfo &&
+    typeof propertyInfo.fullPrice === "number" &&
+    typeof propertyInfo.term === "number" &&
+    propertyInfo.term !== 0
+  ) {
+    // const rawRent = propertyInfo.fullPrice / propertyInfo.duration;
+    // rentAmountHumanReadable = formatUnits(BigInt(Math.floor(rawRent)), 18);
+  }
+
+  const { error, executePayment, isApproving, isLoading, isPaying } =
+    useSmartRentPayment({
+      paymentTokenAddress: LiskSepoliaAddress,
+      propertyId: propertyInfo.tokenId,
+      rentContractAddress: RenToOwnAddress,
+      rentFiatAmount: 0,
+      tokenDecimals: 18,
+    });
 
   return (
     <div className="bg-gray-100">
@@ -92,7 +114,7 @@ export default function TenantPaymentPage() {
                 <CardContent className="flex justify-between">
                   <div>
                     <p className="font-semibold text-[1.2rem] flex items-center gap-1">
-                      ${propertyInfo.monthlyPrice}
+                      {propertyInfo.currency} {propertyInfo.monthlyPrice}
                       <span className=" text-[0.6rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 p-1">
                         {getDaysUntilDue(nextPayment?.dueDate)}
                       </span>
@@ -116,9 +138,24 @@ export default function TenantPaymentPage() {
                       </p>
                     </div>
                   </div>
-                  <Button>
+
+                  <Button
+                    onClick={executePayment}
+                    disabled={isApproving || isPaying}
+                  >
                     <CreditCard />
-                    <span className="text-xs">${"Pay Now"}</span>
+                    {(isApproving || isPaying) && (
+                      <Loader className="h-7 7 animate-spin" />
+                    )}
+                    <p className="">
+                      {isApproving
+                        ? "Approving..."
+                        : isPaying
+                        ? "Processing Payment..."
+                        : !isApproving && isPaying
+                        ? "Approve Tokens"
+                        : "Pay Now"}
+                    </p>
                   </Button>
                 </CardContent>
               </Card>

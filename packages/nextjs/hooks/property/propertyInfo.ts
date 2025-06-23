@@ -1,21 +1,24 @@
 import { usePropertyEvent } from "./useTenant";
+import { formatUnits } from "viem";
 
 export function usePropertyInfo(propertyId?: number) {
   const { info, loading, error } = usePropertyEvent(propertyId);
   const obj = { ...(info?.args || {}) };
 
-  const fullPrice = Number(obj[3]);
-  const duration = Number(obj[4]);
+  const fullPriceWei = obj[3] || 0;
+  const fullPriceEther = Number(formatUnits(fullPriceWei, 18));
+  const term = Number(obj[4]);
 
   const propertyInfo = {
-    tokenId: Number(obj[0]),
-    fullPrice: fullPrice ?? 0,
-    monthlyPrice: Intl.NumberFormat("en-us").format(fullPrice / duration || 0),
-    duration,
-    name: obj[5],
+    tokenId: Number(obj[2]) || 0,
+    fullPrice: Number(fullPriceEther.toFixed(6)),
+    monthlyPrice: Number((fullPriceEther / term).toFixed(6)) || "0.00",
+    term,
+    name: obj[5] || 0,
     image: obj[6],
-    town: obj[7],
+    street: obj[7],
     city: obj[8],
+    state: obj[9],
     currency: obj[11],
   };
 

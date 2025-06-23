@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
 import { Badge } from "~~/components/ui/badge";
@@ -52,21 +53,23 @@ export default function TenantDashboard() {
 
   const obj = { ...(info?.args || {}) };
 
-  const fullPrice = Number(obj[3]) || 0;
+  const fullPriceWei = obj[3] || 0;
+  const fullPriceEther = Number(formatUnits(fullPriceWei, 18));
   const term = Number(obj[4]);
 
   const propertyInfo = {
-    tokenId: Number(obj[0]) || 0,
-    fullPrice,
-    monthlyPrice: Intl.NumberFormat("en-us").format(fullPrice / term || "0.00"),
+    tokenId: Number(obj[2]) || 0,
+    fullPrice: Number(fullPriceEther.toFixed(6)),
+    monthlyPrice: Number((fullPriceEther / term).toFixed(6)) || "0.00",
     term,
     name: obj[5] || 0,
     image: obj[6],
-    town: obj[7],
+    street: obj[7],
     city: obj[8],
+    state: obj[9],
     currency: obj[11],
   };
-  console.log(propertyInfo, obj);
+  console.log(propertyId, address, info, propertyInfo);
 
   const router = useRouter();
   const handleBrowseClick = () => {
@@ -91,7 +94,7 @@ export default function TenantDashboard() {
                     Property Summary
                   </CardTitle>
                   <CardDescription className="text-[0.8rem]">
-                    Token ID: {propertyInfo.tokenId || "Unavailable"}
+                    Token ID: {propertyInfo.tokenId ?? "Unavailable"}
                   </CardDescription>
                 </div>
                 {!active ? (
@@ -102,67 +105,93 @@ export default function TenantDashboard() {
                   <Badge className="h-7 bg-blue-500 rounded-3xl ">Active</Badge>
                 )}
               </CardHeader>
-              {!active ? (
-                <CardContent className="flex-ic flex-col gap-2">
-                  <p className="text-center text-gray">
-                    {" "}
-                    You haven't started your rent-to-own journey. Browse
-                    available properties to get started.
-                  </p>
-                  <Button onClick={handleBrowseClick}>View properties</Button>
-                </CardContent>
-              ) : (
-                <CardContent className="flex gap-5 ">
-                  <Image
-                    src={propertyInfo.image}
-                    alt="Building"
-                    className="w-fit border rounded-xl"
-                    width={150}
-                    height={100}
-                  />
-                  <div className="flex flex-col gap-10 w-full">
-                    <div className="grid grid-cols-2  gap-20">
-                      <div className="space-y-4">
-                        <p className="text-gray text-base ">
-                          Address <br />
-                          <span className="text-dark text-lg">
-                            {propertyInfo.town}, {propertyInfo.city}
-                          </span>
-                        </p>
-                        <p className="text-gray text-lg">
-                          Equity Earned <br />{" "}
-                          <span className="text-emerald-500  font-semibold">
-                            12.5%
-                          </span>
-                        </p>
-                      </div>
-                      <div className="space-y-8">
-                        <p className="text-gray">
-                          Monthly Rent <br />{" "}
-                          <span className="text-dark text-xl">
-                            {propertyInfo.currency} {propertyInfo.monthlyPrice}
-                          </span>
-                        </p>
-                        <p className="text-gray">
-                          Next Vesting Date <br />{" "}
-                          <span className="text-dark text-xl">May 1, 2023</span>
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between ">
-                        <p className="text-gray text-base">Vesting Progress</p>
-                        <p className="text-dark">12.5% of 100%</p>
-                      </div>
 
-                      <ProgressDemo
-                        value={12.5}
-                        className="progress-green-fill"
-                      />
+              <CardContent className="flex-ic flex-col gap-2">
+                {!active ? (
+                  <>
+                    <p className="text-center text-gray">
+                      {" "}
+                      You haven't started your rent-to-own journey. Browse
+                      available properties to get started.
+                    </p>
+                    <Button onClick={handleBrowseClick}>View properties</Button>
+                  </>
+                ) : loading ? (
+                  <p className="text-dark text-center text-2xl flex-jb-ic">
+                    Loading your properties details...⏳
+                  </p>
+                ) : (
+                  <div className="flex gap-5 w-full">
+                    <Image
+                      src={propertyInfo.image}
+                      alt="Building"
+                      className="w-fit border rounded-xl"
+                      width={150}
+                      height={100}
+                    />
+                    <div className="flex flex-col gap-10 w-full">
+                      <div className="grid grid-cols-2  gap-20">
+                        <div className="space-y-4">
+                          <p className="text-gray text-base ">
+                            Address <br />
+                            <span className="text-dark text-lg">
+                              {propertyInfo.street}, {propertyInfo.city} <br />
+                              {propertyInfo.state}
+                            </span>
+                          </p>
+                          <p className="text-gray text-lg">
+                            Equity Earned <br />{" "}
+                            <span className="text-emerald-500  font-semibold">
+                              12.5%
+                            </span>
+                          </p>
+                        </div>
+                        <div className="space-y-8">
+                          <p className="text-gray">
+                            Monthly Rent <br />{" "}
+                            <span className="text-dark text-xl">
+                              {propertyInfo.currency}{" "}
+                              {propertyInfo.monthlyPrice}
+                            </span>
+                          </p>
+                          <p className="text-gray">
+                            Next Vesting Date <br />{" "}
+                            {!active ? (
+                              <span className="text-dark">
+                                Not determined yet
+                              </span>
+                            ) : (
+                              <span className="text-dark text-xl">
+                                {nextPayment?.dueDate.toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                  }
+                                )}{" "}
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between ">
+                          <p className="text-gray text-base">
+                            Vesting Progress
+                          </p>
+                          <p className="text-dark">12.5% of 100%</p>
+                        </div>
+
+                        <ProgressDemo
+                          value={12.5}
+                          className="progress-green-fill"
+                        />
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              )}
+                )}
+              </CardContent>
             </Card>
 
             <Card className="flex flex-col items-center ">
