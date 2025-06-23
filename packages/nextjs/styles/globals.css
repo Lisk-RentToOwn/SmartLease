@@ -162,11 +162,12 @@ h4 {
 }
 
 .notfi-icon {
-  height: 2rem;
-  width: 2rem;
-  border-radius: 50%;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 15%;
   border: 0;
   padding: 0.5rem;
+  color: #FFF;
 }
 
 .nofti-ul {
@@ -295,4 +296,33 @@ h4 {
 
 .common-bg {
   background-color: #F4F8FF;
+}
+
+.rdp-day[data-selected] {
+  @apply bg-gradient-web3-blue
+}
+
+
+.custom-scrollbar {
+  scrollbar-width: none;
+  scrollbar-color: unset;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: transparent;
 }

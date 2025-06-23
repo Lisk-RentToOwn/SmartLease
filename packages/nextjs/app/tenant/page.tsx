@@ -28,15 +28,15 @@ import { Switch } from "~~/components/ui/switch";
 
 export default function TenantDashboard() {
   return (
-    <div className="bg-gray-100">
+    <div className="">
       <div className="app-container mt-16 pb-20">
         <header className="flex justify-between mb-5 border-b">
-          <h1 className="text-black font-semibold text-3xl">Tenant Dashboard</h1>
+          <h1 className="text-4xl pb-3 font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Tenant Dashboard</h1>
         </header>
 
         <main className="space-y-6">
           <div className="grid grid-cols-[2fr_1fr] gap-5">
-            <Card className="">
+            <Card className="border-none shadow-lg">
               <CardHeader className="flex flex-row justify-between">
                 <div>
                   <CardTitle className="mb-1 text-xl">Property Summary</CardTitle>
@@ -44,7 +44,7 @@ export default function TenantDashboard() {
                     Token ID: #1234
                   </CardDescription>
                 </div>
-                <Badge className="border rounded-3xl text-base py-1 bg-blue-500 px-7">
+                <Badge className="border rounded-3xl text-base py-1 bg-gradient-web3-blue px-7">
                   Active
                 </Badge>
               </CardHeader>
@@ -59,15 +59,15 @@ export default function TenantDashboard() {
                 <div className="flex flex-col gap-10 w-full">
                   <div className="grid grid-cols-2  gap-20">
                     <div className="space-y-4">
-                      <p className="text-gray text-base ">
+                      <p className="text-gray  ">
                         Address <br />
-                        <span className="text-dark text-lg">
+                        <span className="text-xl text-slate-800 font-medium">
                           123 Main Street, Apt 4B <br /> San Francisco CA 94105
                         </span>
                       </p>
                       <p className="text-gray text-lg">
                         Equity Earned <br />{" "}
-                        <span className="text-emerald-500  font-semibold">
+                        <span className="text-emerald-500  font-semibold text-xl">
                           12.5%
                         </span>
                       </p>
@@ -75,11 +75,11 @@ export default function TenantDashboard() {
                     <div className="space-y-8">
                       <p className="text-gray">
                         Monthly Rent <br />{" "}
-                        <span className="text-dark text-xl">$2,400</span>
+                        <span className="text-xl text-slate-800 font-medium">$2,400</span>
                       </p>
                       <p className="text-gray">
                         Next Vesting Date <br />{" "}
-                        <span className="text-dark text-xl">May 1, 2023</span>
+                        <span className="text-xl text-slate-800 font-medium">May 1, 2023</span>
                       </p>
                     </div>
                   </div>
@@ -95,7 +95,7 @@ export default function TenantDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="flex flex-col items-center ">
+            <Card className="flex flex-col items-center border-none shadow-lg">
               <CardHeader>
                 <CardTitle className="text-lg">Equity Progress</CardTitle>
               </CardHeader>
@@ -146,9 +146,9 @@ export default function TenantDashboard() {
           </div>
 
           <div className="grid grid-cols-3 gap-5">
-            <Card className="!p-0">
+            <Card className="!p-0 border-none shadow-lg">
               <CardHeader className="space-y-3 !pb-3 ">
-                <CardTitle className="text-xl">Rent Payment</CardTitle>
+                <CardTitle className="text-xl text-slate-600">Rent Payment</CardTitle>
                 <CardDescription className="flex gap-2 items-center text-sm text-red-500 border-0 rounded-sm p-3 font-bold bg-red-300/20">
                   <CalendarRange className="w-3" />
                   <div className=" space-y-1">
@@ -157,34 +157,18 @@ export default function TenantDashboard() {
                   </div>
                 </CardDescription>
               </CardHeader>
-              <CardContent className="">
-                <p className="text-gray">Amount Due</p>
-                <p className="text-dark mb-2">$2,400.00</p>
-                <div className="flex justify-between">
-                  <div
-                    className="flex items-center mb-3
-                  "
-                  >
-                    <span className="text-gray">Gasless Transactions</span>
-                    <Switch checked={true} className="scale-75" />
-                  </div>
-                  <div
-                    className="flex items-center
-                  "
-                  >
-                    <span className="text-gray">AutoPay</span>
-                    <Switch checked={true} className="scale-75" />
-                  </div>
-                </div>
 
-                <Button className="w-full text-xs">Pay Now</Button>
+              <CardContent className="pt-5">
+                <p className="text-gray">Amount Due</p>
+                <p className="text-2xl font-medium text-slate-800 mb-5 mt-1">400.00 LSK</p>
+                <Button className="w-full text-sm py-6 bg-gradient-web3-blue">Pay Now</Button>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-none shadow-lg">
               <CardHeader className="space-y-3 !pb-3 ">
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-xl">Rewards & Badges</CardTitle>
+                  <CardTitle className="text-xl text-slate-600">Rewards & Badges</CardTitle>
                   <p className="text-blue-500 text-sm">View All</p>
                 </div>
                 <CardDescription className="border-0 rounded-sm bg-blue-300/20 flex p-3 gap-2 items-center ">
@@ -193,7 +177,7 @@ export default function TenantDashboard() {
                     fill="rgb(20, 130, 199)"
                   />
                   <div>
-                    <p className="text-dark">On-time Payment Streak</p>
+                    <p className="text-sm">On-time Payment Streak</p>
                     <p className="text-blue-500 font-bold text-[1rem]">
                       12 <span className="text-gray font-normal">months</span>
                     </p>
@@ -202,32 +186,32 @@ export default function TenantDashboard() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-3 gap-2">
-                  <Card className="mini-card">
+                  <Card className="mini-card border-none">
                     <Ribbon className="mini-card-icon bg-rd-green" />
                     <p className="mini-card-p ">Punctual Payer</p>
                   </Card>
-                  <Card className="mini-card">
+                  <Card className="mini-card border-none">
                     <Gem
                       className="mini-card-icon bg-purple-400/25 text-gray-300"
                       fill="rgb(132, 50, 220)"
                     />
                     <p className="mini-card-p">Equity Builder</p>
                   </Card>
-                  <Card className="mini-card">
+                  <Card className="mini-card border-none">
                     <Lock className="mini-card-icon bg-rd-gray" />
                     <p className=" text-gray-400 mt-1">Locked</p>
                   </Card>
                 </div>
-                <div className="text-center">
-                  <p className="text-gray">Next reward in 16 days</p>
-                  <p className="text-xs text-blue-500">
+                <div className="text-center mt-3">
+                  <p className="text-gray-500">Next reward in 16 days</p>
+                  <p className="text-sm text-blue-500">
                     Complete 3 more on-time payments
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="">
+            <Card className="border-none shadow-lg">
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Notifications</CardTitle>

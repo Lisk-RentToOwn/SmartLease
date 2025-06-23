@@ -133,34 +133,34 @@ export default function DataTableDemo() {
   });
 
   return (
-    <div className="w-full bg-gray-50  rounded-lg">
-      <div className="flex items-center justify-between p-4 bg-blue-200/10">
-        <p className="text-xl font-semibold text-gray-800">Payment History</p>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="border-gray-300  font-semibold flex items-center gap-1"
-            >
-              All Time <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+    <div className="w-full bg-gray-50   rounded-lg">
+      <div className="flex items-center rounded-tl-lg rounded-tr-lg justify-between p-4 bg-gradient-web3-blue">
+        <p className="text-xl font-semibold text-white">Payment History</p>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="border-gray-300  font-semibold flex items-center gap-1"
+              >
+                All Time <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
       </div>
       <div className=" border border-gray-200 pl-4">
         <Table>

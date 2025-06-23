@@ -67,7 +67,7 @@ export const TENANTNAV: SideTabListType[] = [
   {
     url: Routes.TENANT_MESSAGING_CENTER,
     title: "Chat",
-    icon: ChatBubbleOvalLeftEllipsisIcon,
+    icon: MessageCircle,
     items: []
   },
 ];

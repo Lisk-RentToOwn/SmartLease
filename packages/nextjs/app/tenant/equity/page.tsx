@@ -1,34 +1,27 @@
 'use client'
 import {
-  Bell,
-  PieChart,
+  CalendarCheck,
+  Copy,
   Database,
   DollarSign,
-  CalendarCheck,
+  Eye,
+  History,
   Home,
   Lock,
   LockOpen,
-  Wallet,
-  Eye,
-  HelpCircle,
-  Settings,
-  Copy,
-  History,
-  Shield,
+  PieChart,
+  Wallet
 } from "lucide-react";
 import ChartDemo from "~~/components/tenants/ChartDemo";
 import MilestoneProgress from "~~/components/tenants/MilestoneDemo";
 import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
-import { Avatar, AvatarFallback, AvatarImage } from "~~/components/ui/avatar";
 import { Badge } from "~~/components/ui/badge";
 import { Button } from "~~/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "~~/components/ui/card";
 
 const milestones = [
@@ -62,16 +55,16 @@ const currentMilestone = 2;
 export default function EquityGrowthPage() {
   return (
     <div className="pt-4 app-container">/
-      <header className="flex-jb-ic border-b pb-8">
+      <header className="flex-jb-ic border-b pb-5">
         <div className="flex gap-2 items-center">
-          <Home className="notfi-icon !rounded-sm bg-emerald-400 text-white" />
-          <p className="equity-hd text-2xl">Equity Growth</p>
+          {/* <Home className="notfi-icon !rounded-sm bg-emerald-400 text-white" /> */}
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Equity Growth</h1>
         </div>
       </header>
 
       <main className=" mt-10 space-y-6">
         <section className="grid grid-cols-4 gap-7">
-          <Card>
+          <Card className="border-none">
             <CardHeader className="card-hdr">
               <CardTitle className="text-gray card-titl">
                 Current Ownership
@@ -83,7 +76,8 @@ export default function EquityGrowthPage() {
               <p className="text-gray">+1.2% from last month</p>
             </CardContent>
           </Card>
-          <Card>
+
+          <Card className="border-none">
             <CardHeader className="card-hdr">
               <CardTitle className="text-gray card-titl">
                 Tokens Held
@@ -95,7 +89,8 @@ export default function EquityGrowthPage() {
               <p className="text-gray">of 1,00 total tokens</p>
             </CardContent>
           </Card>
-          <Card>
+
+          <Card className="border-none">
             <CardHeader className="card-hdr">
               <CardTitle className="text-gray card-titl">
                 Projected Full Ownership
@@ -107,7 +102,8 @@ export default function EquityGrowthPage() {
               <p className="text-gray">Est.June 2029 (5.2 years)</p>
             </CardContent>
           </Card>
-          <Card>
+
+          <Card className="border-none">
             <CardHeader className="card-hdr">
               <CardTitle className="text-gray card-titl">
                 Current Value
@@ -120,8 +116,9 @@ export default function EquityGrowthPage() {
             </CardContent>
           </Card>
         </section>
+
         <section>
-          <Card>
+          <Card className="border-none shadow-lg mt-10">
             <CardHeader className="flex-jb-ic flex-row j!py-3">
               <CardTitle className="equity-hd">Equity Chart</CardTitle>
               <div className="space-x-2">
@@ -136,9 +133,9 @@ export default function EquityGrowthPage() {
           </Card>
         </section>
         <section className="space-y-4">
-          <p className="equity-hd">Equity Vesting Status</p>
+          <p className="equity-hd text-xl mt-20 text-slate-800">Equity Vesting Status</p>
           <div className="grid grid-cols-2 gap-6">
-            <Card>
+            <Card className="border-none">
               <CardHeader className="vest-stat-hd !pb-0">
                 <CardTitle className="text-dark">Unlocked Equity</CardTitle>
                 <LockOpen className="notfi-icon bg-rd-green" />
@@ -157,7 +154,7 @@ export default function EquityGrowthPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-none">
               <CardHeader className="vest-stat-hd !pb-0">
                 <CardTitle className="text-dark">Locked Equity</CardTitle>
                 <Lock className="notfi-icon bg-rd-red" />
@@ -177,10 +174,11 @@ export default function EquityGrowthPage() {
             </Card>
           </div>
         </section>
-        <section>
-          <Card>
+
+        <section className="">
+          <Card className="border-none mt-20">
             <CardHeader>
-              <CardTitle>Ownership Milestones</CardTitle>
+              <CardTitle className="text-gray-500 text-lg mb-12">Ownership Milestones</CardTitle>
             </CardHeader>
             <CardContent>
               <MilestoneProgress
@@ -191,12 +189,12 @@ export default function EquityGrowthPage() {
           </Card>
         </section>
         <section>
-          <Card>
+          <Card className="border-none">
             <CardHeader>
               <CardTitle className="equity-hd">Wallet Details</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-7">
-              <Card className="bg-purple-200/10">
+              <Card className="bg-purple-200/10 border-none">
                 <CardHeader
                   className="
                 !pb-1 flex-jb-ic flex-row "
@@ -224,7 +222,7 @@ export default function EquityGrowthPage() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-purple-200/10">
+              <Card className="bg-purple-200/10 border-none">
                 <CardHeader
                   className="
                 !pb-1 flex-jb-ic flex-row "
@@ -232,7 +230,7 @@ export default function EquityGrowthPage() {
                   <CardTitle className="">Transaction History</CardTitle>
                   <History className="bg-rd-blue notfi-icon" />
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-2 border-none">
                   <div className="flex-jb-ic">
                     <div>
                       <p className="text-dark">12 tokens</p>

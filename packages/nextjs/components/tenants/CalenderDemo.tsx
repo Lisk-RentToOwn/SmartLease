@@ -11,7 +11,7 @@ export function CalendarDemo() {
       mode="single"
       selected={date}
       onSelect={setDate}
-      className=" shadow-sm w-full"
+      className=" shadow-sm w-full [&_.rdp-day_selected]:bg-gradient-web3-blue"
     />
   );
 }

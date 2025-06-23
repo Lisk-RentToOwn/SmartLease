@@ -1,17 +1,14 @@
 "use client";
 
 import {
-  UserRound,
-  Wallet,
-  PieChartIcon,
-  CreditCard,
-  RefreshCw,
   Circle,
+  CreditCard,
+  PieChartIcon,
+  RefreshCw,
+  UserRound
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { formatEther } from "viem";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { CalendarDemo } from "~~/components/tenants/CalenderDemo";
@@ -24,14 +21,9 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
-  CardFooter,
+  CardTitle
 } from "~~/components/ui/card";
 import { Switch } from "~~/components/ui/switch";
-import {
-  usePayRent,
-  useGetPropertyMetadata,
-} from "~~/services/request/contract/contract-request";
 
 export default function TenantPaymentPage() {
   useEffect(() => {
@@ -83,42 +75,35 @@ export default function TenantPaymentPage() {
   };
 
   return (
-    <div className="bg-gray-100">
+    <div className="">
       <div className="app-container mt-20 space-y-4 pb-32">
-        <header className="flex justify-between items-center">
-          <div className="flex gap-3 items-center "></div>
-          <div className="flex justify-end gap-2 items-center">
-            <NotificationBell />
-            <UserRound className="w-6 bg-blue-500 text-white rounded-full p-1 ml-1" />
-            <p className="text-dark">Alex Johnson</p>
-          </div>
-        </header>
-
         <main className="space-y-6">
           <section>
-            <p className="font-semibold text-2xl">Rent Payments</p>
-            <p className="text-gray-bold font-normal text-lg">
+            {/* <p className="font-semibold text-2xl">Rent Payments</p> */}
+            <p className="text-slate-500 font-medium text-lg">
               Manage your rent payments and track your payment history
             </p>
           </section>
 
           <section className="grid grid-cols-12 gap-20">
             <div className="grid col-span-8 space-y-5">
-              <Card className="space-y-3">
-                <CardHeader className="border-b !py-3 bg-blue-200/20">
-                  <CardTitle className="text-sm">Upcoming Rent</CardTitle>
+              <Card className="space-y-3 border-none">
+                <CardHeader className="border-b !py-3 bg-gradient-web3-blue text-white rounded-tr-xl rounded-tl-lg">
+                  <CardTitle className="">Upcoming Rent</CardTitle>
                 </CardHeader>
                 <CardContent className="flex justify-between">
-                  <div>
-                    <p className="font-semibold text-[1.2rem] flex items-center gap-1">
+                  <div className="mt-6">
+                    <p className="font-semibold text-slate-700 text-3xl flex items-center gap-1">
                       ${propertyInfo.amount}
-                      <span className=" text-[0.6rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 p-1">
+                      <span className=" text-[0.9rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 px-4 ml-3">
                         Due in 5 days
                       </span>
                     </p>
-                    <p className="text-gray-bold mt-0.5">
+
+                    <p className="text-gray-bold mt-4">
                       Due on the June 1st, 2023
                     </p>
+                    
                     <div className="flex items-center gap-1">
                       <PieChartIcon className="w-3 text-emerald-400" />
                       <p className="text-gray">
@@ -126,6 +111,7 @@ export default function TenantPaymentPage() {
                       </p>
                     </div>
                   </div>
+
                   <Button onClick={handlePayRent}>
                     <CreditCard />
                     <span className="text-xs">
@@ -135,12 +121,12 @@ export default function TenantPaymentPage() {
                 </CardContent>
               </Card>
 
-              <Card className="flex justify-between items-center p-6 ">
-                <CardContent className=" flex items-center gap-2 !p-0">
-                  <RefreshCw className="w-4 text-blue-400" />
+              <Card className="flex border-none justify-between items-center p-6 ">
+                <CardContent className=" flex space-x-2 items-center gap-2 !p-0">
+                  <RefreshCw className="w-6 text-blue-400" />
                   <div>
-                    <CardTitle className="text-dark">Auto-Pay</CardTitle>
-                    <CardDescription className="text-gray-bold">
+                    <CardTitle className="text-lg">Auto-Pay</CardTitle>
+                    <CardDescription className="text-gray-700 text-base">
                       Automatically pay rent on the 1st of each month
                     </CardDescription>
                   </div>
@@ -152,15 +138,15 @@ export default function TenantPaymentPage() {
                 />
               </Card>
 
-              <Card>
+              <Card className="border-none mt-9">
                 <DataTableDemo />
               </Card>
             </div>
 
             <div className="col-span-4 flex flex-col gap-y-8">
-              <Card className="">
-                <CardHeader className="bg-blue-200/10 ">
-                  <CardTitle>Rent Calender</CardTitle>
+              <Card className="border-none">
+                <CardHeader className="bg-gradient-web3-blue">
+                  <CardTitle className="text-white font-medium">Rent Calender</CardTitle>
                 </CardHeader>
 
                 <CardContent className="!pb-1 ">
@@ -196,9 +182,9 @@ export default function TenantPaymentPage() {
                 </CardContent>
               </Card>
 
-              <Card className="space-y-4">
+              <Card className="space-y-4 border-none">
                 <CardHeader className="border-b bg-blue-200/10 !py-5">
-                  <CardTitle>Equity Summary</CardTitle>
+                  <CardTitle className="">Equity Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="space-y-1">
@@ -211,15 +197,13 @@ export default function TenantPaymentPage() {
                       className="progress-green-fill"
                     />
                   </div>
-                  <p className="text-gray-bold">
+                  <p className="py-4 text-slate-800">
                     You've earned {propertyInfo.equity} equally in your property
-                    through on-time
-                    <br />
-                    rent payments. Keep it up!
+                    through on-time rent payments. Keep it up!
                   </p>
                 </CardContent>
               </Card>
-              <Button asChild className="w-1/2">
+              <Button asChild className="w-1/2 bg-gradient-web3-blue text-base py-5">
                 <Link href="/tenant/payment/reciept">Reciept view</Link>
               </Button>
             </div>

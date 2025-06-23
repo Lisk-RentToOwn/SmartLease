@@ -8,7 +8,7 @@ export enum Routes {
     TENANT_PAYMENT = "/tenant/payment",
     TENANT_REWARDS = "/tenant/rewards",
     TENANT_EQUITY = "/tenant/equity",
-    TENANT_MESSAGING_CENTER = "/landlord/message",
+    TENANT_MESSAGING_CENTER = "/tenant/message",
 
     // Landlord Routes
     LANDLORD = "/landlord",

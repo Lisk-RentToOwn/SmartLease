@@ -2,7 +2,7 @@
 
 import { useXmtp } from '@/context/XmtpContext';
 import { useAccount } from 'wagmi';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -14,6 +14,7 @@ import { useChatMessaging } from '@/hooks/useChatMessaging';
 import { useTenantAssignment } from '@/hooks/property/usePropertyEvents';
 import { useEnsProfile } from '@/hooks/useEnsProfile';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 
 type DisplayConversation = {
@@ -30,6 +31,13 @@ export default function Chat() {
     const { name, avatar, loading } = useEnsProfile(walletAddress ?? "");
 
     const { assignments } = useTenantAssignment(walletAddress || '');
+    const bottomRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+      if (bottomRef.current) {
+        bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, [messages]);
 
     const assignmentConversations: DisplayConversation[] = assignments.flatMap(a =>
         a.tenants.map(t => ({ address: t, propertyName: a.propertyName }))
@@ -119,24 +127,23 @@ export default function Chat() {
                               <div className="text-center text-sm text-gray-500  my-4">{day}</div>
                               <div className='flex flex-col gap-y-4'>
                                     {msgs.map((msg, i) => (
+                                        <div key={msg.id}>
                                         <div
-                                            key={msg.id}                      
-                                            className=''            
+                                            className={`max-w-[70%] px-4 py-2 rounded-lg text-sm ${
+                                            msg.senderAddress === walletAddress
+                                                ? 'bg-[#00C2BA] text-white ml-auto w-max  text-end'
+                                                : 'bg-gray-300 text-slate-600 w-max text-start'
+                                            }`}
                                         >
-                                            <div 
-                                                className={`max-w-[70%] px-4 py-2 rounded-lg text-sm ${
-                                                    msg.senderAddress === walletAddress
-                                                        ? 'bg-[#00C2BA] text-white ml-auto w-max  text-end'
-                                                        : 'bg-[#F5F7FA] text-[#111827]'
-                                                    }`
-                                                }
-                                            >
-                                                <p className='text-base'>{msg.content}</p>
-                                                <span className="block text-xs text-white/90 text-right opacity-80">
-                                                    {format(new Date(msg.sent), "hh:mm a")}
-                                                    {msg.isPending && ' • Sending...'}
-                                                </span>
-                                            </div>
+                                            <p className='text-base'>{msg.content}</p>
+                                            <span className={cn("block text-xs text-gray-500 text-left opacity-80",
+                                                {"text-white/90": msg.senderAddress === walletAddress}
+                                                )}>
+                                            {format(new Date(msg.sent), "hh:mm a")}
+                                            {msg.isPending && ' • Sending...'}
+                                            </span>
+                                        </div>
+                                        {i === msgs.length - 1 && <div ref={bottomRef} />}
                                         </div>
                                     ))}
                               </div>
