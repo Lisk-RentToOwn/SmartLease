@@ -16,12 +16,6 @@ export function CalendarDemo() {
 
   return (
     <Calendar
-<<<<<<< HEAD
-      mode="single"
-      selected={date}
-      onSelect={setDate}
-      className=" shadow-sm w-full [&_.rdp-day_selected]:bg-gradient-web3-blue"
-=======
       mode="multiple"
       selected={calendar.map((entry) => entry.dueDate)}
       className=" shadow-sm w-full"
@@ -41,7 +35,6 @@ export function CalendarDemo() {
         due: "bg-blue-400",
         late: "bg-red-400",
       }}
->>>>>>> d606df936322d2ab81dd269db2dc59b1854b23c6
     />
   );
 }

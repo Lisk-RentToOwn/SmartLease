@@ -2,8 +2,8 @@
 
 import { Routes } from "../routes";
 import { usePropertyInfo } from "@/hooks/property/propertyInfo";
-import { usePropertyEvent } from "@/hooks/property/useTenant";
-import { useUserSession } from "@/hooks/property/useTenant";
+// import { usePropertyEvent } from "@/hooks/property/useTenant";
+import { usePropertyEvent, useUserSession } from "@/hooks/property/useTenant";
 import { useTenantEquity } from "@/hooks/property/useTenant";
 import { calculateNextPayment } from "@/hooks/property/useTenant";
 import { useTenantPayments } from "@/hooks/property/useTenant";
