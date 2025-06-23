@@ -1,18 +1,18 @@
 'use client';
 
-import Chat from './Chat'; // You’ll build this with XMTP
+import TenantChat from './TenantChat';
 
-const MessageCenter = () => {
+const TenantMessageCenter = () => {
 
     return (
         <>      
             <div className='bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'>
                 <div className='app-container'>
-                    <Chat/>
+                    <TenantChat/>
                 </div>
             </div>
         </>
     );
 };
 
-export default MessageCenter;
+export default TenantMessageCenter;
