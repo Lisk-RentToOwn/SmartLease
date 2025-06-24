@@ -10,6 +10,7 @@ export function usePropertyInfo(propertyId?: number) {
   const term = Number(obj[4]);
 
   const propertyInfo = {
+    propertyId: Number(obj[0]) || 0,
     tokenId: Number(obj[2]) || 0,
     fullPrice: Number(fullPriceEther.toFixed(6)),
     monthlyPrice: Number((fullPriceEther / term).toFixed(6)) || "0.00",

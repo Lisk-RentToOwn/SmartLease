@@ -71,22 +71,37 @@ export function usePaymentCalendar(
         }
 
         const propertyDate = new Date(property.timestamp * 1000);
-        console.log("🏠 Property created on:", propertyDate);
+        // console.log("🏠 Property created on:", propertyDate);
 
         // 2. Get tenant's payments
         const payments = await eventService.getTenantPaymentHistory(
           tenantAddress,
           propertyId
         );
-        console.log("💰 Payments fetched:", payments.length);
+        // console.log("💰 Payments fetched:", payments.length);
+
+        const firstPayment = payments.sort(
+          (a, b) => a.timestamp ?? 0 - b.timestamp!
+        )[0];
+
+        if (!firstPayment || firstPayment.timestamp === undefined) {
+          console.warn(
+            "No valid payment timestamp found. Calendar cannot be generated."
+          );
+          return;
+        }
+
+        const paymentStartDate = new Date(firstPayment?.timestamp * 1000);
+        // console.log("user first pay:", firstPayment);
+        // console.log("paymentStartdat:", paymentStartDate);
 
         // 3. Build calendar
-        const duration = property.args.duration;
-        console.log("📅 Duration in months:", duration);
+        const duration = Number(property.args.duration);
+        // console.log("📅 Duration in months:", duration);
 
         const calendarData = Array.from({ length: duration }, (_, i) => {
-          const monthDate = new Date(propertyDate);
-          monthDate.setMonth(propertyDate.getMonth() + i);
+          const monthDate = new Date(paymentStartDate);
+          monthDate.setMonth(paymentStartDate.getMonth() + i);
 
           const payment = payments.find((p) => {
             const paymentDate = p.timestamp
@@ -105,17 +120,17 @@ export function usePaymentCalendar(
             ? "due"
             : "future";
 
-          console.log(`📆 Month ${i + 1}:`, {
-            month: monthDate.toLocaleDateString("default", {
-              month: "long",
-              year: "numeric",
-            }),
-            dueDate: monthDate,
-            paymentDate: payment?.timestamp
-              ? new Date(payment.timestamp * 1000)
-              : null,
-            status,
-          });
+          // console.log(`📆 Month ${i + 1}:`, {
+          //   month: monthDate.toLocaleDateString("default", {
+          //     month: "long",
+          //     year: "numeric",
+          //   }),
+          //   dueDate: monthDate,
+          //   paymentDate: payment?.timestamp
+          //     ? new Date(payment.timestamp * 1000)
+          //     : null,
+          //   status,
+          // });
 
           return {
             month: monthDate.toLocaleString("default", { month: "long" }),
@@ -128,7 +143,7 @@ export function usePaymentCalendar(
         });
 
         setCalendar(calendarData);
-        console.log("✅ Calendar data set:", calendarData);
+        // console.log("✅ Calendar data set:", calendarData);
       } catch (error) {
         console.error("❌ Failed to generate calendar:", error);
       }
@@ -203,9 +218,9 @@ export function useTenantPayments(address?: string, propertyId?: number) {
       return;
     }
 
-    // console.log(
-    //   `🎯 useTenantPayments initialized for address: ${address}, propertyId: ${propertyId}`
-    // );
+    console.log(
+      `🎯 useTenantPayments initialized for address: ${address}, propertyId: ${propertyId}`
+    );
 
     const fetchHistory = async () => {
       try {
@@ -215,8 +230,8 @@ export function useTenantPayments(address?: string, propertyId?: number) {
           address,
           propertyId
         );
-        // console.log(`📜 Past payment events fetched: ${history.length}`);
-        // console.log(history);
+        console.log(`📜 Past payment events fetched: ${history.length}`);
+        console.log(history);
 
         const mapped = history.map((p, i) => {
           if (!p.timestamp) console.warn(`⚠️ Event ${i} missing timestamp`);
@@ -230,7 +245,7 @@ export function useTenantPayments(address?: string, propertyId?: number) {
           };
         });
 
-        // console.log("✅ Mapped payment history:", mapped);
+        console.log("✅ Mapped payment history:", mapped);
         setPaymentData(mapped);
       } catch (err) {
         console.error("❌ Error fetching tenant payments:", err);
@@ -465,33 +480,65 @@ export function useUserSession(address?: string) {
 //to calculate full ownership date
 export function useOwnershipDate(address?: string, propertyId?: number) {
   const [ownershipDate, setOwnershipDate] = useState<Date | undefined>();
-  const property = usePropertyEvent(propertyId); // if it's a hook
+  const { info } = usePropertyEvent(propertyId); // assumes this hook gives the property info
 
   useEffect(() => {
     const fetchOwnershipDate = async () => {
-      if (!address || !propertyId || !property?.info?.args?.duration) return;
+      console.log("🏠 Starting fetchOwnershipDate...");
+      if (!address) {
+        console.warn("⚠️ No tenant address provided.");
+        return;
+      }
+
+      if (!propertyId) {
+        console.warn("⚠️ No propertyId provided.");
+        return;
+      }
+
+      if (!info?.args?.duration) {
+        console.warn("⚠️ Property data is missing or has no duration.");
+        return;
+      }
 
       try {
+        console.log("📥 Fetching payment history...");
         const payments = await eventService.getTenantPaymentHistory(
           address,
           propertyId
         );
-        if (!payments || payments.length === 0) return;
+        console.log("📊 Payments fetched:", payments.length);
 
-        const firstPayment = payments.at(-1); // the oldest payment
-        const startDate = new Date(firstPayment?.timestamp! * 1000);
+        if (!payments || payments.length === 0) {
+          console.warn("⚠️ No payment history found for tenant.");
+          return;
+        }
+
+        const firstPayment = payments.at(-1); // oldest payment
+        console.log("📅 First payment found:", firstPayment);
+
+        if (!firstPayment?.timestamp) {
+          console.warn("⏱️ First payment has no timestamp.");
+          return;
+        }
+
+        const startDate = new Date(firstPayment.timestamp * 1000);
+        const duration = Number(info.args.duration);
+        console.log(
+          `📆 Start date: ${startDate}, Duration: ${duration} months`
+        );
 
         const date = new Date(startDate);
-        date.setMonth(date.getMonth() + property.info.args.duration);
+        date.setMonth(date.getMonth() + duration);
 
+        console.log("✅ Calculated ownership date:", date);
         setOwnershipDate(date);
       } catch (err) {
-        console.error("Error fetching ownership date", err);
+        console.error("❌ Error fetching ownership date", err);
       }
     };
 
     fetchOwnershipDate();
-  }, [address, propertyId, property]);
+  }, [address, propertyId, info]);
 
   return ownershipDate;
 }
