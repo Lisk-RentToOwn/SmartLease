@@ -1,5 +1,6 @@
 "use client";
 
+import { RenToOwnAddress } from "@/constants/contract-address";
 import { usePropertyInfo } from "@/hooks/property/propertyInfo";
 import { useUserSession } from "@/hooks/property/useTenant";
 import { useTenantEquity } from "@/hooks/property/useTenant";
@@ -20,7 +21,7 @@ import {
   Lock,
   LockOpen,
   PieChart,
-  Wallet
+  Wallet,
 } from "lucide-react";
 import { useAccount } from "wagmi";
 import ChartDemo from "~~/components/tenants/ChartDemo";
@@ -32,7 +33,7 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "~~/components/ui/card";
 
 const milestones = [
@@ -81,20 +82,27 @@ export default function EquityGrowthPage() {
   if (info) {
     nextPayment = calculateNextPayment(paymentdata, info);
   }
+  // console.log(stats);
 
   const remainingEquity = !data.equity ? 0 : 100 - data.equity;
 
+  const latest = stats.history[0];
+  const tokenId = latest?.args?.tokenId?.toString();
+
+  const contractAddress = RenToOwnAddress ?? "0x...";
+
   return (
-    <div className="pt-4 app-container">/
+    <div className="pt-4 app-container">
       <header className="flex-jb-ic border-b pb-5">
         <div className="flex gap-2 items-center">
           {/* <Home className="notfi-icon !rounded-sm bg-emerald-400 text-white" /> */}
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">Equity Growth</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+            Equity Growth
+          </h1>
         </div>
       </header>
-
       <main className=" mt-10 space-y-6">
-        <section className="grid grid-cols-4 gap-7">
+        <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-7">
           <Card className="border-none">
             <CardHeader className="card-hdr">
               <CardTitle className="text-gray card-titl">
@@ -184,7 +192,9 @@ export default function EquityGrowthPage() {
           </Card>
         </section>
         <section className="space-y-4">
-          <p className="equity-hd text-xl mt-20 text-slate-800">Equity Vesting Status</p>
+          <p className="equity-hd text-xl mt-20 text-slate-800">
+            Equity Vesting Status
+          </p>
           <div className="grid grid-cols-2 gap-6">
             <Card className="border-none">
               <CardHeader className="vest-stat-hd !pb-0">
@@ -259,7 +269,9 @@ export default function EquityGrowthPage() {
         <section className="">
           <Card className="border-none mt-20">
             <CardHeader>
-              <CardTitle className="text-gray-500 text-lg mb-12">Ownership Milestones</CardTitle>
+              <CardTitle className="text-gray-500 text-lg mb-12">
+                Ownership Milestones
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <MilestoneProgress
@@ -280,26 +292,43 @@ export default function EquityGrowthPage() {
                   className="
                 !pb-1 flex-jb-ic flex-row "
                 >
-                  <CardTitle className="">ERC1155 Token Balance</CardTitle>
+                  <CardTitle className="">ERC1155 Token </CardTitle>
                   <Wallet className="bg-rd-purple notfi-icon" />
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <p className="text-gray">Token ID</p>
-                    <p className="text-dark">#1092847</p>
+                    <p className="text-dark">
+                      {tokenId ? `#${tokenId}` : "N/A"}
+                    </p>
                   </div>
 
                   <div>
                     <p className="text-gray">Smart Contract Address</p>
-                    <p className="text-dark flex gap-2">
-                      0x8a7b...e42f
-                      <Copy className="w-3 text-purple-500" />
+                    <p className="text-dark flex gap-2 items-center">
+                      {contractAddress.slice(0, 6)}...
+                      {contractAddress.slice(-4)}
+                      <Copy
+                        className="w-3 text-purple-500 cursor-pointer"
+                        onClick={() =>
+                          navigator.clipboard.writeText(contractAddress)
+                        }
+                      />
                     </p>
                   </div>
-                  <Button className="text-xs bg-purple-500">
-                    <Eye />
-                    View on Etherscan
-                  </Button>
+
+                  {latest?.txHash && (
+                    <a
+                      href={`https://sepolia-blockscout.lisk.com/tx/${latest?.txHash}?tab=logs`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="text-xs bg-purple-500 mt-5">
+                        <Eye className="w-4 h-4 mr-1" />
+                        View on Explorer
+                      </Button>
+                    </a>
+                  )}
                 </CardContent>
               </Card>
 
@@ -312,28 +341,39 @@ export default function EquityGrowthPage() {
                   <History className="bg-rd-blue notfi-icon" />
                 </CardHeader>
                 <CardContent className="space-y-2 border-none">
-                  <div className="flex-jb-ic">
-                    <div>
-                      <p className="text-dark">12 tokens</p>
-                      <p className="text-gray">May 15, 2023</p>
-                    </div>
-                    <Badge variant={"customGreen"}>Verified</Badge>
-                  </div>
+                  {loading ? (
+                    <p className="text-gray">Loading token history...</p>
+                  ) : error ? (
+                    <p className="text-red-500">
+                      Failed to load token history.
+                    </p>
+                  ) : stats.history.length === 0 ? (
+                    <p className="text-gray">No token transfers yet.</p>
+                  ) : (
+                    stats.history
+                      .slice() // shallow copy to safely reverse
+                      .reverse() // latest at top
+                      .map((event, idx) => {
+                        const tokens = Number(event.args.amount);
+                        const date = new Date(
+                          event.timestamp * 1000
+                        ).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        });
+                        return (
+                          <div className="flex-jb-ic" key={idx}>
+                            <div>
+                              <p className="text-dark">{tokens} tokens</p>
+                              <p className="text-gray">{date}</p>
+                            </div>
+                            <Badge variant={"customGreen"}>Verified</Badge>
+                          </div>
+                        );
+                      })
+                  )}
 
-                  <div className="flex-jb-ic">
-                    <div>
-                      <p className="text-dark">12 tokens</p>
-                      <p className="text-gray flex gap-2">Apr 15, 2023</p>
-                    </div>
-                    <Badge variant={"customGreen"}>Verified</Badge>
-                  </div>
-                  <div className="flex-jb-ic">
-                    <div>
-                      <p className="text-dark">12 tokens</p>
-                      <p className="text-gray flex gap-2">Mar 15, 2023</p>
-                    </div>
-                    <Badge variant={"customGreen"}>Verified</Badge>
-                  </div>
                   <Button
                     variant={"outline"}
                     className="text-xs w-full border-gray-300"

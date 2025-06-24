@@ -1,5 +1,7 @@
 "use client";
 
+import { usePropertyInfo } from "@/hooks/property/propertyInfo";
+import { useUserSession, useTenantPayments } from "@/hooks/property/useTenant";
 import {
   ReceiptText,
   Check,
@@ -11,6 +13,7 @@ import {
 import Link from "next/link";
 import QRCode from "qrcode.react";
 import { SiEthereum } from "react-icons/si";
+import { useAccount } from "wagmi";
 import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
 import { Button } from "~~/components/ui/button";
 import {
@@ -84,13 +87,14 @@ interface Props {
 }
 
 export default function Reciept({ params }: Props) {
-  //   const transaction = transactions.find(
-  //     (t) => t.transaction === params.transaction
-  //   );
+  const { address } = useAccount();
+  const { propertyId, active } = useUserSession(address);
+  const { paymentdata } = useTenantPayments(address, propertyId ?? undefined);
+  const { propertyInfo } = usePropertyInfo(propertyId ?? undefined);
 
-  //   if (!transaction) {
-  //     return <div>No transaction recorded</div>;
-  //   }
+  const payment = paymentdata.find(
+    (p) => p.txHash?.toLowerCase() === params.transaction.toLowerCase()
+  );
 
   return (
     <div className="flex flex-col">
@@ -112,7 +116,7 @@ export default function Reciept({ params }: Props) {
             Thank you for your payment! Your equity has been updated
           </p>
         </section>
-        
+
         <Card className="rounded-t-none border-none space-y-3">
           <CardHeader className="flex-jb-ic flex-row border-b !pb-3">
             <CardTitle>Payment Receipt</CardTitle>
@@ -188,11 +192,14 @@ export default function Reciept({ params }: Props) {
               </div>
             </section>
             <section className="self-center">
-              <QRCode value={qrData} size={128} className=""/>
+              <QRCode value={qrData} size={128} className="" />
             </section>
           </CardContent>
           <CardFooter className="border-t pt-6 gap-3 flex items-center justify-center">
-            <Button variant={"outline"} className="text-gray-500 border-2 border-teal-500">
+            <Button
+              variant={"outline"}
+              className="text-gray-500 border-2 border-teal-500"
+            >
               <HardDriveDownload /> Download PDF Receipt
             </Button>
             <Button className="bg-gradient-web3-blue text-sm">

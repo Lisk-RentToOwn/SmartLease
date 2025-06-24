@@ -4,11 +4,8 @@ import { CalendarMonth } from "@/types/tenant-tpes";
 import { isCurrentMonth } from "@/utils/dashboardUpdates";
 import { getEquityTier } from "@/utils/equityCalculation";
 import { ethers } from "ethers";
-import { start } from "nprogress";
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
-import { useAccount } from "wagmi";
-
 
 export type TenantLandlordAssignment = {
   propertyId: number;
@@ -373,7 +370,9 @@ export function useTenantRentStatus(payments: any[], property?: any) {
   return { data, loading, error };
 }
 
-export async function getTenantLandlordAssignments(tenant: string): Promise<TenantLandlordAssignment[]> {
+export async function getTenantLandlordAssignments(
+  tenant: string
+): Promise<TenantLandlordAssignment[]> {
   if (!tenant) return [];
 
   // Step 1: Fetch PropertyOccupied events for the tenant
@@ -386,10 +385,10 @@ export async function getTenantLandlordAssignments(tenant: string): Promise<Tena
     1000 // High limit to get all
   );
 
-  console.log(occupiedEvents)
-  console.log(tenant)
+  console.log(occupiedEvents);
+  console.log(tenant);
 
-  const propertyIds = occupiedEvents.map(e => Number(e.args.propertyId));
+  const propertyIds = occupiedEvents.map((e) => Number(e.args.propertyId));
 
   if (!propertyIds.length) return [];
 
@@ -400,16 +399,20 @@ export async function getTenantLandlordAssignments(tenant: string): Promise<Tena
   );
 
   // Step 3: Match landlord by propertyId
-  const matched: TenantLandlordAssignment[] = propertyIds.map(propertyId => {
-    const created = createdEvents.find(c => Number(c.args.propertyId) === propertyId);
-    if (!created) return null;
+  const matched: TenantLandlordAssignment[] = propertyIds
+    .map((propertyId) => {
+      const created = createdEvents.find(
+        (c) => Number(c.args.propertyId) === propertyId
+      );
+      if (!created) return null;
 
-    return {
-      propertyId,
-      landlord: created.args.landlord,
-      propertyName: created.args.name,
-    };
-  }).filter(Boolean) as TenantLandlordAssignment[];
+      return {
+        propertyId,
+        landlord: created.args.landlord,
+        propertyName: created.args.name,
+      };
+    })
+    .filter(Boolean) as TenantLandlordAssignment[];
 
   return matched;
 }
@@ -506,7 +509,7 @@ export function useOwnershipDate(address?: string, propertyId?: number) {
           address,
           propertyId
         );
-        console.log("📊 Payments fetched:", payments.length);
+        // console.log("📊 Payments fetched:", payments.length);
 
         if (!payments || payments.length === 0) {
           console.warn("⚠️ No payment history found for tenant.");
@@ -514,7 +517,7 @@ export function useOwnershipDate(address?: string, propertyId?: number) {
         }
 
         const firstPayment = payments.at(-1); // oldest payment
-        console.log("📅 First payment found:", firstPayment);
+        // console.log("📅 First payment found:", firstPayment);
 
         if (!firstPayment?.timestamp) {
           console.warn("⏱️ First payment has no timestamp.");
@@ -523,9 +526,9 @@ export function useOwnershipDate(address?: string, propertyId?: number) {
 
         const startDate = new Date(firstPayment.timestamp * 1000);
         const duration = Number(info.args.duration);
-        console.log(
-          `📆 Start date: ${startDate}, Duration: ${duration} months`
-        );
+        // console.log(
+        //   `📆 Start date: ${startDate}, Duration: ${duration} months`
+        // );
 
         const date = new Date(startDate);
         date.setMonth(date.getMonth() + duration);
@@ -593,7 +596,7 @@ export interface TokenTransferEvent extends PropertyEvent {
   args: {
     from: string;
     to: string;
-    amount: string; // typically a string from the event log
+    amount: string;
     tokenId: number;
   };
   timestamp: number;
@@ -632,9 +635,15 @@ export function useTenantTokenStats(address?: string, propertyId?: number) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!address || !propertyId) return;
+    if (!address || !propertyId) {
+      console.warn(
+        "Missing address or propertyId. Skipping token stats fetch."
+      );
+      return;
+    }
 
     const load = async () => {
+      console.log("🔄 Fetching token stats for:", { address, propertyId });
       setLoading(true);
       try {
         const { events } = await eventService.getEvents(
@@ -642,34 +651,40 @@ export function useTenantTokenStats(address?: string, propertyId?: number) {
           "TokensTransferred",
           { propertyId }
         );
+        // console.log("📦 Raw token transfer events:", events);
 
-        // ✅ Filter only events that are valid TokenTransferEvents and match the address
         const tenantTransfers = events.filter(
           (e): e is TokenTransferEvent =>
-            isTokenTransferEvent(e) &&
-            e.args.to.toLowerCase() === address.toLowerCase()
+            e.args?.to?.toLowerCase() === address.toLowerCase()
         );
+        // console.log("✅ Filtered tenant token transfers:", tenantTransfers);
 
         const totalReceived = tenantTransfers.reduce((sum, e) => {
-          const amount = Number(ethers.formatUnits(e.args.amount, 0)); // no decimals assumed
+          const amount = Number(ethers.formatUnits(e.args.amount, 0)); // assumes 0 decimals
           return sum + amount;
         }, 0);
+        // console.log("📊 Total tokens received:", totalReceived);
 
-        const totalTokens = 100; // TODO: Replace with actual total if dynamic
+        const totalTokens = 100; // Static for now
         const unlocked = totalReceived;
         const locked = totalTokens - unlocked;
 
-        setStats({
+        const finalStats: TokenStats = {
           currentTokens: unlocked,
           totalTokens,
           locked,
           unlocked,
           history: tenantTransfers,
-        });
+        };
+
+        // console.log("📈 Final token stats:", finalStats);
+        setStats(finalStats);
       } catch (err) {
+        console.error("❌ Error loading token stats:", err);
         setError(err as Error);
       } finally {
         setLoading(false);
+        console.log("✅ Token stats fetch complete.");
       }
     };
 

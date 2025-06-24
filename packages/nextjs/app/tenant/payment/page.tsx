@@ -58,13 +58,6 @@ export default function TenantPaymentPage() {
     nextPayment = calculateNextPayment(paymentdata, info);
   }
 
-  const recieptInfo = {
-    propertyId: 1,
-    amount: 20,
-    date: new Date(2023, 5, 1),
-    equity: 0.25,
-    address: "123 Main Street, Apt 4B San Francisco CA 94105",
-  };
   const [autoPayEnable, setAutoPayEnable] = useState(false);
 
   const obj = { ...(info?.args || {}) };
@@ -198,7 +191,7 @@ export default function TenantPaymentPage() {
                     )}
                   </div>
 
-                  <div className="border-t pt-3 flex justify-center space-x-3">
+                  <div className="border-t pt-3 flex justify-center space-x-[30%]">
                     <div className=".info-color-div flex items-center space-x-1">
                       <Circle
                         className="w-4 text-[rgb(49,209,52)]"
