@@ -164,7 +164,7 @@ export default function EquityGrowthPage() {
             <CardContent>
               <p className="value ">
                 {propertyInfo
-                  ? propertyInfo.currency + propertyInfo.fullPrice
+                  ? propertyInfo.currency + " " + propertyInfo.fullPrice
                   : 0}
               </p>
               <p className="text-gray">Based on current market value</p>

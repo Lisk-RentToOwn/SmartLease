@@ -32,8 +32,8 @@ export function CalendarDemo() {
       }}
       modifiersClassNames={{
         paid: "bg-emerald-400 text-white",
-        due: "bg-blue-400",
-        late: "bg-red-400",
+        due: "bg-blue-400 rounded-md",
+        late: "bg-[rgb(244,109,6)] rounded-md",
       }}
     />
   );

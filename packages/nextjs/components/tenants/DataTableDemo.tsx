@@ -60,7 +60,7 @@ export const columns: ColumnDef<Payment>[] = [
 
       const { address } = useAccount();
       const { propertyId } = useUserSession(address);
-      const { propertyInfo } = usePropertyInfo(propertyId);
+      const { propertyInfo } = usePropertyInfo(propertyId ?? undefined);
       return (
         <div className="text-dark">
           {propertyInfo.currency} {formatted}

@@ -8,6 +8,7 @@ import { useTenantEquity } from "@/hooks/property/useTenant";
 import { calculateNextPayment } from "@/hooks/property/useTenant";
 import { useTenantPayments } from "@/hooks/property/useTenant";
 import { useOwnershipDate } from "@/hooks/property/useTenant";
+import { getDaysUntilDue } from "@/hooks/property/useTenant";
 import {
   Bell,
   Wallet,
@@ -27,8 +28,11 @@ import { useRouter } from "next/navigation";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
+import { SkeletonCard } from "~~/components/tenants/SkeletonCard";
+import { SkeletonText } from "~~/components/tenants/SkeletonParagraph";
 import { Badge } from "~~/components/ui/badge";
 import { Button } from "~~/components/ui/button";
+// import Skeleton
 import {
   Card,
   CardContent,
@@ -58,6 +62,7 @@ export default function TenantDashboard() {
   const term = Number(obj[4]);
 
   const propertyInfo = {
+    propertyId: Number(obj[0]) || 0,
     tokenId: Number(obj[2]) || 0,
     fullPrice: Number(fullPriceEther.toFixed(6)),
     monthlyPrice: Number((fullPriceEther / term).toFixed(6)) || "0.00",
@@ -117,9 +122,7 @@ export default function TenantDashboard() {
                     <Button onClick={handleBrowseClick}>View properties</Button>
                   </>
                 ) : loading ? (
-                  <p className="text-dark text-center text-2xl flex-jb-ic">
-                    Loading your properties details...⏳
-                  </p>
+                  <SkeletonCard />
                 ) : (
                   <div className="flex gap-5 w-full">
                     <Image
@@ -253,6 +256,7 @@ export default function TenantDashboard() {
                         ownershipDate?.toLocaleDateString("en-US", {
                           month: "long",
                           day: "numeric",
+                          year: "numeric",
                         })
                       )}
                     </span>
@@ -269,23 +273,34 @@ export default function TenantDashboard() {
                 <CardDescription className="flex gap-2 items-center text-sm text-red-500 border-0 rounded-sm p-3 font-bold bg-red-300/20">
                   <CalendarRange className="w-3" />
                   <div className=" space-y-1">
-                    <p className="leading-none">Rent Due</p>
-                    <p className="leading-none">
-                      {nextPayment?.dueDate.toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      }) || "No date yet"}
-                    </p>
+                    <p className="leading-none">Rent Due </p>
+                    {loading ? (
+                      <SkeletonText />
+                    ) : (
+                      <p className="leading-none">
+                        {nextPayment?.dueDate.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }) || "No date yet"}{" "}
+                        <span className=" text-[0.6rem] text-red-500  ">
+                          ({getDaysUntilDue(nextPayment?.dueDate)})
+                        </span>
+                      </p>
+                    )}
                   </div>
                 </CardDescription>
               </CardHeader>
               <CardContent className="">
                 <p className="text-gray">Amount Due</p>
-                <p className="text-dark mb-2">
-                  {propertyInfo?.currency || ""}
-                  {propertyInfo?.monthlyPrice ?? "0.00"}
-                </p>
+                {loading ? (
+                  <SkeletonText />
+                ) : (
+                  <p className="text-dark mb-2">
+                    {propertyInfo?.currency || ""}{" "}
+                    {propertyInfo?.monthlyPrice ?? "0.00"}
+                  </p>
+                )}
                 <div className="flex justify-between">
                   <div
                     className="flex items-center mb-3
@@ -302,8 +317,6 @@ export default function TenantDashboard() {
                     <Switch className="scale-75" />
                   </div>
                 </div>
-
-                <Button className="w-full text-xs">Pay Now</Button>
               </CardContent>
             </Card>
 

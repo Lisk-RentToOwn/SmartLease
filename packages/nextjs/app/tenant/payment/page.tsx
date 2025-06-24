@@ -29,6 +29,8 @@ import { CalendarDemo } from "~~/components/tenants/CalenderDemo";
 import DataTableDemo from "~~/components/tenants/DataTableDemo";
 import NotificationBell from "~~/components/tenants/NotificationBell";
 import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
+import { SkeletonCard } from "~~/components/tenants/SkeletonCard";
+import { SkeletonText } from "~~/components/tenants/SkeletonParagraph";
 import { Button } from "~~/components/ui/button";
 import {
   Card,
@@ -48,8 +50,8 @@ export default function TenantPaymentPage() {
   const { propertyId, active } = useUserSession(address);
   const { data } = useTenantEquity(address, propertyId ?? undefined);
   const { propertyInfo } = usePropertyInfo(propertyId ?? undefined);
-  const { info } = usePropertyEvent(propertyId ?? undefined);
-  const { paymentdata } = useTenantPayments(address);
+  const { info, loading } = usePropertyEvent(propertyId ?? undefined);
+  const { paymentdata } = useTenantPayments(address, propertyId ?? undefined);
 
   let nextPayment;
   if (info) {
@@ -65,23 +67,14 @@ export default function TenantPaymentPage() {
   };
   const [autoPayEnable, setAutoPayEnable] = useState(false);
 
-  let rentAmountHumanReadable = "0";
-  if (
-    propertyInfo &&
-    typeof propertyInfo.fullPrice === "number" &&
-    typeof propertyInfo.term === "number" &&
-    propertyInfo.term !== 0
-  ) {
-    // const rawRent = propertyInfo.fullPrice / propertyInfo.duration;
-    // rentAmountHumanReadable = formatUnits(BigInt(Math.floor(rawRent)), 18);
-  }
+  const obj = { ...(info?.args || {}) };
 
   const { error, executePayment, isApproving, isLoading, isPaying } =
     useSmartRentPayment({
       paymentTokenAddress: LiskSepoliaAddress,
-      propertyId: propertyInfo.tokenId,
+      propertyId: Number(propertyInfo?.propertyId),
       rentContractAddress: RenToOwnAddress,
-      rentFiatAmount: 0,
+      rentFiatAmount: (propertyInfo?.monthlyPrice).toString(),
       tokenDecimals: 18,
     });
 
@@ -113,24 +106,30 @@ export default function TenantPaymentPage() {
                 </CardHeader>
                 <CardContent className="flex justify-between">
                   <div>
-                    <p className="font-semibold text-[1.2rem] flex items-center gap-1">
-                      {propertyInfo.currency} {propertyInfo.monthlyPrice}
-                      <span className=" text-[0.6rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 p-1">
-                        {getDaysUntilDue(nextPayment?.dueDate)}
-                      </span>
-                    </p>
-                    <p className="text-gray-bold mt-0.5">
-                      Due on the{" "}
-                      {active ? (
-                        nextPayment?.dueDate.toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      ) : (
-                        <span> N/A</span>
-                      )}
-                    </p>
+                    {loading ? (
+                      <SkeletonText />
+                    ) : (
+                      <>
+                        <p className="font-semibold text-[1.2rem] flex items-center gap-1">
+                          {propertyInfo.currency} {propertyInfo.monthlyPrice}
+                          <span className=" text-[0.6rem] text-blue-500 border-none rounded-sm  bg-blue-500/10 p-1">
+                            {getDaysUntilDue(nextPayment?.dueDate)}
+                          </span>
+                        </p>
+                        <p className="text-gray-bold mt-0.5">
+                          Due on the{" "}
+                          {active ? (
+                            nextPayment?.dueDate.toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })
+                          ) : (
+                            <span> N/A</span>
+                          )}
+                        </p>
+                      </>
+                    )}
                     <div className="flex items-center gap-1">
                       <PieChartIcon className="w-3 text-emerald-400" />
                       <p className="text-gray">
@@ -200,14 +199,6 @@ export default function TenantPaymentPage() {
                   </div>
 
                   <div className="border-t pt-3 flex justify-center space-x-3">
-                    <div className=".info-color-div flex items-center space-x-1 py-3">
-                      <Circle
-                        className="w-4 text-[rgb(0,121,201)]"
-                        fill="rgb(0, 121, 201)"
-                      />
-                      <p className="text-gray-bold">Due Date</p>
-                    </div>
-
                     <div className=".info-color-div flex items-center space-x-1">
                       <Circle
                         className="w-4 text-[rgb(49,209,52)]"
@@ -221,7 +212,7 @@ export default function TenantPaymentPage() {
                         className="w-4 text-[rgb(244,109,6)]"
                         fill="rgb(244, 109, 6)"
                       />
-                      <p className="text-gray-bold">Late</p>
+                      <p className="text-gray-bold">Future</p>
                     </div>
                   </div>
                 </CardContent>
