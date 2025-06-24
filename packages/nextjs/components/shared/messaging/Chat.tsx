@@ -1,6 +1,6 @@
 'use client';
 
-import { useXmtpContext } from '@/context/XmtpContext';
+import { useXmtp } from '@/context/XmtpContext';
 import { useAccount } from 'wagmi';
 import { useEffect, useState } from 'react';
 import {
@@ -23,7 +23,7 @@ type DisplayConversation = {
 
 export default function Chat() {
     const { address: walletAddress } = useAccount();
-    const { conversations } = useXmtpContext();
+    const { conversations } = useXmtp();
     const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
     const [message, setMessage] = useState('');
     const { messages, sendMessage } = useChatMessaging(selectedAddress ?? "");
@@ -134,7 +134,7 @@ export default function Chat() {
                                                 <p className='text-base'>{msg.content}</p>
                                                 <span className="block text-xs text-white/90 text-right opacity-80">
                                                     {format(new Date(msg.sent), "hh:mm a")}
-                                                    {/* {msg.isPending && ' • Sending...'} */}
+                                                    {msg.isPending && ' • Sending...'}
                                                 </span>
                                             </div>
                                         </div>
