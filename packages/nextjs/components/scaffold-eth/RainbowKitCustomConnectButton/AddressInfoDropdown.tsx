@@ -156,8 +156,8 @@ export const AddressInfoDropdown = ({
                         //@ts-ignore
                         onClick={() => {
                             disconnect(); 
-                            clearUserRole()
                             router.push(Routes.HOME)
+                            clearUserRole()
                         }}
                         >
                         <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>

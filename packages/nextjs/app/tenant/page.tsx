@@ -2,13 +2,16 @@
 
 import { Routes } from "../routes";
 import { usePropertyInfo } from "@/hooks/property/propertyInfo";
+import { useTokenDistribution } from "@/hooks/property/usePropertyEvents";
 // import { usePropertyEvent } from "@/hooks/property/useTenant";
-import { usePropertyEvent, useUserSession } from "@/hooks/property/useTenant";
+import { buildTenantDashboard, usePropertyEvent, useTenantTokenStats, useUserSession } from "@/hooks/property/useTenant";
 import { useTenantEquity } from "@/hooks/property/useTenant";
 import { calculateNextPayment } from "@/hooks/property/useTenant";
 import { useTenantPayments } from "@/hooks/property/useTenant";
 import { useOwnershipDate } from "@/hooks/property/useTenant";
 import { getDaysUntilDue } from "@/hooks/property/useTenant";
+import { DashboardState } from "@/types/tenant-tpes";
+import { updateDashboardOnEquityUpdate } from "@/utils/dashboardUpdates";
 import {
   Bell,
   Wallet,
@@ -25,6 +28,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 import { ProgressDemo } from "~~/components/tenants/ProgressDemo";
@@ -74,7 +78,9 @@ export default function TenantDashboard() {
     state: obj[9],
     currency: obj[11],
   };
+
   console.log(propertyId, address, info, propertyInfo);
+
 
   const router = useRouter();
   const handleBrowseClick = () => {

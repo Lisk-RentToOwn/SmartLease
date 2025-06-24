@@ -1,16 +1,18 @@
 import { PaymentRecord } from "@/types/tenant-tpes";
 
 export function calculateFullOwnershipDate(
-    payments: PaymentRecord[],
-    propertyDuration: number
-  ): Date | undefined {
-    if (payments.length === 0) return undefined;
-    
-    const firstPaymentDate = payments[payments.length - 1].date;
-    return new Date(firstPaymentDate.setMonth(
-      firstPaymentDate.getMonth() + propertyDuration
-    ));
-  }
+  payments: PaymentRecord[],
+  propertyDuration: number
+): Date | undefined {
+  if (payments.length === 0) return undefined;
+
+  const oldestPayment = payments[payments.length - 1]; // oldest = last
+
+  // FIX: clone the date before mutating
+  const base = new Date(oldestPayment.date);
+  base.setMonth(base.getMonth() + propertyDuration);
+  return base;
+}
   
   /**
    * Determine equity tier based on percentage

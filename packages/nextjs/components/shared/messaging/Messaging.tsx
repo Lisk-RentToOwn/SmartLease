@@ -1,6 +1,8 @@
 'use client';
 
-import Chat from './Chat'; // You’ll build this with XMTP
+import { useAccount } from "wagmi";
+import Chat from "./Chat";
+
 
 const MessageCenter = () => {
 

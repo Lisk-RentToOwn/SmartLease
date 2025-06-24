@@ -4,6 +4,7 @@ import { Routes } from "@/app/routes";
 import { Button } from "@/components/ui/button";
 import { useGetTotalPaidToLandlord, useWithrawRent } from "@/services/request/contract/contract-request";
 import { getParsedError } from "@/utils/scaffold-eth";
+import { formatUnits } from "ethers";
 import { Loader } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 //this is page allows the landlord to withdraw funds from the wallet
@@ -73,8 +74,6 @@ export default function WithdrawFundsClientPage() {
           setWLoading(false)
         },
     });
-  
-
 
   return (
       <div className="bg-gray-100 mt-3 min-h-[90vh]">
@@ -82,7 +81,7 @@ export default function WithdrawFundsClientPage() {
         <div className="max-w-lg mx-auto w-full mt-20 p-6 bg-white rounded-lg shadow-mdrounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-xl">
           <h2 className="text-lg font-semibold mb-2">Withdraw Funds</h2>
 
-          <p className="text-2xl font-bold text-gray-800">{balance}</p>
+          <p className="text-2xl font-bold text-gray-800">{(Number(formatUnits(balance, 18))).toFixed(9)}</p>
           <p className="text-sm text-gray-500 mb-4">Last updated: {lastUpdated}</p>
 
           {/* <label className="block text-sm font-medium text-gray-700 mb-1">
