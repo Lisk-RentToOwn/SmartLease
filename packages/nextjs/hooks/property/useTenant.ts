@@ -1,15 +1,20 @@
 import { eventService } from "./usePropertyEvents";
 import { PropertyEvent } from "@/services/events/PropertyEvents";
-import { CalendarMonth, DashboardState, PaymentRecord } from "@/types/tenant-tpes";
-import { isCurrentMonth, updateDashboardOnEquityUpdate, updateDashboardOnPayment } from "@/utils/dashboardUpdates";
+import {
+  CalendarMonth,
+  DashboardState,
+  PaymentRecord,
+} from "@/types/tenant-tpes";
+import {
+  isCurrentMonth,
+  updateDashboardOnEquityUpdate,
+  updateDashboardOnPayment,
+} from "@/utils/dashboardUpdates";
 import { getEquityTier } from "@/utils/equityCalculation";
 import { format } from "date-fns";
 import { ethers } from "ethers";
-import { start } from "nprogress";
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
-import { useAccount } from "wagmi";
-
 
 export type TenantLandlordAssignment = {
   propertyId: number;
@@ -304,7 +309,7 @@ export function useTenantEquity(address?: string, propertyId?: number) {
     equity: 0,
     tier: getEquityTier(0),
   });
-  const [loading, setLoading] = useState(false); // Optional: simulate equity load
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -313,25 +318,34 @@ export function useTenantEquity(address?: string, propertyId?: number) {
     const fetchInitialEquity = async () => {
       try {
         setLoading(true);
+        console.log("📡 Fetching latest EquityUpdated event for:", {
+          tenant: address,
+          propertyId,
+        });
 
-        //get latest equityUpdate
         const { events } = await eventService.getEvents(
           "RentToOwn",
           "EquityUpdated",
-          { tenant: address, propertyId },
+
+          [propertyId, address],
           0,
           "latest",
           1
         );
+
         const latestEquity = events?.[0];
+        console.log("✅ Latest EquityUpdated Event:", latestEquity);
 
         if (latestEquity) {
-          const current = latestEquity.args.Newequity;
-          setData({ equity: current, tier: getEquityTier(current) });
-        }
+          const current = latestEquity.args.newEquity;
+          console.log("📊 Setting initial equity:", current);
 
-        //live event for equityUpdate
+          setData({ equity: current, tier: getEquityTier(current) });
+        } else {
+          console.warn("⚠️ No equity event found for this tenant.");
+        }
       } catch (err) {
+        console.error("❌ Error fetching tenant equity:", err);
         setError(err as Error);
       } finally {
         setLoading(false);
@@ -344,17 +358,26 @@ export function useTenantEquity(address?: string, propertyId?: number) {
       "RentToOwn",
       "EquityUpdated",
       (event) => {
+        console.log("📥 Live EquityUpdated event received:", event);
+
         if (
           event.args.tenant === address &&
           event.args.propertyId === propertyId
         ) {
-          const current = event.args.Newequity;
+          const current = event.args.newEquity;
+          console.log("🔄 Live update - setting new equity:", current);
+
           setData({ equity: current, tier: getEquityTier(current) });
+        } else {
+          console.log("ℹ️ Ignored event (not for this tenant/property)");
         }
       }
     );
 
-    return () => unsub();
+    return () => {
+      console.log("🧹 Cleaning up event listener");
+      unsub();
+    };
   }, [address, propertyId]);
 
   return { data, loading, error };
@@ -374,7 +397,9 @@ export function useTenantRentStatus(payments: any[], property?: any) {
   return { data, loading, error };
 }
 
-export async function getTenantLandlordAssignments(tenant: string): Promise<TenantLandlordAssignment[]> {
+export async function getTenantLandlordAssignments(
+  tenant: string
+): Promise<TenantLandlordAssignment[]> {
   if (!tenant) return [];
 
   // Step 1: Fetch PropertyOccupied events for the tenant
@@ -387,10 +412,10 @@ export async function getTenantLandlordAssignments(tenant: string): Promise<Tena
     1000 // High limit to get all
   );
 
-  console.log(occupiedEvents)
-  console.log(tenant)
+  console.log(occupiedEvents);
+  console.log(tenant);
 
-  const propertyIds = occupiedEvents.map(e => Number(e.args.propertyId));
+  const propertyIds = occupiedEvents.map((e) => Number(e.args.propertyId));
 
   if (!propertyIds.length) return [];
 
@@ -401,16 +426,20 @@ export async function getTenantLandlordAssignments(tenant: string): Promise<Tena
   );
 
   // Step 3: Match landlord by propertyId
-  const matched: TenantLandlordAssignment[] = propertyIds.map(propertyId => {
-    const created = createdEvents.find(c => Number(c.args.propertyId) === propertyId);
-    if (!created) return null;
+  const matched: TenantLandlordAssignment[] = propertyIds
+    .map((propertyId) => {
+      const created = createdEvents.find(
+        (c) => Number(c.args.propertyId) === propertyId
+      );
+      if (!created) return null;
 
-    return {
-      propertyId,
-      landlord: created.args.landlord,
-      propertyName: created.args.name,
-    };
-  }).filter(Boolean) as TenantLandlordAssignment[];
+      return {
+        propertyId,
+        landlord: created.args.landlord,
+        propertyName: created.args.name,
+      };
+    })
+    .filter(Boolean) as TenantLandlordAssignment[];
 
   return matched;
 }
@@ -507,7 +536,7 @@ export function useOwnershipDate(address?: string, propertyId?: number) {
           address,
           propertyId
         );
-        console.log("📊 Payments fetched:", payments.length);
+        // console.log("📊 Payments fetched:", payments.length);
 
         if (!payments || payments.length === 0) {
           console.warn("⚠️ No payment history found for tenant.");
@@ -515,7 +544,7 @@ export function useOwnershipDate(address?: string, propertyId?: number) {
         }
 
         const firstPayment = payments.at(-1); // oldest payment
-        console.log("📅 First payment found:", firstPayment);
+        // console.log("📅 First payment found:", firstPayment);
 
         if (!firstPayment?.timestamp) {
           console.warn("⏱️ First payment has no timestamp.");
@@ -524,9 +553,9 @@ export function useOwnershipDate(address?: string, propertyId?: number) {
 
         const startDate = new Date(firstPayment.timestamp * 1000);
         const duration = Number(info.args.duration);
-        console.log(
-          `📆 Start date: ${startDate}, Duration: ${duration} months`
-        );
+        // console.log(
+        //   `📆 Start date: ${startDate}, Duration: ${duration} months`
+        // );
 
         const date = new Date(startDate);
         date.setMonth(date.getMonth() + duration);
@@ -594,7 +623,7 @@ export interface TokenTransferEvent extends PropertyEvent {
   args: {
     from: string;
     to: string;
-    amount: string; // typically a string from the event log
+    amount: string;
     tokenId: number;
   };
   timestamp: number;
@@ -633,9 +662,15 @@ export function useTenantTokenStats(address?: string, propertyId?: number) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!address || !propertyId) return;
+    if (!address || !propertyId) {
+      console.warn(
+        "Missing address or propertyId. Skipping token stats fetch."
+      );
+      return;
+    }
 
     const load = async () => {
+      console.log("🔄 Fetching token stats for:", { address, propertyId });
       setLoading(true);
       try {
         const { events } = await eventService.getEvents(
@@ -643,35 +678,40 @@ export function useTenantTokenStats(address?: string, propertyId?: number) {
           "TokensTransferred",
           { propertyId }
         );
-        
+
         // ✅ Filter only events that are valid TokenTransferEvents and match the address
         const tenantTransfers = events.filter(
           (e): e is TokenTransferEvent =>
             e.args.to.toLowerCase() === address.toLowerCase()
         );
-        console.log(tenantTransfers)
-
+        console.log(tenantTransfers);
 
         const totalReceived = tenantTransfers.reduce((sum, e) => {
-          const amount = Number(ethers.formatUnits(e.args.amount, 0)); // no decimals assumed
+          const amount = Number(ethers.formatUnits(e.args.amount, 0)); // assumes 0 decimals
           return sum + amount;
         }, 0);
+        // console.log("📊 Total tokens received:", totalReceived);
 
-        const totalTokens = 100; // TODO: Replace with actual total if dynamic
+        const totalTokens = 100; // Static for now
         const unlocked = totalReceived;
         const locked = totalTokens - unlocked;
 
-        setStats({
+        const finalStats: TokenStats = {
           currentTokens: unlocked,
           totalTokens,
           locked,
           unlocked,
           history: tenantTransfers,
-        });
+        };
+
+        // console.log("📈 Final token stats:", finalStats);
+        setStats(finalStats);
       } catch (err) {
+        console.error("❌ Error loading token stats:", err);
         setError(err as Error);
       } finally {
         setLoading(false);
+        console.log("✅ Token stats fetch complete.");
       }
     };
 
@@ -712,8 +752,10 @@ export function useTenantPaymentHistory(address?: string, propertyId?: number) {
   return { events, loading, error };
 }
 
-
-export async function buildTenantDashboard(property: PropertyEvent, address: string): Promise<DashboardState> {
+export async function buildTenantDashboard(
+  property: PropertyEvent,
+  address: string
+): Promise<DashboardState> {
   const propertyId = property.args.propertyId;
 
   let dashboardState: DashboardState = {
@@ -729,7 +771,10 @@ export async function buildTenantDashboard(property: PropertyEvent, address: str
   };
 
   // ✅ Tenant-specific payment history (correct method)
-  const history = await eventService.getTenantPaymentHistory(address, propertyId);
+  const history = await eventService.getTenantPaymentHistory(
+    address,
+    propertyId
+  );
   console.log("Tenant payment history", address, propertyId, history);
 
   for (const event of history) {
@@ -751,7 +796,6 @@ export async function buildTenantDashboard(property: PropertyEvent, address: str
 
   return dashboardState;
 }
-
 
 export interface GrowthChartPoint {
   name: string; // e.g. "Jan"
@@ -785,7 +829,6 @@ async function getTenantPayments(
   });
 }
 
-
 function formatChartData(
   payments: PaymentRecord[],
   fullPrice: number,
@@ -796,14 +839,22 @@ function formatChartData(
   const data: GrowthChartPoint[] = [];
 
   // Sort payments oldest → newest
-  const sorted = [...payments].sort((a, b) => a.date.getTime() - b.date.getTime());
+  const sorted = [...payments].sort(
+    (a, b) => a.date.getTime() - b.date.getTime()
+  );
 
   for (let i = 0; i < duration; i++) {
-    const monthDate = new Date(now.getFullYear(), now.getMonth() - (duration - 1) + i, 1);
+    const monthDate = new Date(
+      now.getFullYear(),
+      now.getMonth() - (duration - 1) + i,
+      1
+    );
     const label = format(monthDate, "MMM");
 
     const payment = sorted.find(
-      (p) => p.date.getMonth() === monthDate.getMonth() && p.date.getFullYear() === monthDate.getFullYear()
+      (p) =>
+        p.date.getMonth() === monthDate.getMonth() &&
+        p.date.getFullYear() === monthDate.getFullYear()
     );
 
     const totalPaidUpToThisMonth = sorted

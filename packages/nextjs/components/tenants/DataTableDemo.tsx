@@ -1,8 +1,11 @@
 "use client";
 
 import { usePropertyInfo } from "@/hooks/property/propertyInfo";
-import { useTenantPayments } from "@/hooks/property/useTenant";
-import { useUserSession } from "@/hooks/property/useTenant";
+import {
+  useTenantPayments,
+  useUserSession,
+  useTenantEquity,
+} from "@/hooks/property/useTenant";
 import {
   ColumnDef,
   flexRender,
@@ -13,7 +16,8 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ExternalLink, Eye } from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 import { useAccount } from "wagmi";
 import { Button } from "~~/components/ui/button";
@@ -89,13 +93,34 @@ export const columns: ColumnDef<Payment>[] = [
   {
     accessorKey: "transaction",
     header: "Transaction",
-    cell: ({ row }) => <div>{row.getValue("transaction")}</div>,
+    cell: ({ row }) => {
+      const tx = row.original.transaction ?? "";
+      const shortTx = `${tx.slice(0, 6)}....${tx.slice(-4)} `;
+      const explorer = `https://sepolia-blockscout.lisk.com/tx/${tx}?tab=logs`;
+
+      return (
+        <div className="flex items-center gap-1 text-blue-600 hover:underline">
+          <a
+            href={explorer}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1"
+          >
+            {shortTx}
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
+      );
+    },
   },
 ];
 
 export default function DataTableDemo() {
   const { address } = useAccount();
   const { propertyId } = useUserSession(address);
+  const { data } = useTenantEquity(address, propertyId!);
+  const equityValue = Number(data.equity) / 100;
+
   const {
     paymentdata: paymentData,
     loading,
@@ -103,18 +128,21 @@ export default function DataTableDemo() {
   } = useTenantPayments(address, propertyId ?? undefined);
 
   const mappedPayments: Payment[] = React.useMemo(() => {
-    return paymentData.map((p) => ({
-      date:
-        p.date?.toLocaleDateString("en-us", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }) ?? "N/A",
-      amount: p.amount,
-      status: "completed",
-      equityEarned: "+0.25%", // static for now
-      transaction: `${p.txHash.slice(0, 6)}....${p.txHash.slice(-4)}`,
-    }));
+    return paymentData
+      .slice()
+      .sort((a, b) => (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0))
+      .map((p) => ({
+        date:
+          p.date?.toLocaleDateString("en-us", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          }) ?? "N/A",
+        amount: p.amount,
+        status: "completed",
+        equityEarned: `+${equityValue}%`,
+        transaction: p.txHash,
+      }));
   }, [paymentData]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -191,24 +219,28 @@ export default function DataTableDemo() {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="border-b border-gray-200 hover:bg-gray-100"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className="text-gray-700 text-sm py-3"
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const txHash = row.original.transaction;
+
+                return (
+                  <TableRow
+                    key={row.id}
+                    className="border-b border-gray-200 hover:bg-gray-100"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className="text-gray-700 text-sm py-3"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell
