@@ -14,6 +14,7 @@ import { useChatMessaging } from '@/hooks/useChatMessaging';
 import { useTenantAssignment } from '@/hooks/property/usePropertyEvents';
 import { useEnsProfile } from '@/hooks/useEnsProfile';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 
 type DisplayConversation = {
@@ -111,8 +112,8 @@ export default function Chat() {
 
             {/* Chat window */}
             <ResizablePanel defaultSize={70}>
-                <div className='bg-chat-gradient w-full h-[80vh] overflow-y-auto relative'>
-                    <div className='h-full p-6 space-y-2'>
+                <div className='bg-chat-gradient w-full h-[70vh] relative'>
+                    <div className='h-[60vh] p-6 space-y-2 overflow-y-auto custom-scrollbar'>
                     {messages.length > 0 ? (
                         Object.entries(grouped).map(([day, msgs]) => (
                             <div key={day}>
@@ -126,13 +127,14 @@ export default function Chat() {
                                             <div 
                                                 className={`max-w-[70%] px-4 py-2 rounded-lg text-sm ${
                                                     msg.senderAddress === walletAddress
-                                                        ? 'bg-[#00C2BA] text-white ml-auto w-max  text-end'
-                                                        : 'bg-[#F5F7FA] text-[#111827]'
-                                                    }`
-                                                }
+                                                      ? 'bg-[#00C2BA] text-white ml-auto w-max  text-end'
+                                                      : 'bg-gray-300 text-slate-600 w-max text-start'
+                                                  }`}
                                             >
                                                 <p className='text-base'>{msg.content}</p>
-                                                <span className="block text-xs text-white/90 text-right opacity-80">
+                                                <span className={cn("block text-xs text-gray-500 text-left opacity-80",
+                                 {"text-white/90": msg.senderAddress === walletAddress}
+                                 )}>
                                                     {format(new Date(msg.sent), "hh:mm a")}
                                                     {msg.isPending && ' • Sending...'}
                                                 </span>
@@ -149,18 +151,21 @@ export default function Chat() {
                     )}
                     </div>
 
-                    <div className='px-20 py-10 absolute bottom-0 left-0 right-0 bg-white/30 backdrop-blur-md'>
-                    <div className='relative w-full'>
-                        <input
-                        className="border rounded-full bg-white/60 backdrop-blur-md border-teal-700 focus:outline-none w-full px-6 py-4"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Type your message..."
-                        />
-                        <button className="text-white px-4 absolute right-3 top-1/2 -translate-y-1/2" onClick={handleSend}>
-                            <LucideSendHorizonal className='text-[#00C2BA]' />
-                        </button>
-                    </div>
+                    <div className='px-20 py-6 absolute bottom-0 left-0 right-0'>
+                        <div className='relative w-full'>
+                            <input
+                            className="border rounded-full bg-gray-200 shadow-lg focus:outline-none w-full px-6 py-4"
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="Type your message..."
+                            />
+                            <button
+                            className="text-white px-4 absolute right-3 top-1/2 -translate-y-1/2"
+                            onClick={handleSend}
+                            >
+                            <LucideSendHorizonal className='text-slate-400' />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </ResizablePanel>
