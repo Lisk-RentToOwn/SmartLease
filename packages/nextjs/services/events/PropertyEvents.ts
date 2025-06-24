@@ -134,7 +134,7 @@ export class PropertyEventService {
     const events = await Promise.all(
       //@ts-ignore
       paginatedEvents.map((log) =>
-        this.parseEvent(contractName, log, eventName)
+        this.parseEvent(contractName, log as  EventLog, eventName)
       ) // Pass eventName
     );
 

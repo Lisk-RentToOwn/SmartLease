@@ -1,8 +1,17 @@
 import { eventService } from "./usePropertyEvents";
 import { PropertyEvent } from "@/services/events/PropertyEvents";
-import { CalendarMonth } from "@/types/tenant-tpes";
-import { isCurrentMonth } from "@/utils/dashboardUpdates";
+import {
+  CalendarMonth,
+  DashboardState,
+  PaymentRecord,
+} from "@/types/tenant-tpes";
+import {
+  isCurrentMonth,
+  updateDashboardOnEquityUpdate,
+  updateDashboardOnPayment,
+} from "@/utils/dashboardUpdates";
 import { getEquityTier } from "@/utils/equityCalculation";
+import { format } from "date-fns";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
@@ -651,13 +660,13 @@ export function useTenantTokenStats(address?: string, propertyId?: number) {
           "TokensTransferred",
           { propertyId }
         );
-        // console.log("📦 Raw token transfer events:", events);
 
+        // ✅ Filter only events that are valid TokenTransferEvents and match the address
         const tenantTransfers = events.filter(
           (e): e is TokenTransferEvent =>
-            e.args?.to?.toLowerCase() === address.toLowerCase()
+            e.args.to.toLowerCase() === address.toLowerCase()
         );
-        // console.log("✅ Filtered tenant token transfers:", tenantTransfers);
+        console.log(tenantTransfers);
 
         const totalReceived = tenantTransfers.reduce((sum, e) => {
           const amount = Number(ethers.formatUnits(e.args.amount, 0)); // assumes 0 decimals
@@ -723,4 +732,144 @@ export function useTenantPaymentHistory(address?: string, propertyId?: number) {
   }, [address, propertyId]);
 
   return { events, loading, error };
+}
+
+export async function buildTenantDashboard(
+  property: PropertyEvent,
+  address: string
+): Promise<DashboardState> {
+  const propertyId = property.args.propertyId;
+
+  let dashboardState: DashboardState = {
+    property,
+    equity: {
+      current: 0,
+      tier: { name: "Bronze", color: "#cd7f32", progress: 0 },
+    },
+    rent: {
+      paidThisMonth: false,
+    },
+    paymentHistory: [],
+  };
+
+  // ✅ Tenant-specific payment history (correct method)
+  const history = await eventService.getTenantPaymentHistory(
+    address,
+    propertyId
+  );
+  console.log("Tenant payment history", address, propertyId, history);
+
+  for (const event of history) {
+    dashboardState = updateDashboardOnPayment(dashboardState, event);
+  }
+
+  // ✅ All equity updates for this property (applied globally)
+  const { events: equityEvents } = await eventService.getEvents(
+    "RentToOwn",
+    "EquityUpdated",
+    { propertyId: BigInt(propertyId) }, // safe
+    0,
+    "latest"
+  );
+
+  for (const event of equityEvents) {
+    dashboardState = updateDashboardOnEquityUpdate(dashboardState, event);
+  }
+
+  return dashboardState;
+}
+
+export interface GrowthChartPoint {
+  name: string; // e.g. "Jan"
+  actualGrowth: number | null;
+  projectedGrowth: number;
+  marketValue: number;
+}
+
+async function getTenantPayments(
+  tenant: string,
+  propertyId: number
+): Promise<PaymentRecord[]> {
+  const { events } = await eventService.getEvents(
+    "RentToOwn",
+    "RentPaid",
+    { propertyId, tenant },
+    0,
+    "latest"
+  );
+
+  return events.map((e) => {
+    const amount = Number(ethers.formatUnits(e.args.amount, 18));
+    return {
+      //@ts-ignore
+      date: new Date(e.timestamp * 1000),
+      amount,
+      txHash: e.txHash,
+      equityEarned: 0, // we’ll calculate real equity later
+      propertyId: Number(e.args.propertyId),
+    };
+  });
+}
+
+function formatChartData(
+  payments: PaymentRecord[],
+  fullPrice: number,
+  duration: number,
+  marketRatePerToken: number = 1
+): GrowthChartPoint[] {
+  const now = new Date();
+  const data: GrowthChartPoint[] = [];
+
+  // Sort payments oldest → newest
+  const sorted = [...payments].sort(
+    (a, b) => a.date.getTime() - b.date.getTime()
+  );
+
+  for (let i = 0; i < duration; i++) {
+    const monthDate = new Date(
+      now.getFullYear(),
+      now.getMonth() - (duration - 1) + i,
+      1
+    );
+    const label = format(monthDate, "MMM");
+
+    const payment = sorted.find(
+      (p) =>
+        p.date.getMonth() === monthDate.getMonth() &&
+        p.date.getFullYear() === monthDate.getFullYear()
+    );
+
+    const totalPaidUpToThisMonth = sorted
+      .filter((p) => p.date <= monthDate)
+      .reduce((acc, p) => acc + p.amount, 0);
+
+    const equityPercentage = (totalPaidUpToThisMonth / fullPrice) * 100;
+    const projectedPercentage = ((i + 1) / duration) * 100;
+
+    data.push({
+      name: label,
+      actualGrowth: payment ? Number(equityPercentage.toFixed(2)) : null,
+      projectedGrowth: Number(projectedPercentage.toFixed(2)),
+      marketValue: Number((equityPercentage * marketRatePerToken).toFixed(2)),
+    });
+  }
+
+  return data;
+}
+
+/**
+ * Main function to call from your dashboard/hook
+ */
+export async function generateTenantGrowthChartData(
+  tenantAddress: string,
+  propertyEvent: PropertyEvent,
+  marketRatePerToken = 1
+): Promise<GrowthChartPoint[]> {
+  const propertyId = Number(propertyEvent.args.propertyId);
+  const duration = Number(propertyEvent.args.duration);
+  const fullPrice = Number(ethers.formatUnits(propertyEvent.args.value, 18));
+
+  const payments = await getTenantPayments(tenantAddress, propertyId);
+
+  return formatChartData(payments, fullPrice, duration, marketRatePerToken);
 }

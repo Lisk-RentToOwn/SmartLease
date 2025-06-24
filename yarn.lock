@@ -5457,7 +5457,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@uniswap/sdk-core": ^4.0.1
     "@uniswap/v2-sdk": ^3.0.1
-    "@xmtp/xmtp-js": ^13.0.4
+    "@xmtp/browser-sdk": ^2.2.1
     autoprefixer: ^10.4.21
     blo: ^1.0.1
     blob-stream: ^0.1.3
@@ -8994,6 +8994,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@xmtp/browser-sdk@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@xmtp/browser-sdk@npm:2.2.1"
+  dependencies:
+    "@xmtp/content-type-group-updated": ^2.0.2
+    "@xmtp/content-type-primitives": ^2.0.2
+    "@xmtp/content-type-text": ^2.0.2
+    "@xmtp/wasm-bindings": 1.2.2
+    uuid: ^11.1.0
+  checksum: c72100d43bfe147b9fe273250d3bb845635b587e776a82295db5b7d1be0fd93e86c81af90acdbafb6e4b017d75aa5e522f468eab87182ec956c23ef220bd4b70
+  languageName: node
+  linkType: hard
+
 "@xmtp/consent-proof-signature@npm:^0.1.4":
   version: 0.1.4
   resolution: "@xmtp/consent-proof-signature@npm:0.1.4"
@@ -9001,6 +9014,16 @@ __metadata:
     "@xmtp/proto": ^3.72.0
     long: ^5.2.3
   checksum: 71e337bf9f737fa7b0d6793bbff245703bfa600a872ecc19c8f4219a01615ac406f732a2809a66e87c784a5c00791734d267e1574cc5db964c357404dc10e9cf
+  languageName: node
+  linkType: hard
+
+"@xmtp/content-type-group-updated@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@xmtp/content-type-group-updated@npm:2.0.2"
+  dependencies:
+    "@xmtp/content-type-primitives": ^2.0.2
+    "@xmtp/proto": ^3.78.0
+  checksum: 88ffce220ab1b1112e002d39e85ed8493629c354587732fd17a39e6757abe94d3390c4f183f683f0360888ae94fcafe9bdf422920d7fd28baf15aa9c3cdb6330
   languageName: node
   linkType: hard
 
@@ -9013,6 +9036,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@xmtp/content-type-primitives@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@xmtp/content-type-primitives@npm:2.0.2"
+  dependencies:
+    "@xmtp/proto": ^3.78.0
+  checksum: 4e3581ef9e23864bf741705d6011613c6c0b2670b7431f55033769514f0879ff4573d1b442a858cbdd4ee1e493d6fe070ebe8cbd9577a505cd89d2d89e085f97
+  languageName: node
+  linkType: hard
+
 "@xmtp/content-type-text@npm:^1.0.1":
   version: 1.0.1
   resolution: "@xmtp/content-type-text@npm:1.0.1"
@@ -9022,7 +9054,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/proto@npm:^3.72.0":
+"@xmtp/content-type-text@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@xmtp/content-type-text@npm:2.0.2"
+  dependencies:
+    "@xmtp/content-type-primitives": ^2.0.2
+  checksum: 8443ca0c19f95382fdd7345cc8b810f9d1476b206aaec8dbedd1ae36a0e7d997e25d04de6616e8779bf14d8de59a8aa8658ca29014dc0bf71f354069d4d4c959
+  languageName: node
+  linkType: hard
+
+"@xmtp/proto@npm:^3.72.0, @xmtp/proto@npm:^3.78.0":
   version: 3.82.1
   resolution: "@xmtp/proto@npm:3.82.1"
   dependencies:
@@ -9041,7 +9082,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/xmtp-js@npm:^13.0.4":
+"@xmtp/wasm-bindings@npm:1.2.2":
+  version: 1.2.2
+  resolution: "@xmtp/wasm-bindings@npm:1.2.2"
+  checksum: 953e6ee66b5b2cf6b18d83eca109d1d7eeced12a269b630f7ff4435f45b7973843e8394c2a63c118d7e28ccd757ac92fa7d09b058398b547db25ce2c59c16f03
+  languageName: node
+  linkType: hard
+
+"@xmtp/xmtp-js@npm:latest":
   version: 13.0.4
   resolution: "@xmtp/xmtp-js@npm:13.0.4"
   dependencies:
@@ -20435,6 +20483,7 @@ __metadata:
     "@tanstack/react-table": ^8.21.3
     "@types/graphql": ^14.5.0
     "@typescript-eslint/parser": ^5.39.0
+    "@xmtp/xmtp-js": latest
     graphql-request: ^7.2.0
     hardhat: ^2.24.2
     husky: ^8.0.1
@@ -22895,6 +22944,15 @@ __metadata:
   bin:
     uuid: ./bin/uuid
   checksum: 8793629d2799f500aeea9fcd0aec6c4e9fbcc4d62ed42159ad96be345c3fffac1bbf61a23e18e2782600884fee05e6d4012ce4b70d0037c8e987533ae6a77870
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^11.1.0":
+  version: 11.1.0
+  resolution: "uuid@npm:11.1.0"
+  bin:
+    uuid: dist/esm/bin/uuid
+  checksum: 840f19758543c4631e58a29439e51b5b669d5f34b4dd2700b6a1d15c5708c7a6e0c3e2c8c4a2eae761a3a7caa7e9884d00c86c02622ba91137bd3deade6b4b4a
   languageName: node
   linkType: hard
 

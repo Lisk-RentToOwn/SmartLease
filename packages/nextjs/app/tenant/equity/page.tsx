@@ -2,7 +2,11 @@
 
 import { RenToOwnAddress } from "@/constants/contract-address";
 import { usePropertyInfo } from "@/hooks/property/propertyInfo";
-import { useUserSession } from "@/hooks/property/useTenant";
+import {
+  generateTenantGrowthChartData,
+  GrowthChartPoint,
+  useUserSession,
+} from "@/hooks/property/useTenant";
 import { useTenantEquity } from "@/hooks/property/useTenant";
 import { useOwnershipDate } from "@/hooks/property/useTenant";
 import { useEquityGrowth } from "@/hooks/property/useTenant";
@@ -23,6 +27,7 @@ import {
   PieChart,
   Wallet,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import ChartDemo from "~~/components/tenants/ChartDemo";
 import MilestoneProgress from "~~/components/tenants/MilestoneDemo";
@@ -90,6 +95,18 @@ export default function EquityGrowthPage() {
   const tokenId = latest?.args?.tokenId?.toString();
 
   const contractAddress = RenToOwnAddress ?? "0x...";
+  // const [chartData, setChartData] = useState<GrowthChartPoint[]>([]);
+
+  // useEffect(() => {
+  //   console.log(chartData)
+  // }, [chartData])
+
+  // useEffect(() => {
+  //   if (address && propertyInfo) {
+  //     //@ts-ignore
+  //     generateTenantGrowthChartData(address, propertyInfo, 1000).then(setChartData);
+  //   }
+  // }, [address, propertyInfo])
 
   return (
     <div className="pt-4 app-container">
