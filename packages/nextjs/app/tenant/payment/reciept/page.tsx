@@ -108,17 +108,18 @@ export default function Reciept({ params }: Props) {
       <main className=" self-center w-2/3 lg:w-2/5 ">
         <section className="  flex-ic gap-2 bg-rd-green py-4 px-20 rounded-t-xl">
           <Check className="border rounded-sm p-1 text-white bg-emerald-400" />
-          <p className=" text-sm">
+          <p className=" text-sm text-white">
             Thank you for your payment! Your equity has been updated
           </p>
         </section>
-        <Card className="rounded-t-none space-y-3">
+        
+        <Card className="rounded-t-none border-none space-y-3">
           <CardHeader className="flex-jb-ic flex-row border-b !pb-3">
             <CardTitle>Payment Receipt</CardTitle>
             <CardDescription>Receipt # RTW-23456</CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-6 flex flex-col">
+          <CardContent className="space-y-6 flex flex-col border-none">
             <section className="space-y-2.5">
               <p className="text-gray-bold">TENANT INFORMATION</p>
               <div className="flex-jb-ic">
@@ -187,20 +188,21 @@ export default function Reciept({ params }: Props) {
               </div>
             </section>
             <section className="self-center">
-              <QRCode value={qrData} size={128} />
+              <QRCode value={qrData} size={128} className=""/>
             </section>
           </CardContent>
           <CardFooter className="border-t pt-6 gap-3 flex items-center justify-center">
-            <Button variant={"outline"} className="text-gray-bold border-2">
+            <Button variant={"outline"} className="text-gray-500 border-2 border-teal-500">
               <HardDriveDownload /> Download PDF Receipt
             </Button>
-            <Button className="bg-purple-500 text-xs">
+            <Button className="bg-gradient-web3-blue text-sm">
               <ExternalLink />
-              View on Etherscan
+              View on Explorer
             </Button>
           </CardFooter>
         </Card>
-        <Card className="mt-5">
+
+        <Card className="mt-5 border-none">
           <CardHeader>
             <CardTitle>Your Ownership Progress</CardTitle>
           </CardHeader>

@@ -1,11 +1,12 @@
-import MessageCenter from "@/components/shared/messaging/Messaging";
+import MessageCenter from "@/components/shared/messaging/Messaging"
+import TenantMessageCenter from "@/components/shared/messaging/TenantMessaging"
 
 const MessagePage = () => {
-  return (
-    <>
-      <MessageCenter />
-    </>
-  );
-};
+    return (
+        <>
+            <TenantMessageCenter/>
+        </>
+    )
+}
 
 export default MessagePage;

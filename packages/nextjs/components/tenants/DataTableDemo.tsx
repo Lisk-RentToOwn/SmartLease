@@ -136,9 +136,9 @@ export default function DataTableDemo() {
   });
 
   return (
-    <div className="w-full bg-gray-50  rounded-lg">
-      <div className="flex items-center justify-between p-4 bg-blue-200/10">
-        <p className="text-xl font-semibold text-gray-800">Payment History</p>
+    <div className="w-full bg-gray-50   rounded-lg">
+      <div className="flex items-center rounded-tl-lg rounded-tr-lg justify-between p-4 bg-gradient-web3-blue">
+        <p className="text-xl font-semibold text-white">Payment History</p>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

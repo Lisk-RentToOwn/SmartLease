@@ -9,6 +9,13 @@ import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
 import { useAccount } from "wagmi";
 
+
+export type TenantLandlordAssignment = {
+  propertyId: number;
+  landlord: string;
+  propertyName: string;
+};
+
 export function calculateNextPayment(
   payments: PropertyEvent[],
   property: PropertyEvent
@@ -366,6 +373,46 @@ export function useTenantRentStatus(payments: any[], property?: any) {
   return { data, loading, error };
 }
 
+export async function getTenantLandlordAssignments(tenant: string): Promise<TenantLandlordAssignment[]> {
+  if (!tenant) return [];
+
+  // Step 1: Fetch PropertyOccupied events for the tenant
+  const { events: occupiedEvents } = await eventService.getEvents(
+    "RentToOwn",
+    "PropertyOccupied",
+    {}, // No filters here
+    0,
+    "latest",
+    1000 // High limit to get all
+  );
+
+  console.log(occupiedEvents)
+  console.log(tenant)
+
+  const propertyIds = occupiedEvents.map(e => Number(e.args.propertyId));
+
+  if (!propertyIds.length) return [];
+
+  // Step 2: Fetch all PropertyCreated events (filter by landlord optional)
+  const { events: createdEvents } = await eventService.getEvents(
+    "RentToOwn",
+    "PropertyCreated"
+  );
+
+  // Step 3: Match landlord by propertyId
+  const matched: TenantLandlordAssignment[] = propertyIds.map(propertyId => {
+    const created = createdEvents.find(c => Number(c.args.propertyId) === propertyId);
+    if (!created) return null;
+
+    return {
+      propertyId,
+      landlord: created.args.landlord,
+      propertyName: created.args.name,
+    };
+  }).filter(Boolean) as TenantLandlordAssignment[];
+
+  return matched;
+}
 //hook to read the users active rent paid, and previous rent paid, so we retrieve the address and propertyid that will be used in most components
 
 export function useUserSession(address?: string) {
