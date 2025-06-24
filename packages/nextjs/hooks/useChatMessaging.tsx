@@ -1,123 +1,74 @@
 import { useEffect, useState } from 'react';
-import { useXmtp } from '@/context/XmtpContext';
-import { useAccount } from 'wagmi';
+import { DecodedMessage } from '@xmtp/xmtp-js';
+import { useXmtpContext } from '@/context/XmtpContext';
 
-interface MessageWithMeta {
-    id: string;
-    content: string;
-    senderAddress: string;
-    sent: Date;
-    isPending?: boolean;
-}
+export const useChatMessaging = (peerAddress: string) => {
+  const { xmtpClient } = useXmtpContext();
+  const [messages, setMessages] = useState<DecodedMessage[]>([]);
+  const [isPeerAvailable, setIsPeerAvailable] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-export function useChatMessaging(peerAddress?: string) {
-    const { xmtpClient } = useXmtp();
-    const { address: selfAddress } = useAccount();
-    const [messages, setMessages] = useState<MessageWithMeta[]>([]);
-    const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (!xmtpClient || !peerAddress) return;
 
-    useEffect(() => {
-        if (!xmtpClient || !peerAddress) return;
-        let convo: any;
-        let cancel = false;
-  
-        const load = async () => {
-            convo = await xmtpClient.conversations.newConversation(peerAddress);
-            const history = await convo.messages();
-    
-            setMessages(prev => deduplicate([
-            ...prev,
-            //@ts-ignore
-            ...history.map((msg) => ({
-                id: msg.id,
-                content: msg.content,
-                senderAddress: msg.senderAddress,
-                sent: msg.sent,
-            }))
-            ]));
-    
-            for await (const msg of await convo.streamMessages()) {
-                if (cancel) break;
-            
-                setMessages(prev => {
-                const match = prev.find(m =>
-                    m.isPending &&
-                    normalize(m.content) === normalize(msg.content) &&
-                    m.senderAddress === msg.senderAddress &&
-                    Math.abs(m.sent.getTime() - msg.sent.getTime()) < 10000 // 10 sec threshold
-                );
-            
-                if (match) {
-                    // Replace pending message with confirmed one
-                    return [
-                    ...prev.filter(m => m.id !== match.id),
-                    {
-                        id: msg.id,
-                        content: msg.content,
-                        senderAddress: msg.senderAddress,
-                        sent: msg.sent,
-                    }
-                    ];
-                }
-            
-                // No match — safe to append
-                const alreadyExists = prev.some(m => m.id === msg.id);
-                if (alreadyExists) return prev;
-            
-                return [...prev, {
-                    id: msg.id,
-                    content: msg.content,
-                    senderAddress: msg.senderAddress,
-                    sent: msg.sent,
-                }];
-                });
-            }
-        };
-    
-        load();
-        return () => { cancel = true; };
-    }, [xmtpClient, peerAddress]);
+    let mounted = true;
+    const abortController = new AbortController();
 
-    const sendMessage = async (text: string) => {
-        if (!xmtpClient || !peerAddress) return;
-        setLoading(true);
-    
-        const convo = await xmtpClient.conversations.newConversation(peerAddress);
-        const now = new Date();
-        const tempId = `pending-${now.getTime()}`;
-    
-        const pendingMessage: MessageWithMeta = {
-            id: tempId,
-            content: text,
-            senderAddress: selfAddress!,
-            sent: now,
-            isPending: true
-        };
+    const loadConversation = async () => {
+      try {
+        const canMessage = await xmtpClient.canMessage(peerAddress);
+        setIsPeerAvailable(canMessage);
 
-        setMessages(prev => [...prev, pendingMessage]);
-        try {
-            await convo.send(text);
-        } catch (err) {
-            console.error('Message send failed', err);
-        } finally {
-            setLoading(false);
+        if (!canMessage) {
+          setError('This address is not registered with XMTP V3.');
+          return;
         }
+
+        const convo = await xmtpClient.conversations.newConversation(peerAddress);
+        const initialMessages = await convo.messages();
+        if (!mounted) return;
+        setMessages(initialMessages);
+
+        const stream = await convo.streamMessages();
+
+        for await (const msg of stream) {
+          if (!mounted) break;
+          setMessages((prev) => [...prev, msg]);
+        }
+      } catch (e) {
+        if ((e as Error).name !== 'AbortError') {
+          setError('Failed to load messages: ' + (e as Error).message);
+          console.error('XMTP Chat Error:', e);
+        }
+      }
     };
 
-    return { messages, sendMessage, loading };
-}
+    loadConversation();
 
+    return () => {
+      mounted = false;
+      abortController.abort();
+    };
+  }, [xmtpClient, peerAddress]);
 
-function deduplicate(msgs: MessageWithMeta[]) {
-    const seen = new Set<string>();
-    return msgs.filter(m => {
-    if (seen.has(m.id)) return false;
-    seen.add(m.id);
-    return true;
-    });
-}
+  const sendMessage = async (text: string) => {
+    if (!xmtpClient || !peerAddress) return;
+    try {
+      const canMessage = await xmtpClient.canMessage(peerAddress);
+      if (!canMessage) {
+        setIsPeerAvailable(false);
+        setError('User is not available on XMTP V3.');
+        return;
+      }
 
+      const convo = await xmtpClient.conversations.newConversation(peerAddress);
+      const msg = await convo.send(text);
+      setMessages((prev) => [...prev, msg]);
+    } catch (e) {
+      console.error('Failed to send message', e);
+      setError('Message failed: ' + (e as Error).message);
+    }
+  };
 
-function normalize(str: string) {
-    return str.trim().toLowerCase();
-}
+  return { messages, sendMessage, isPeerAvailable, error };
+};

@@ -1,71 +1,70 @@
-'use client';
-
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { useWalletClient } from 'wagmi';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { Client, Conversation } from '@xmtp/xmtp-js';
+import { useWalletClient, useAccount } from 'wagmi';
 import { Web3Provider } from '@ethersproject/providers';
-import type { Client, Conversation } from '@xmtp/xmtp-js';
 
 interface XmtpContextType {
-  conversations: Conversation[];
-  sendMessage: (to: string, message: string) => Promise<void>;
   xmtpClient: Client | null;
+  conversations: Conversation[];
+  loading: boolean;
+  initClient: () => Promise<void>;
 }
 
-const XmtpContext = createContext<XmtpContextType | undefined>(undefined);
+const XmtpContext = createContext<XmtpContextType | null>(null);
+
+export const useXmtpContext = () => {
+  const ctx = useContext(XmtpContext);
+  if (!ctx) throw new Error('XmtpContext not found');
+  return ctx;
+};
 
 export const XmtpProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: walletClient } = useWalletClient();
+  const { address } = useAccount();
   const [xmtpClient, setXmtpClient] = useState<Client | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const initialized = useRef(false);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const initXMTP = async () => {
-      if (!walletClient || initialized.current || typeof window === 'undefined') return;
+  const initClient = async () => {
+    if (!walletClient || !address) return;
 
-      initialized.current = true;
+    const provider = new Web3Provider(walletClient.transport);
+    const signer = provider.getSigner(walletClient.account.address);
 
-      try {
-        const { Client } = await import('@xmtp/xmtp-js');
+    setLoading(true);
+    try {
+      // Clean wipe - only use during development or to reset
+      indexedDB.deleteDatabase('xmtp.db');
+      localStorage.clear();
+      sessionStorage.clear();
 
-        const provider = new Web3Provider(walletClient.transport);
-        const signer = provider.getSigner(walletClient.account.address);
+      const client = await Client.create(signer, {
+        env: 'production',
+        publishLegacyContact: false,
+      });
 
-        // Use cached identity if it exists (stored in IndexedDB automatically)
-        const client = await Client.create(signer, {
-          env: 'dev',
-          persistConversations: true, // ✅ this one is valid
-        });
+      const isRegistered = await Client.canMessage(address);
+      if (!isRegistered) throw new Error('XMTP registration failed');
 
-        setXmtpClient(client);
+      setXmtpClient(client);
 
-        const convs = await client.conversations.list();
-        setConversations(convs);
-      } catch (err) {
-        console.error('❌ Failed to initialize XMTP:', err);
-        // Optional: reset local identity cache if corrupted
-        indexedDB.deleteDatabase('xmtp'); // advanced use
-      }
-    };
-
-    initXMTP();
-  }, [walletClient]);
-
-  const sendMessage = async (to: string, message: string) => {
-    if (!xmtpClient) return;
-    const convo = await xmtpClient.conversations.newConversation(to);
-    await convo.send(message);
+      const convos = await client.conversations.list();
+      const filtered = convos.filter((c) => c.context?.conversationId); // V3 only
+      setConversations(filtered);
+    } catch (err) {
+      console.error('XMTP Init Error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    initClient();
+  }, [walletClient, address]);
+
   return (
-    <XmtpContext.Provider value={{ xmtpClient, conversations, sendMessage }}>
+    <XmtpContext.Provider value={{ xmtpClient, conversations, loading, initClient }}>
       {children}
     </XmtpContext.Provider>
   );
-};
-
-export const useXmtp = () => {
-  const context = useContext(XmtpContext);
-  if (!context) throw new Error('useXmtp must be used within XmtpProvider');
-  return context;
 };

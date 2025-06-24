@@ -55,7 +55,7 @@ export default function GenericLayout({children, sideMenu}:GenericLayoutProps) {
                             <BreadcrumbList>
                                 { sideMenu.map(menu => {
                                     if (menu.url === path) return (
-                                        <BreadcrumbItem className="hidden md:block text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+                                        <BreadcrumbItem key={menu.url} className="hidden md:block text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
                                             <Link href={menu.url}>
                                                 {menu.title}
                                             </Link>
