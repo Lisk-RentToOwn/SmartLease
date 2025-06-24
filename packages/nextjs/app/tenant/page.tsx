@@ -4,7 +4,12 @@ import { Routes } from "../routes";
 import { usePropertyInfo } from "@/hooks/property/propertyInfo";
 import { useTokenDistribution } from "@/hooks/property/usePropertyEvents";
 // import { usePropertyEvent } from "@/hooks/property/useTenant";
-import { buildTenantDashboard, usePropertyEvent, useTenantTokenStats, useUserSession } from "@/hooks/property/useTenant";
+import {
+  buildTenantDashboard,
+  usePropertyEvent,
+  useTenantTokenStats,
+  useUserSession,
+} from "@/hooks/property/useTenant";
 import { useTenantEquity } from "@/hooks/property/useTenant";
 import { calculateNextPayment } from "@/hooks/property/useTenant";
 import { useTenantPayments } from "@/hooks/property/useTenant";
@@ -65,6 +70,8 @@ export default function TenantDashboard() {
   const fullPriceEther = Number(formatUnits(fullPriceWei, 18));
   const term = Number(obj[4]);
 
+  const equityValue = Number(data.equity) / 100;
+
   const propertyInfo = {
     propertyId: Number(obj[0]) || 0,
     tokenId: Number(obj[2]) || 0,
@@ -80,7 +87,6 @@ export default function TenantDashboard() {
   };
 
   console.log(propertyId, address, info, propertyInfo);
-
 
   const router = useRouter();
   const handleBrowseClick = () => {
@@ -98,7 +104,7 @@ export default function TenantDashboard() {
 
         <main className="space-y-6">
           <div className="grid lg:grid-cols-[2fr_1fr] gap-5">
-            <Card className="">
+            <Card className="self-start h-auto">
               <CardHeader className="flex flex-row justify-between">
                 <div>
                   <CardTitle className="mb-1 text-xl">
@@ -151,7 +157,7 @@ export default function TenantDashboard() {
                           <p className="text-gray text-lg">
                             Equity Earned <br />{" "}
                             <span className="text-emerald-500  font-semibold">
-                              12.5%
+                              {equityValue}%
                             </span>
                           </p>
                         </div>
@@ -189,11 +195,11 @@ export default function TenantDashboard() {
                           <p className="text-gray text-base">
                             Vesting Progress
                           </p>
-                          <p className="text-dark">12.5% of 100%</p>
+                          <p className="text-dark">{equityValue}% of 100%</p>
                         </div>
 
                         <ProgressDemo
-                          value={12.5}
+                          value={equityValue}
                           className="progress-green-fill"
                         />
                       </div>
@@ -203,7 +209,7 @@ export default function TenantDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="flex flex-col items-center border-none shadow-lg">
+            <Card className="flex flex-col items-center border-none shadow-lg self-start h-auto">
               <CardHeader>
                 <CardTitle className="text-lg">Equity Progress</CardTitle>
               </CardHeader>
@@ -224,7 +230,7 @@ export default function TenantDashboard() {
                     className="radial-progress text-emerald-500 absolute -translate-x-1/2 left-1/2 top-1/2 flex flex-col items-center"
                     style={
                       {
-                        "--value": data.equity || 0,
+                        "--value": equityValue || 0,
                         "--size": "9rem",
                         "--thickness": "0.8rem",
                       } as React.CSSProperties
@@ -232,7 +238,7 @@ export default function TenantDashboard() {
                   >
                     <h1 className="text-darkColor font-bold text-xl leading-none">
                       {" "}
-                      {data.equity || 0}%
+                      {equityValue || 0}%
                     </h1>
                     <p className="text-gray leading-none">Equity Earned</p>
                   </div>
@@ -273,7 +279,7 @@ export default function TenantDashboard() {
           </div>
 
           <div className="grid lg:grid-cols-3 gap-5">
-            <Card className="!p-0">
+            <Card className="!p-0 ">
               <CardHeader className="space-y-3 !pb-3 ">
                 <CardTitle className="text-xl text-slate-600">
                   Rent Payment
@@ -309,22 +315,6 @@ export default function TenantDashboard() {
                     {propertyInfo?.monthlyPrice ?? "0.00"}
                   </p>
                 )}
-                <div className="flex justify-between">
-                  <div
-                    className="flex items-center mb-3
-                  "
-                  >
-                    <span className="text-gray">Gasless Transactions</span>
-                    <Switch className="scale-75" />
-                  </div>
-                  <div
-                    className="flex items-center
-                  "
-                  >
-                    <span className="text-gray">AutoPay</span>
-                    <Switch className="scale-75" />
-                  </div>
-                </div>
 
                 {/* <CardContent className="pt-5">
                 <p className="text-gray">Amount Due</p>
@@ -333,7 +323,7 @@ export default function TenantDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-lg">
+            <Card className="border-none shadow-lg ">
               <CardHeader className="space-y-3 !pb-3 ">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-xl text-slate-600">
@@ -381,7 +371,7 @@ export default function TenantDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-none shadow-lg">
+            <Card className="border-none shadow-lgself-start h-auto">
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Notifications</CardTitle>

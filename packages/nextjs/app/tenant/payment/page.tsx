@@ -53,6 +53,8 @@ export default function TenantPaymentPage() {
   const { info, loading } = usePropertyEvent(propertyId ?? undefined);
   const { paymentdata } = useTenantPayments(address, propertyId ?? undefined);
 
+  const equityValue = Number(data.equity) / 100;
+
   let nextPayment;
   if (info) {
     nextPayment = calculateNextPayment(paymentdata, info);
@@ -93,11 +95,11 @@ export default function TenantPaymentPage() {
 
           <section className="grid lg:grid-cols-12 gap-20">
             <div className="grid col-span-8 space-y-5">
-              <Card className="space-y-3">
+              <Card className="space-y-3 ">
                 <CardHeader className="border-b !py-3 bg-blue-200/20">
                   <CardTitle className="text-sm">Upcoming Rent</CardTitle>
                 </CardHeader>
-                <CardContent className="flex justify-between">
+                <CardContent className="flex-ic justify-between">
                   <div>
                     {loading ? (
                       <SkeletonText />
@@ -126,7 +128,7 @@ export default function TenantPaymentPage() {
                     <div className="flex items-center gap-1">
                       <PieChartIcon className="w-3 text-emerald-400" />
                       <p className="text-gray">
-                        Earns {data.equity || 0}% equity this month
+                        Earns {equityValue || 0}% equity this month
                       </p>
                     </div>
                   </div>
@@ -219,15 +221,15 @@ export default function TenantPaymentPage() {
                   <div className="space-y-1">
                     <div className="flex justify-between ">
                       <p className="text-gray">Total Equity Earned</p>
-                      <p className="text-dark">{data.equity || 0}%</p>
+                      <p className="text-dark">{equityValue || 0}%</p>
                     </div>
                     <ProgressDemo
-                      value={data.equity || 0}
+                      value={equityValue || 0}
                       className="progress-green-fill"
                     />
                   </div>
                   <p className="text-gray-bold">
-                    You've earned {data.equity || 0}% equally in your property
+                    You've earned {equityValue || 0}% equally in your property
                     through on-time
                     <br />
                     rent payments. Keep it up!

@@ -1,7 +1,11 @@
 "use client";
 
 import { usePropertyInfo } from "@/hooks/property/propertyInfo";
-import { useTenantPayments, useUserSession } from "@/hooks/property/useTenant";
+import {
+  useTenantPayments,
+  useUserSession,
+  useTenantEquity,
+} from "@/hooks/property/useTenant";
 import {
   ColumnDef,
   flexRender,
@@ -114,6 +118,9 @@ export const columns: ColumnDef<Payment>[] = [
 export default function DataTableDemo() {
   const { address } = useAccount();
   const { propertyId } = useUserSession(address);
+  const { data } = useTenantEquity(address, propertyId!);
+  const equityValue = Number(data.equity) / 100;
+
   const {
     paymentdata: paymentData,
     loading,
@@ -133,7 +140,7 @@ export default function DataTableDemo() {
           }) ?? "N/A",
         amount: p.amount,
         status: "completed",
-        equityEarned: "+0.25%", // static for now
+        equityEarned: `+${equityValue}%`,
         transaction: p.txHash,
       }));
   }, [paymentData]);

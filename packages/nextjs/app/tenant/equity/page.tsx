@@ -87,14 +87,20 @@ export default function EquityGrowthPage() {
   if (info) {
     nextPayment = calculateNextPayment(paymentdata, info);
   }
-  // console.log(stats);
-
-  const remainingEquity = !data.equity ? 0 : 100 - data.equity;
+  console.log(data);
 
   const latest = stats.history[0];
   const tokenId = latest?.args?.tokenId?.toString();
 
   const contractAddress = RenToOwnAddress ?? "0x...";
+
+  const equityValue = Number(data.equity) / 100;
+  console.log(equityValue);
+
+  const remainingEquity = !equityValue ? 0 : 100 - equityValue;
+
+  // const fullPriceEther = Number(formatUnits(fullPriceWei, 18));
+
   // const [chartData, setChartData] = useState<GrowthChartPoint[]>([]);
 
   // useEffect(() => {
@@ -128,7 +134,7 @@ export default function EquityGrowthPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="value ">{data.equity}%</p>
+              <p className="value ">{equityValue}%</p>
               <p className="text-gray">
                 {growth ? `${growth}% from last month` : "No equity growth yet"}
               </p>
@@ -222,11 +228,11 @@ export default function EquityGrowthPage() {
                 <p className="value flex items-center gap-2">
                   {stats ? stats.unlocked : 0}{" "}
                   <span className="text-gray">
-                    tokens ({data ? data.equity : 0}%)
+                    tokens ({data ? equityValue : 0}%)
                   </span>
                 </p>
                 <ProgressDemo
-                  value={data.equity || 0}
+                  value={equityValue || 0}
                   className="progress-green-fill"
                 />
                 <div className="flex-jb-ic">
@@ -241,7 +247,7 @@ export default function EquityGrowthPage() {
                       : "00/00/0000"}
                   </p>
                   <p className="text-xs text-emerald-400">
-                    {data ? data.equity : 0}% of your holdings
+                    {data ? equityValue : 0}% of your holdings
                   </p>
                 </div>
               </CardContent>
@@ -291,10 +297,7 @@ export default function EquityGrowthPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <MilestoneProgress
-                milestones={milestones}
-                currentMilestone={currentMilestone}
-              />
+              <MilestoneProgress address={address} propertyId={propertyId!} />
             </CardContent>
           </Card>
         </section>

@@ -309,7 +309,7 @@ export function useTenantEquity(address?: string, propertyId?: number) {
     equity: 0,
     tier: getEquityTier(0),
   });
-  const [loading, setLoading] = useState(false); // Optional: simulate equity load
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -318,25 +318,34 @@ export function useTenantEquity(address?: string, propertyId?: number) {
     const fetchInitialEquity = async () => {
       try {
         setLoading(true);
+        console.log("📡 Fetching latest EquityUpdated event for:", {
+          tenant: address,
+          propertyId,
+        });
 
-        //get latest equityUpdate
         const { events } = await eventService.getEvents(
           "RentToOwn",
           "EquityUpdated",
-          { tenant: address, propertyId },
+
+          [propertyId, address],
           0,
           "latest",
           1
         );
+
         const latestEquity = events?.[0];
+        console.log("✅ Latest EquityUpdated Event:", latestEquity);
 
         if (latestEquity) {
-          const current = latestEquity.args.Newequity;
-          setData({ equity: current, tier: getEquityTier(current) });
-        }
+          const current = latestEquity.args.newEquity;
+          console.log("📊 Setting initial equity:", current);
 
-        //live event for equityUpdate
+          setData({ equity: current, tier: getEquityTier(current) });
+        } else {
+          console.warn("⚠️ No equity event found for this tenant.");
+        }
       } catch (err) {
+        console.error("❌ Error fetching tenant equity:", err);
         setError(err as Error);
       } finally {
         setLoading(false);
@@ -349,17 +358,26 @@ export function useTenantEquity(address?: string, propertyId?: number) {
       "RentToOwn",
       "EquityUpdated",
       (event) => {
+        console.log("📥 Live EquityUpdated event received:", event);
+
         if (
           event.args.tenant === address &&
           event.args.propertyId === propertyId
         ) {
-          const current = event.args.Newequity;
+          const current = event.args.newEquity;
+          console.log("🔄 Live update - setting new equity:", current);
+
           setData({ equity: current, tier: getEquityTier(current) });
+        } else {
+          console.log("ℹ️ Ignored event (not for this tenant/property)");
         }
       }
     );
 
-    return () => unsub();
+    return () => {
+      console.log("🧹 Cleaning up event listener");
+      unsub();
+    };
   }, [address, propertyId]);
 
   return { data, loading, error };
